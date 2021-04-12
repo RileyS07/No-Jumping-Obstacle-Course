@@ -3,23 +3,44 @@
   "tree": {
     "$className": "DataModel",
 
-    "ReplicatedStorage": {
-      "$className": "ReplicatedStorage",
-
-      "Client": {
-        "$path": "src/Client"
-      },
-
-      "Shared": {
-        "$path": "src/Shared"
-      }
-    },
-
     "ServerStorage": {
       "$className": "ServerStorage",
 
       "Server": {
+        "$className": "Folder",
         "$path": "src/Server"
+      }
+    },
+
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+
+      "Client": {
+        "$className": "Folder",
+        "$path": "src/Client"
+      },
+
+      "Shared": {
+        "$className": "Folder",
+        "$path": "src/Shared"
+      }
+    },
+
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+
+      "Bootstrap": {
+        "$className": "Folder",
+        "$path": "src/ServerBootstrap"
+      }
+    },
+
+    "ReplicatedFirst": {
+      "$className": "ReplicatedFirst",
+
+      "Bootstrap": {
+        "$className": "Folder",
+        "$path": "src/ClientBootstrap"
       }
     }
   }
