@@ -40,7 +40,7 @@ function coreModule.GetObject(objectPathString, functionParameters)
 
     -- There's a lot of indexing here but it's just following the path array to the actual object
     for index = 1, #getObjectSearchPathArray do
-        if not getObjectSearchLocation:FindFirstChild(getObjectSearchPathArray[index]) and not (pcall(function() return getObjectSearchLocation[getObjectSearchPathArray[index]] end)) then
+        if not (pcall(function() return getObjectSearchLocation[getObjectSearchPathArray[index]] end)) then
             -- I could just blindly index and accept whatever error Roblox wants to throw but I wanted to add a little more consistency
             coreModule.Debug(
                 getObjectSearchLocation:GetFullName().." does not have a child/field named: "..getObjectSearchPathArray[index], 
@@ -108,7 +108,7 @@ function coreModule.Debug(debugMessage, debugLevel, outputFunction)
         So this excessively long line only checks 3 things:
         1) Did you pass a DebugLevel of 'Exception' which ignores the DebugLevel assigned to the module?
         2) Is the current DebugLevel assigned equal to 'All'?
-        3) Is the current DebugLevel assigned equal to the debugLevel you passed into the function?
+        3) Is the current DebugLevel assigned equal to the (debugLevel or 'Standard') you passed into the function?
     ]]
 
     if debugLevel == coreModule.Enums.DebugLevel.Exception or coreModule.DebugLevel == coreModule.Enums.DebugLevel.All or coreModule.DebugLevel == (debugLevel or coreModule.Enums.DebugLevel.Standard) then
