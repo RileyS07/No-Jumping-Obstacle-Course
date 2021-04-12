@@ -2,7 +2,8 @@
   "name": "NJOC: Rework",
   "tree": {
     "$className": "DataModel",
-
+    "$ignoreUnknownInstances": true,
+    
     "ServerStorage": {
       "$className": "ServerStorage",
 

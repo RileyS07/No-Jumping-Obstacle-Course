@@ -6,7 +6,7 @@ local coreModule = require(script:FindFirstAncestor("CoreModule"))
 function gameplayManager.Initialize()
 	workspace:WaitForChild("Map"):WaitForChild("Gameplay")
 	
-	--
+	-- Loading modules
 	coreModule.LoadModule("/MechanicsManager")
 	coreModule.LoadModule("/PlayerManager")
 	coreModule.LoadModule("/EventsManager")
