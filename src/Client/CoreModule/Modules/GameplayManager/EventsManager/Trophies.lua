@@ -6,13 +6,14 @@ local coreModule = require(script:FindFirstAncestor("CoreModule"))
 function specificEventManager.Initialize()
 	workspace.Map.Gameplay.EventStorage:WaitForChild("Trophies")
 	
-	-- 
+	-- Setting up the trophies in Workspace
 	coroutine.wrap(function()
 		local userData = coreModule.Shared.GetObject("//Remotes.Data.GetUserData"):InvokeServer()
 		
-		-- Setup
+		-- Setup the visual effects
 		for _, trophyObject in next, workspace.Map.Gameplay.EventStorage.Trophies:GetChildren() do
 			if trophyObject:IsA("BasePart") then
+
 				specificEventManager.SetupTrophyVisualEffects(trophyObject)
 				
 				-- Hide ones already collected
@@ -23,16 +24,19 @@ function specificEventManager.Initialize()
 		end
 	end)()
 	
-	-- TrophyCollected dissappearing Visual
+	-- TrophyCollected dissappearing animation.
 	coreModule.Shared.GetObject("//Remotes.Gameplay.Events.TrophyCollected").OnClientEvent:Connect(function(trophyObject)
 		if not trophyObject then return end
 		specificEventManager.HideTrophyObject(trophyObject)
 	end)
 end
 
+
 -- Methods
+-- This animation includes the bobbing and spinning of the trophy objects.
 function specificEventManager.SetupTrophyVisualEffects(trophyObject)
-	-- Setup the bobbing
+
+	-- Bobbing animation
 	trophyObject.Position = trophyObject.Position + Vector3.new(0, -(script:GetAttribute("BobbingDistance") or 1), 0)
 	coreModule.Services.TweenService:Create(
 		trophyObject, 
@@ -40,7 +44,7 @@ function specificEventManager.SetupTrophyVisualEffects(trophyObject)
 		{Position = trophyObject.Position + Vector3.new(0, 2*(script:GetAttribute("BobbingDistance") or 1), 0)}
 	):Play()
 
-	-- Setting up the spinning
+	-- Spinning animation
 	coroutine.wrap(function()
 		while trophyObject do
 			local deltaTime = coreModule.Services.RunService.RenderStepped:Wait()
@@ -49,21 +53,17 @@ function specificEventManager.SetupTrophyVisualEffects(trophyObject)
 	end)()
 end
 
-function specificEventManager.HideTrophyObject(trophyObject)
-	-- Main one that we'll yield for
-	local mainTrophyTween = coreModule.Services.TweenService:Create(
-		trophyObject, 
-		TweenInfo.new(script:GetAttribute("FadeDuration") or 1, Enum.EasingStyle.Linear), 
-		{Transparency = 1}
-	)
 
-	-- Tween out the PointLight, Shine, and Sparkles if they exist
+-- This animation makes the trophy fade away from existance.
+function specificEventManager.HideTrophyObject(trophyObject)
+	local commonFadeTweenInfo = TweenInfo.new(script:GetAttribute("FadeDuration") or 1, Enum.EasingStyle.Linear)
+
+	-- The core tween object that makes the trophy invisible; We yield this one later on.
+	local transparencyTweenObject = coreModule.Services.TweenService:Create(trophyObject, commonFadeTweenInfo, {Transparency = 1})
+
+	-- Tween out the PointLight, Shine, and Sparkles if they exist.
 	if trophyObject:FindFirstChild("PointLight") then
-		coreModule.Services.TweenService:Create(
-			trophyObject.PointLight,
-			TweenInfo.new(script:GetAttribute("FadeDuration") or 1), 
-			{Brightness = 0}
-		):Play()
+		coreModule.Services.TweenService:Create(trophyObject.PointLight, commonFadeTweenInfo, {Brightness = 0}):Play()
 	end
 
 	if trophyObject:FindFirstChild("Shine") then
@@ -76,11 +76,12 @@ function specificEventManager.HideTrophyObject(trophyObject)
 		trophyObject.Sparkles:Clear()
 	end
 
-	-- Yield for the main one
-	mainTrophyTween:Play()
-	mainTrophyTween.Completed:Wait()
+	-- Yielding for the core tween object and then cleaning up.
+	transparencyTweenObject:Play()
+	transparencyTweenObject.Completed:Wait()
 	trophyObject:Destroy()
 end
+
 
 --
 return specificEventManager

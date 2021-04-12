@@ -1,8 +1,8 @@
 -- Variables
 local cutsceneManager = {}
-cutsceneManager.IsPlayerBeingShownCutscene = false
-cutsceneManager.IsPlayingBeingShownDialog = false
 cutsceneManager.Interface = {}
+cutsceneManager.IsPlayingBeingShownDialog = false
+cutsceneManager.IsPlayerBeingShownCutscene = false
 
 local coreModule = require(script:FindFirstAncestor("CoreModule"))
 local userInterfaceManager = require(coreModule.GetObject("/Parent.UserInterfaceManager"))
@@ -17,27 +17,32 @@ function cutsceneManager.Initialize()
 	cutsceneManager.Interface.TextContent = cutsceneManager.Interface.Content:WaitForChild("TextContent")
 	cutsceneManager.Interface.TextContent.MaxVisibleGraphemes = 0
 	
-	--
+	-- Loading modules
 	coreModule.LoadModule("/MechanicTutorials")
 end
 
+
 -- Methods
 function cutsceneManager.StartDialogTextAnimation(finalDialogText, callbackFunction)
+
+	-- Guard clause #1 checks if the player is in the middle of dialog; #2 checks if finalDialogText is valid.
 	if cutsceneManager.IsPlayerBeingShownDialog() then return end
 	if not finalDialogText or typeof(finalDialogText) ~= "string" or finalDialogText == "" then return end
+
+	-- Setup the interface and values
 	userInterfaceManager.EnableInterface("DialogInterface", true)
 	cutsceneManager.UpdatePlayerBeingShownDialog(true)
 	
-	-- Animation
-	local animationCompletedEvent = Instance.new("BindableEvent")
+	-- Animation; I have animationCompletionEvent so that when you call this function we have the ability to yield if you want to.
+	local animationCompletionEvent = Instance.new("BindableEvent")
 	coroutine.wrap(function()
 		cutsceneManager.Interface.TextContent.MaxVisibleGraphemes = 0
 		cutsceneManager.Interface.TextContent.Text = finalDialogText
 		
+		-- Typewriter effect; Reveal one grapheme at a time till they're all visible.
 		for index = 1, finalDialogText:len() do
 			if callbackFunction then callbackFunction(finalDialogText:sub(1, index), coreModule.Enums.CutsceneTextAnimationCallbackState.Before) end
 			
-			-- Typewriter effect
 			cutsceneManager.Interface.TextContent.MaxVisibleGraphemes = index
 			soundEffectsManager.PlaySoundEffect("DialogTyping")
 			wait(script:GetAttribute("DialogGraphemeDelay") or 1/30)
@@ -45,47 +50,59 @@ function cutsceneManager.StartDialogTextAnimation(finalDialogText, callbackFunct
 			if callbackFunction then callbackFunction(finalDialogText:sub(1, index), coreModule.Enums.CutsceneTextAnimationCallbackState.After) end
 		end
 		
-		-- Finished
+		-- Finished; Update the values and fire the event.
 		cutsceneManager.UpdatePlayerBeingShownDialog(false)
-		animationCompletedEvent:Fire()
+		animationCompletionEvent:Fire()
 	end)()
 	
-	--
-	return animationCompletedEvent.Event
+	return animationCompletionEvent.Event
 end
 
-function cutsceneManager.TweenCurrentCameraCFrame(goalCFrame)
+
+-- A consistent way of tweening the camera for cinematic effects.
+function cutsceneManager.TweenCurrentCameraCFrame(goalCFrame, optionalTweenInformation)
 	if not workspace.CurrentCamera then return end
-	return coreModule.Services.TweenService:Create(workspace.CurrentCamera, TweenInfo.new(1), {CFrame = goalCFrame})
+	return coreModule.Services.TweenService:Create(
+		workspace.CurrentCamera, 
+		optionalTweenInformation or TweenInfo.new(1), 
+		{CFrame = goalCFrame}
+	)
 end
 
+
+-- Updates values and cleans up after itself
 function cutsceneManager.UpdatePlayerBeingShownCutscene(newValue)
 	cutsceneManager.IsPlayerBeingShownCutscene = newValue
+
+	-- The cutscene ended so we need to clean up a little.
 	if not cutsceneManager.IsPlayerBeingShownCutscene then
 		userInterfaceManager.DisableInterface("DialogInterface")
-		if utilitiesLibrary.IsPlayerAlive(clientEssentialsLibrary.GetPlayer()) then
-			clientEssentialsLibrary.GetPlayer().Character.PrimaryPart.Anchored = false
-		end
-	elseif utilitiesLibrary.IsPlayerAlive(clientEssentialsLibrary.GetPlayer()) then
-		clientEssentialsLibrary.GetPlayer().Character.PrimaryPart.Anchored = true
+		utilitiesLibrary.FreezePlayer(clientEssentialsLibrary.GetPlayer(), true)
+	else
+		utilitiesLibrary.FreezePlayer(clientEssentialsLibrary.GetPlayer())
 	end
 end
+
 
 function cutsceneManager.IsPlayerBeingShownCutscene()
 	return cutsceneManager.IsPlayerBeingShownCutscene
 end
 
+
 function cutsceneManager.UpdatePlayerBeingShownDialog(newValue)
 	cutsceneManager.IsPlayingBeingShownDialog = newValue
 end
+
 
 function cutsceneManager.IsPlayerBeingShownDialog()
 	return cutsceneManager.IsPlayingBeingShownDialog
 end
 
+
 function cutsceneManager.IsCameraReadyForManipulation()
 	return workspace.CurrentCamera.CameraSubject ~= nil	
 end
+
 
 --
 return cutsceneManager

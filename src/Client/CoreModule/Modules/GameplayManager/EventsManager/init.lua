@@ -6,7 +6,7 @@ local coreModule = require(script:FindFirstAncestor("CoreModule"))
 function eventsManager.Initialize()
 	workspace.Map.Gameplay:WaitForChild("EventStorage")
 	
-	--
+	-- Loading modules
 	coreModule.LoadModule("/Trophies")
 end
 

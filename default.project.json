@@ -6,24 +6,29 @@
     
     "ServerStorage": {
       "$className": "ServerStorage",
+      "$ignoreUnknownInstances": true,
 
       "Server": {
         "$className": "Folder",
-        "$path": "src/Server"
+        "$path": "src/Server",
+        "$ignoreUnknownInstances": true
       }
     },
 
     "ReplicatedStorage": {
       "$className": "ReplicatedStorage",
+      "$ignoreUnknownInstances": true,
 
       "Client": {
         "$className": "Folder",
-        "$path": "src/Client"
+        "$path": "src/Client",
+        "$ignoreUnknownInstances": true
       },
 
       "Shared": {
         "$className": "Folder",
-        "$path": "src/Shared"
+        "$path": "src/Shared",
+        "$ignoreUnknownInstances": true
       }
     },
 

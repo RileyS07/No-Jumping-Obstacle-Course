@@ -15,25 +15,29 @@ function soundEffectsManager.Initialize()
 	soundEffectsManager.SoundGroup.Name = "SoundEffectsSoundGroup"
 	soundEffectsManager.SoundGroup.Parent = clientEssentialsLibrary.GetPlayer()
 
-	-- Server communication babey
+	-- Server influenced sound effect.
 	coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.PlaySoundEffect").OnClientEvent:Connect(function(soundEffectName, functionParameters)
 		soundEffectsManager.PlaySoundEffect(soundEffectName, functionParameters)
 	end)
 end
 
+
 -- Methods
 function soundEffectsManager.PlaySoundEffect(soundEffectName, functionParameters)
-	if not soundEffectName or not soundEffectsManager.SoundEffectsFolder:FindFirstChild(soundEffectName) then return end
 	functionParameters = setmetatable(functionParameters or {}, {__index = {
 		AllowOverlapping = true,
 		Parent = soundEffectsManager.SoundGroup,
 	}})
 
-	-- Create the sound
+	-- Guard clause to make sure it even exists.
+	if not soundEffectName or not soundEffectsManager.SoundEffectsFolder:FindFirstChild(soundEffectName) then return end
+
+	-- Does a cache exist? If not we create one; I do this to save some on performance but it can be detrimental for memory so maybe a more complex solution in the future.
 	if not soundEffectsManager.CachedSoundObjects[soundEffectName] then
 		soundEffectsManager.CachedSoundObjects[soundEffectName] = coreModule.Shared.GetObject("//Assets.Sounds.SoundEffects."..soundEffectName)
 	end
 
+	-- Creating the sound object
 	local soundObject = soundEffectsManager.CachedSoundObjects[soundEffectName]:Clone()
 	soundObject.Name = soundEffectName 
 	soundObject.SoundGroup = soundEffectsManager.SoundGroup
@@ -48,9 +52,11 @@ function soundEffectsManager.PlaySoundEffect(soundEffectName, functionParameters
 	end)()
 end
 
+-- Settings compatibility
 function soundEffectsManager.Update(settingValue)
 	soundEffectsManager.LocalSoundVolumeModifier = settingValue and 1 or 0
 end
+
 
 --
 return soundEffectsManager
