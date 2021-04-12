@@ -47,7 +47,7 @@ function coreModule.GetObject(objectPathString, functionParameters)
 
     -- There's a lot of indexing here but it's just following the path array to the actual object
     for index = 1, #getObjectSearchPathArray do
-        if not getObjectSearchLocation:FindFirstChild(getObjectSearchPathArray[index]) then
+        if not getObjectSearchLocation:FindFirstChild(getObjectSearchPathArray[index]) and not (pcall(function() return getObjectSearchLocation[getObjectSearchPathArray[index]] end)) then
             -- I could just blindly index and accept whatever error Roblox wants to throw but I wanted to add a little more consistency
             coreModule.Debug(
                 getObjectSearchLocation:GetFullName().." does not have a child/field named: "..getObjectSearchPathArray[index], 

@@ -40,11 +40,11 @@ function coreModule.GetObject(objectPathString, functionParameters)
 
     -- There's a lot of indexing here but it's just following the path array to the actual object
     for index = 1, #getObjectSearchPathArray do
-        if not getObjectSearchLocation:FindFirstChild(getObjectSearchPathArray[index]) then
+        if not getObjectSearchLocation:FindFirstChild(getObjectSearchPathArray[index]) and not (pcall(function() return getObjectSearchLocation[getObjectSearchPathArray[index]] end)) then
             -- I could just blindly index and accept whatever error Roblox wants to throw but I wanted to add a little more consistency
             coreModule.Debug(
                 getObjectSearchLocation:GetFullName().." does not have a child/field named: "..getObjectSearchPathArray[index], 
-                coreModule.Shared.Enums.DebugLevel.Exception, 
+                coreModule.Enums.DebugLevel.Exception, 
                 error
             )
         end
@@ -54,7 +54,7 @@ function coreModule.GetObject(objectPathString, functionParameters)
 
     -- The only reason I have ShowDebugMessage is because I don't like LoadModule sending a GetObject debug call when trying to fetch the module.
     if functionParameters.ShowDebugMessage then 
-        coreModule.Debug("Fetched asset: "..getObjectSearchLocation:GetFullName(), coreModule.Shared.Enums.DebugLevel.Core) 
+        coreModule.Debug("Fetched asset: "..getObjectSearchLocation:GetFullName(), coreModule.Enums.DebugLevel.Core) 
     end
 
     return getObjectSearchLocation
@@ -76,16 +76,16 @@ function coreModule.LoadModule(objectPathString, ...)
     ]]
 
     if not fetchedModuleObject then
-        coreModule.Debug("Failed to fetch asset with objectPathString of: "..objectPathString, coreModule.Shared.Enums.DebugLevel.Exception, error)
+        coreModule.Debug("Failed to fetch asset with objectPathString of: "..objectPathString, coreModule.Enums.DebugLevel.Exception, error)
     
     elseif not fetchedModuleObject:IsA("ModuleScript") then
-        coreModule.Debug("Fetched asset: "..fetchedModuleObject:GetFullName()..", is not a ModuleScript", coreModule.Shared.Enums.DebugLevel.Exception, error)
+        coreModule.Debug("Fetched asset: "..fetchedModuleObject:GetFullName()..", is not a ModuleScript", coreModule.Enums.DebugLevel.Exception, error)
     
     elseif not pcall(require, fetchedModuleObject) then
-        coreModule.Debug("Failed to require module: "..fetchedModuleObject:GetFullName()..", because: "..select(2, pcall(require, fetchedModuleObject)), coreModule.Shared.Enums.DebugLevel.Exception, error)
+        coreModule.Debug("Failed to require module: "..fetchedModuleObject:GetFullName()..", because: "..select(2, pcall(require, fetchedModuleObject)), coreModule.Enums.DebugLevel.Exception, error)
     
     elseif not typeof(require(fetchedModuleObject)) == "table" or not require(fetchedModuleObject).Initialize then
-        coreModule.Debug("Failed to initialize module: "..fetchedModuleObject:GetFullName()..", because it does not have an 'Initialize' method", coreModule.Shared.Enums.DebugLevel.Exception, error)
+        coreModule.Debug("Failed to initialize module: "..fetchedModuleObject:GetFullName()..", because it does not have an 'Initialize' method", coreModule.Enums.DebugLevel.Exception, error)
    
     else
         coreModule.Debug("Loading module: "..fetchedModuleObject:GetFullName())
@@ -95,7 +95,7 @@ function coreModule.LoadModule(objectPathString, ...)
     local wasSuccessful, errorMessage = pcall(require(fetchedModuleObject).Initialize, ...)
 
     if not wasSuccessful then
-        coreModule.Debug("Failed to initialize module: "..fetchedModuleObject:GetFullName()..", because: "..errorMessage, coreModule.Shared.Enums.DebugLevel.Exception, error)
+        coreModule.Debug("Failed to initialize module: "..fetchedModuleObject:GetFullName()..", because: "..errorMessage, coreModule.Enums.DebugLevel.Exception, error)
     else
         coreModule.Debug("Loaded module: "..fetchedModuleObject:GetFullName())
     end
@@ -111,7 +111,7 @@ function coreModule.Debug(debugMessage, debugLevel, outputFunction)
         3) Is the current DebugLevel assigned equal to the debugLevel you passed into the function?
     ]]
 
-    if debugLevel == coreModule.Shared.Enums.DebugLevel.Exception or coreModule.DebugLevel == coreModule.Shared.Enums.DebugLevel.All or coreModule.DebugLevel == (debugLevel or coreModule.Shared.Enums.DebugLevel.Standard) then
+    if debugLevel == coreModule.Enums.DebugLevel.Exception or coreModule.DebugLevel == coreModule.Enums.DebugLevel.All or coreModule.DebugLevel == (debugLevel or coreModule.Enums.DebugLevel.Standard) then
        -- [00:01][Debug]: This is an example debug message that was made one second after the server started.
         (outputFunction or print)(
             "["..("%02d:%02d"):format(math.floor(time()/60), time()%60).."][Debug]: "..debugMessage 

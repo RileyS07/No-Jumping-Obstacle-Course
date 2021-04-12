@@ -4,11 +4,11 @@ local coreModule = require(script:FindFirstAncestor("CoreModule"))
 
 -- Initialize
 function gameplayManager.Initialize()
-	if not workspace:FindFirstChild("Map") then return end
-	if not workspace.Map:FindFirstChild("Gameplay") then return end
+	workspace:WaitForChild("Map"):WaitForChild("Gameplay")
 	
-	coreModule.LoadModule("/PlayerManager")
+	--
 	coreModule.LoadModule("/MechanicsManager")
+	coreModule.LoadModule("/PlayerManager")
 	coreModule.LoadModule("/EventsManager")
 end
 
