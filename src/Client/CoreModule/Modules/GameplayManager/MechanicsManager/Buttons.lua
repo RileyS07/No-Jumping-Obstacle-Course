@@ -25,7 +25,7 @@ function gameplayMechanicManager.Initialize()
 				-- Setting up the button with the TimerInterface; I do this procedurally so that it's easy for us to make changes to it.
 				if gameplayMechanicManager.Assets.TimerInterface then
 					gameplayMechanicManager.Assets.TimerInterface:Clone().Parent = buttonObject.PrimaryPart
-					buttonObject.PrimaryPart.TimerInterface.TimerState.Text = script:GetAttribute("InactiveStateText") or "Touch me >~<"
+					buttonObject.PrimaryPart.TimerInterface.TimerState.Text = script:GetAttribute("InactiveStateText") or "Press me!"
 				end
 
 				-- Player touched the button
@@ -109,7 +109,7 @@ function gameplayMechanicManager.SimulateButtonPress(buttonObject, functionParam
 			wait(1)
 		end
 
-		buttonTimerInterface.TimerState.Text = script:GetAttribute("InactiveStateText") or "Touch me >~<"
+		buttonTimerInterface.TimerState.Text = script:GetAttribute("InactiveStateText") or "Press me!"
 	end)()
 	
 	-- This is where the transformation happens; CanCollide is inversed and the transparency is changed based on the attributes/defaults.
