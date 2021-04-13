@@ -7,10 +7,12 @@ function gameplayManager.Initialize()
 	if not workspace:FindFirstChild("Map") then return end
 	if not workspace.Map:FindFirstChild("Gameplay") then return end
 	
+	-- Loading modules
 	coreModule.LoadModule("/PlayerManager")
 	coreModule.LoadModule("/MechanicsManager")
 	coreModule.LoadModule("/EventsManager")
 end
+
 
 --
 return gameplayManager

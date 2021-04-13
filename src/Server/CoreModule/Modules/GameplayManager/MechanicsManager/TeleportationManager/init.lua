@@ -1,7 +1,6 @@
 -- Variables
 local teleportationManager = {}
 teleportationManager.PlayersBeingTeleported = {}
-
 local coreModule = require(script:FindFirstAncestor("CoreModule"))
 
 -- Initialize
@@ -10,14 +9,18 @@ function teleportationManager.Initialize()
 	coreModule.LoadModule("/RespawnPlatforms")
 end
 
+
 -- Methods
+-- TODO: Actually complete this.
 function teleportationManager.TeleportPlayer(player)
 	
 end
 
+
 function teleportationManager.IsPlayerBeingTeleported(player)
 	return teleportationManager.PlayersBeingTeleported[player]
 end
+
 
 --
 return teleportationManager

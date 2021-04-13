@@ -1,160 +1,105 @@
 -- Variables
 local userDataManager = {}
-userDataManager.Remotes = {}
-userDataManager.UserData = {}
-userDataManager.IsLoadingData = {}
-userDataManager.IsUsingTemporaryData = {}
+userDataManager.StoredProfiles = {}
+userDataManager.ProfilesBeingLoaded = {}
+userDataManager.ProfileServiceDataStore = nil
 userDataManager.UserDataLoaded = Instance.new("BindableEvent")
 
 local coreModule = require(script:FindFirstAncestor("CoreModule"))
-local dataStoreLibrary = require(coreModule.GetObject("Libraries.DataStoreLibrary"))
+local profileService = require(coreModule.GetObject("Libraries.ProfileService"))
 local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
-local tableUtilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.TableUtilities"))
 
 -- Initialize
 function userDataManager.Initialize()
+	userDataManager.ProfileServiceDataStore = profileService.GetProfileStore(
+		-- DataStoreName; UserData/Global is the default.
+		((script:GetAttribute("DataStoreName") or "UserData").."/"..(script:GetAttribute("DataStoreScope") or "Global")):sub(1, 50),
+		-- TemplateData.
+		require(script.DefaultData)
+	)
+
+	-- The client wants to view data.
 	coreModule.Shared.GetObject("//Remotes.Data.GetUserData").OnServerInvoke = function(player, optionalOtherPlayer)
 		return userDataManager.GetData(optionalOtherPlayer or player)
 	end
-	
-	-- Use this to inform the client their data might not be saved
-	dataStoreLibrary.OutageStatusUpdated.Event:Connect(function(newOutageStatus)
-		userDataManager.Remotes.OutageStatusUpdated = userDataManager.Remotes.OutageStatusUpdated or coreModule.Shared.GetObject("//Remotes.Data.OutageStatusUpdated")
-		userDataManager.Remotes.OutageStatusUpdated:FireAllClients(newOutageStatus)
-	end)
-
-	-- Auto save and server shutdown saving
-	game:BindToClose(userDataManager.SaveDataOfMultiplePlayers)
-	coroutine.wrap(function()
-		while true do
-			wait(script:GetAttribute("AutoSaveDelay"))
-			userDataManager.SaveDataOfMultiplePlayers()
-		end
-	end)()
 end
+
 
 -- Methods
 function userDataManager.LoadData(player)
 	if not utilitiesLibrary.IsPlayerValid(player) then return end
-	if userDataManager.UserData[player] then return userDataManager.UserData[player] end
-	if userDataManager.IsLoadingData[player] then return userDataManager.GetData(player) end
-	userDataManager.IsLoadingData[player] = true
+	if not userDataManager.ProfileServiceDataStore then return end
+	if userDataManager.StoredProfiles[player] then return end
+
+	-- Attempt to LoadProfileAsync with ForceLoad.
+	userDataManager.ProfilesBeingLoaded[player] = true
+	local loadedProfileData = userDataManager.ProfileServiceDataStore:LoadProfileAsync(tostring(player.UserId), "ForceLoad")
 	
-	-- Attempt GetAsync
-	local wasSuccessful, returnedUserData = dataStoreLibrary.GetAsync({
-		DataStoreName = script:GetAttribute("DataStoreName"),
-		DataStoreScope = script:GetAttribute("DataStoreScope"),
-		DataStoreKey = player.UserId,
-		DefaultData = require(script.DefaultData)
-	})
-	
-	-- Now what are we going to do with those results
-	if wasSuccessful then
-		tableUtilitiesLibrary.SynchronizeTables(returnedUserData, require(script.DefaultData))
-		userDataManager.UserData[player] = returnedUserData
-		userDataManager.UserDataLoaded:Fire(player, userDataManager.UserData[player])
+	-- The profile was successfully loaded.
+	if loadedProfileData ~= nil then
+
+		-- Setup; Reconcile syncs current data with the current default template; ListenToRelease is a callback for when this session lock is released.
+		loadedProfileData:Reconcile()
+		loadedProfileData:ListenToRelease(function()
+			userDataManager.StoredProfiles[player] = nil
+			player:Kick()
+		end)
+
+		-- The player is still in the game after all of our setup, so we can continue.
+		if utilitiesLibrary.IsPlayerValid(player) then
+			userDataManager.StoredProfiles[player] = loadedProfileData
+			userDataManager.UserDataLoaded:Fire(player, loadedProfileData.Data)
+
+		-- The player left so we need to end this session.
+		else
+			loadedProfileData:Release()
+		end
+
+	-- Something went wrong and the profile could not be loaded.
 	else
-		userDataManager.IsUsingTemporaryData[player] = true
-		userDataManager.UserData[player] = tableUtilitiesLibrary.CloneTable(require(script.DefaultData))
-		
-		-- Passive retrying
-		coroutine.wrap(function()
-			while true do
-				wait(script:GetAttribute("RetryDelay"))
-				
-				-- Attempt GetAsync
-				local wasSuccessful, returnedUserData = dataStoreLibrary.GetAsync({
-					DataStoreName = script:GetAttribute("DataStoreName"),
-					DataStoreScope = script:GetAttribute("DataStoreScope"),
-					DataStoreKey = script:GetAttribute("DataStoreKey"),
-					DefaultData = require(script.DefaultData)
-				})
-				
-				-- Now what are we going to do with those results		(seem familiar)
-				if wasSuccessful then
-					tableUtilitiesLibrary.SynchronizeTables(returnedUserData, require(script.DefaultData))
-					userDataManager.UserData[player] = returnedUserData
-					userDataManager.IsUsingTemporaryData[player] = nil
-					userDataManager.UserDataLoaded:Fire(player, userDataManager.UserData[player])
-				end
-			end
-		end)()
+		player:Kick()
 	end
-	
-	-- Finish up
-	userDataManager.IsLoadingData[player] = nil
-	return userDataManager.UserData[player]
+
+	-- Cleanup.
+	userDataManager.ProfilesBeingLoaded[player] = nil
 end
 
-function userDataManager.SaveData(player, isLeavingAfterwards)
+
+function userDataManager.SaveData(player)
 	if not utilitiesLibrary.IsPlayerValid(player) then return end
-	if userDataManager.IsUsingTemporaryData[player] then return end
-	if userDataManager.GetData(player) == nil then return end
-	
-	-- Attempt SetAsync
-	local wasSuccessful = dataStoreLibrary.SetAsync({
-		DataStoreName = script:GetAttribute("DataStoreName"),
-		DataStoreScope = script:GetAttribute("DataStoreScope"),
-		DataStoreKey = player.UserId,
-		Data = userDataManager.GetData(player)
-	})
-	
-	-- Now what are we going to do with those results
-	if not wasSuccessful then
-		coroutine.wrap(function()
-			while true do
-				wait(script:GetAttribute("RetryDelay"))
-				
-				-- Attempt SetAsync
-				local wasSuccessful = dataStoreLibrary.SetAsync({
-					DataStoreName = script:GetAttribute("DataStoreName"),
-					DataStoreScope = script:GetAttribute("DataStoreScope"),
-					DataStoreKey = player.UserId,
-					Data = userDataManager.GetData(player)
-				})
-				
-				-- Now what are we going to do with those results
-				if wasSuccessful then
-					-- Are they leaving afterwards?
-					if isLeavingAfterwards then
-						userDataManager.UserData[player] = nil
-						userDataManager.IsLoadingData[player] = nil
-						userDataManager.IsUsingTemporaryData[player] = nil
-					end
-					
-					-- Let's get out of here!
-					break
-				end
-			end
-		end)()
-	end
-	
-	-- Are they leaving afterwards?
-	if wasSuccessful and isLeavingAfterwards then
-		userDataManager.UserData[player] = nil
-		userDataManager.IsLoadingData[player] = nil
-		userDataManager.IsUsingTemporaryData[player] = nil
+	if not userDataManager.StoredProfiles[player] then return end
+
+	-- Release the current session.
+	userDataManager.StoredProfiles[player]:Release()
+end
+
+
+function userDataManager.SaveDataFromMultiplePlayers(playersArray)
+	for _, player in next, playersArray do
+		userDataManager.SaveData(player)
 	end
 end
 
-function userDataManager.SaveDataOfMultiplePlayers(playerArray, isLeavingAfterwards)
-	for _, player in next, (playerArray or coreModule.Services.Players:GetPlayers()) do
-		userDataManager.SaveData(player, isLeavingAfterwards)
-	end
-end
 
 function userDataManager.GetData(player)
-	if not userDataManager.UserData[player] then
-		if userDataManager.IsLoadingData[player] then 
-			repeat wait() until not userDataManager.IsLoadingData[player]
+	if not utilitiesLibrary.IsPlayerValid(player) then return end
+	
+	-- Their profile has not been loaded yet.
+	if not userDataManager.StoredProfiles[player] then
+
+		-- LoadData has already been called so we just need to wait.
+		if userDataManager.ProfilesBeingLoaded[player] then
+			repeat wait() until not userDataManager.ProfilesBeingLoaded[player]
+
+		-- LoadData has not been called so we need to.
 		else
 			userDataManager.LoadData(player)
 		end
 	end
 
-	--
-	return userDataManager.UserData[player]
+	return userDataManager.StoredProfiles[player].Data
 end
+
 
 --
 return userDataManager

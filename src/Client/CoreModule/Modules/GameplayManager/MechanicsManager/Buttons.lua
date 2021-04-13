@@ -14,7 +14,7 @@ function gameplayMechanicManager.Initialize()
 	gameplayMechanicManager.MechanicContainer = workspace.Map.Gameplay.PlatformerMechanics:WaitForChild("Buttons")
 	gameplayMechanicManager.Assets.TimerInterface = coreModule.Shared.GetObject("//Assets.Interfaces.TimerInterface")
 
-	-- Setting up the Buttons to be functional
+	-- Setting up the Buttons to be functional.
 	for _, buttonsContainer in next, gameplayMechanicManager.MechanicContainer:GetChildren() do
 		for _, buttonObject in next, buttonsContainer:GetChildren() do
 

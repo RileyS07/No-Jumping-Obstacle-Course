@@ -1,5 +1,7 @@
 -- Variables
 local checkpointsManager = {}
+checkpointsManager.Remotes = {}
+
 local coreModule = require(script:FindFirstAncestor("CoreModule"))
 local userDataManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.UserDataManager"))
 local badgeLibrary = require(coreModule.GetObject("Libraries.BadgeLibrary"))
@@ -10,59 +12,76 @@ local badgeConfig = require(script.Badges)
 function checkpointsManager.Initialize()
 	if not workspace.Map.Gameplay.PlatformerMechanics:FindFirstChild("Checkpoints") then return end
 	
-	-- Setup
+	-- Setting up the checkpoints to be functional.
 	for _, checkpointPlatform in next, workspace.Map.Gameplay.PlatformerMechanics.Checkpoints:GetChildren() do
-		if checkpointPlatform:IsA("BasePart") and tonumber(checkpointPlatform.Name) then	-- The data requires them to be numbers or else uh oh
+
+		-- Checkpoints have to be numbers or else they do not matter.
+		if checkpointPlatform:IsA("BasePart") and tonumber(checkpointPlatform.Name) then
 			checkpointPlatform.Touched:Connect(function(hit)
 				local player = coreModule.Services.Players:GetPlayerFromCharacter(hit.Parent)
 				if not utilitiesLibrary.IsPlayerAlive(player) then return end
 				
-				--
+				-- Update their Farthest and Current checkpoints.
 				checkpointsManager.UpdateFarthestCheckpoint(player, tonumber(checkpointPlatform.Name))
 				checkpointsManager.UpdateCurrentCheckpoint(player, tonumber(checkpointPlatform.Name))
 			end)
 		end
 	end
+
+	-- Setting up remotes + assets.
+	checkpointsManager.Remotes.CheckpointInformationUpdated = coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.CheckpointInformationUpdated")
+	checkpointsManager.Remotes.PlaySoundEffect = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.PlaySoundEffect")
 end
+
 
 -- Methods
+-- Updates the farthest checkpoint a user has ever reached is possible.
 function checkpointsManager.UpdateFarthestCheckpoint(player, checkpointNumber)
-	local userData = userDataManager.GetData(player)
-	if userData.UserInformation.FarthestCheckpoint >= checkpointNumber then return end	-- Can't beat what you've already beaten
+	if not utilitiesLibrary.IsPlayerValid(player) then return end
+	if not userDataManager.GetData(player) then return end
 
-	-- Update data
+	-- FarthestCheckpoint cannot regress.
+	if userDataManager.GetData(player).UserInformation.FarthestCheckpoint >= checkpointNumber then return end
+
+	-- Update their data to match their new farthest checkpoint.
+	local userData = userDataManager.GetData(player)
 	userData.UserInformation.FarthestCheckpoint = checkpointNumber
 	table.insert(userData.UserInformation.CompletedStages, checkpointNumber)
-	coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.CheckpointInformationUpdated"):FireClient(player, userData)
+	checkpointsManager.Remotes.CheckpointInformationUpdated:FireClient(player, userData)
 end
 
 
+-- Updates the current checkpoint the user is at as long as everything is valid.
 function checkpointsManager.UpdateCurrentCheckpoint(player, checkpointNumber)
-	local userData = userDataManager.GetData(player)
-	if userData.UserInformation.FarthestCheckpoint < checkpointNumber then return end	-- This is impossible
+	if not utilitiesLibrary.IsPlayerValid(player) then return end
+	if not userDataManager.GetData(player) then return end
+
+	-- This should be impossible but I still have it here just in case.
+	if userDataManager.GetData(player).UserInformation.FarthestCheckpoint < checkpointNumber then return end
 	
-	-- Setup
+	-- Update their data to match their new current checkpoint.
+	local userData = userDataManager.GetData(player)
 	local originalCurrentCheckpoint = userData.UserInformation.CurrentCheckpoint
 	userData.UserInformation.CurrentCheckpoint = checkpointNumber
 	userData.UserInformation.SpecialLocationIdentifier = coreModule.Shared.Enums.SpecialLocation.None
 	
-	-- This is so it doesn't spam remote/api calls
+	-- Backwards compatibility for things like badges and CompletedStages.
 	if originalCurrentCheckpoint ~= userData.UserInformation.CurrentCheckpoint then
-		coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.PlaySoundEffect"):FireClient(player, "CheckpointTouched", {Parent = workspace.Map.Gameplay.PlatformerMechanics.Checkpoints[checkpointNumber]})
+		checkpointsManager.Remotes.PlaySoundEffect:FireClient(player, "CheckpointTouched", {Parent = workspace.Map.Gameplay.PlatformerMechanics.Checkpoints[checkpointNumber]})
 		
-		-- Backwards compatability for CompletedStages
+		-- Backwards compatability for CompletedStages.
 		if not table.find(userData.UserInformation.CompletedStages, checkpointNumber) then
 			table.insert(userData.UserInformation.CompletedStages, checkpointNumber, math.min(checkpointNumber, #userData.UserInformation.CompletedStages))
 		end
 		
-		-- Awarding players for completing a trial level
+		-- Backwards compatibility for award trial badges.
 		if checkpointNumber > 1 and checkpointNumber%10 == 1 then
 			badgeLibrary.AwardBadge(player, badgeConfig.TrialBadges[math.floor(checkpointNumber/10)])
 		end
 		
-		-- If they're the same then UpdateFarthestCheckpoint has already made the remote call
+		-- If they're the same then UpdateFarthestCheckpoint has already made the remote call.
 		if userData.UserInformation.CurrentCheckpoint ~= userData.UserInformation.FarthestCheckpoint then
-			coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.CheckpointInformationUpdated"):FireClient(player, userData)
+			checkpointsManager.Remotes.CheckpointInformationUpdated:FireClient(player, userData)
 		end
 	end
 end
