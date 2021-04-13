@@ -12,7 +12,7 @@ function coreModule.Initialize()
     coreModule.Shared.Initialize()
 
     coreModule.Enums = coreModule.SetupEnums()
-    coreModule.DebugLevel = coreModule.Shared.Enums.DebugLevel.Standard
+    coreModule.DebugLevel = coreModule.Shared.Enums.DebugLevel.None
 
     -- Loading modules
     coreModule.LoadModule("Modules.GameplayManager")

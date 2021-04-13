@@ -4,11 +4,19 @@ local coreModule = require(script:FindFirstAncestor("CoreModule"))
 
 -- Initialize
 function mechanicsManager.Initialize()
-	workspace.Map.Gameplay:WaitForChild("PlatformerMechanics")
+	mechanicsManager.GetPlatformerMechanics()
 	
 	-- Loading modules
 	coreModule.LoadModule("/Buttons")
+	coreModule.LoadModule("/MovingPlatforms")
 end
+
+
+-- Methods
+function mechanicsManager.GetPlatformerMechanics()
+	return workspace.Map.Gameplay:WaitForChild("PlatformerMechanics")
+end
+
 
 --
 return mechanicsManager

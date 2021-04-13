@@ -8,7 +8,7 @@ coreModule.Enums = nil
 function coreModule.Initialize()
     coreModule.Services = coreModule.SetupServices()
     coreModule.Enums = coreModule.SetupEnums()
-    coreModule.DebugLevel = coreModule.Enums.DebugLevel.Standard
+    coreModule.DebugLevel = coreModule.Enums.DebugLevel.None
 end
 
 

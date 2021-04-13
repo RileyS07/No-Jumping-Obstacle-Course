@@ -5,13 +5,14 @@ gameplayMechanicManager.MechanicContainer = nil
 gameplayMechanicManager.ButtonsBeingSimulated = {}
 
 local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local mechanicsManager = require(coreModule.GetObject("/Parent"))
 local soundEffectsManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.SoundEffects"))
 local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
 local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
 
 -- Initialize
 function gameplayMechanicManager.Initialize()
-	gameplayMechanicManager.MechanicContainer = workspace.Map.Gameplay.PlatformerMechanics:WaitForChild("Buttons")
+	gameplayMechanicManager.MechanicContainer = mechanicsManager.GetPlatformerMechanics():WaitForChild("Buttons")
 	gameplayMechanicManager.Assets.TimerInterface = coreModule.Shared.GetObject("//Assets.Interfaces.TimerInterface")
 
 	-- Setting up the Buttons to be functional.
