@@ -9,6 +9,7 @@ function mechanicsManager.Initialize()
 	-- Loading modules
 	coreModule.LoadModule("/Buttons")
 	coreModule.LoadModule("/MovingPlatforms")
+	coreModule.LoadModule("/SpinningPlatforms")
 end
 
 

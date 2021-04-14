@@ -1,7 +1,6 @@
 -- Variables
 local gameplayMechanicManager = {}
 gameplayMechanicManager.MechanicContainer = nil
-gameplayMechanicManager.WeldOffsetValues = {}
 
 local coreModule = require(script:FindFirstAncestor("CoreModule"))
 local mechanicsManager = require(coreModule.GetObject("/Parent"))
@@ -19,7 +18,7 @@ function gameplayMechanicManager.Initialize()
                 
                 -- We put each MovingPlatform into it's own coroutine so they all run separate from eachother.
                 coroutine.wrap(function()
-                    gameplayMechanicManager.SetupOffsetValues(movingPlatform)
+                    local weldOffsetValues = gameplayMechanicManager.GetWeldOffsetValues(movingPlatform)
                     local platformConfig = setmetatable(movingPlatform:FindFirstChild("Config") and require(movingPlatform.Config) or {}, {__index = {
                         [1] = { 
                             -- How many seconds it takes to get to the next node.
@@ -55,8 +54,8 @@ function gameplayMechanicManager.Initialize()
                                 )
 
                                 -- I go bottom up for how I move the entire model; So that means I'm moving the welded parts first.
-                                if gameplayMechanicManager.WeldOffsetValues[movingPlatform] then
-                                    for weldConstraint, objectSpaceCFrame in next, gameplayMechanicManager.WeldOffsetValues[movingPlatform] do
+                                if weldOffsetValues then
+                                    for weldConstraint, objectSpaceCFrame in next, weldOffsetValues do
                                         
                                         -- So in order to support SpinningPlatforms being welded to MovingPlatforms we have to tween the position of the spinner base instead of CFrame.
                                         if mechanicsManager.GetPlatformerMechanics():FindFirstChild("SpinningPlatforms") and weldConstraint.Part1:IsDescendantOf(mechanicsManager.GetPlatformerMechanics().SpinningPlatforms) then
@@ -99,20 +98,22 @@ end
 
 -- Private Methods
 -- This method exists so we can support things being welded to the platforms moving with them.
-function gameplayMechanicManager.SetupOffsetValues(movingPlatform)
+function gameplayMechanicManager.GetWeldOffsetValues(movingPlatform)
     if not movingPlatform or not typeof(movingPlatform) == "Instance" then return end
     if not movingPlatform:IsA("Model") or not movingPlatform.PrimaryPart then return end
 
     -- Do an initial check before doing any needless computation.
     if movingPlatform.PrimaryPart:FindFirstChildOfClass("WeldConstraint") then
-        gameplayMechanicManager.WeldOffsetValues[movingPlatform] = {}
+        local weldOffsetValues = {}
 
         -- We need to collect all of the WeldConstraints' information.
         for _, weldConstraint in next, movingPlatform.PrimaryPart:GetChildren() do
             if weldConstraint:IsA("WeldConstraint") and weldConstraint.Part1 then
-                gameplayMechanicManager.WeldOffsetValues[movingPlatform][weldConstraint] = movingPlatform:GetPrimaryPartCFrame():ToObjectSpace(weldConstraint.Part1.CFrame)
+                weldOffsetValues[weldConstraint] = movingPlatform:GetPrimaryPartCFrame():ToObjectSpace(weldConstraint.Part1.CFrame)
             end
         end
+
+        return weldOffsetValues
     end
 end 
 
