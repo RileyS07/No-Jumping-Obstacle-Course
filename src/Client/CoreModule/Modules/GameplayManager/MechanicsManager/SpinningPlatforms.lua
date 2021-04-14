@@ -17,7 +17,7 @@ function gameplayMechanicManager.Initialize()
 		for _, spinningPlatform in next, spinningPlatformContainer:GetChildren() do
 
 			-- The PrimaryPart is the spinner that hits players, the Stand is required so we have a base to do math off of.
-			if spinningPlatform.PrimaryPart and spinningPlatform:FindFirstChild("Stand") then
+			if spinningPlatform:IsA("Model") and spinningPlatform.PrimaryPart and spinningPlatform:FindFirstChild("Stand") then
 
 				-- We put each SpinningPlatform into it's own coroutine so they all run separate from eachother.
 				coroutine.wrap(function()

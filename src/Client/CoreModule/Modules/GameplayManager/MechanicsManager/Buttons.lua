@@ -20,7 +20,7 @@ function gameplayMechanicManager.Initialize()
 		for _, buttonObject in next, buttonsContainer:GetChildren() do
 
 			-- The PrimaryPart is what the player will touch, and TransformationModel is what is transformed by the button press.
-			if buttonObject.PrimaryPart and buttonObject:FindFirstChild("TransformationModel") then
+			if buttonObject:IsA("Model") and buttonObject.PrimaryPart and buttonObject:FindFirstChild("TransformationModel") then
 				
 				-- Setting up the button with the TimerInterface; I do this procedurally so that it's easy for us to make changes to it.
 				if gameplayMechanicManager.Assets.TimerInterface then
