@@ -14,7 +14,7 @@ function gameplayMechanicManager.Initialize()
         for _, movingPlatform in next, movingPlatformContainer:GetChildren() do
 
             -- The PrimaryPart is the platform that will be moving and the nodes are what it will move between.
-            if movingPlatform.PrimaryPart and movingPlatform:FindFirstChild("Nodes") and #movingPlatform.Nodes:GetChildren() > 0 then
+            if movingPlatform:IsA("Model") and movingPlatform.PrimaryPart and movingPlatform:FindFirstChild("Nodes") and #movingPlatform.Nodes:GetChildren() > 0 then
                 
                 -- We put each MovingPlatform into it's own coroutine so they all run separate from eachother.
                 coroutine.wrap(function()
@@ -56,21 +56,11 @@ function gameplayMechanicManager.Initialize()
                                 -- I go bottom up for how I move the entire model; So that means I'm moving the welded parts first.
                                 if weldOffsetValues then
                                     for weldConstraint, objectSpaceCFrame in next, weldOffsetValues do
-                                        
-                                        -- So in order to support SpinningPlatforms being welded to MovingPlatforms we have to tween the position of the spinner base instead of CFrame.
-                                        if mechanicsManager.GetPlatformerMechanics():FindFirstChild("SpinningPlatforms") and weldConstraint.Part1:IsDescendantOf(mechanicsManager.GetPlatformerMechanics().SpinningPlatforms) then
-                                            coreModule.Services.TweenService:Create(
-                                                weldConstraint.Part1,
-                                                nodeTweenInfo,
-                                                {Position = movingPlatform.Nodes[index].CFrame:ToWorldSpace(objectSpaceCFrame).Position}
-                                            ):Play()
-                                        else
-                                            coreModule.Services.TweenService:Create(
-                                                weldConstraint.Part1,
-                                                nodeTweenInfo,
-                                                {CFrame = movingPlatform.Nodes[index].CFrame:ToWorldSpace(objectSpaceCFrame)}
-                                            ):Play()
-                                        end
+                                        coreModule.Services.TweenService:Create(
+                                            weldConstraint.Part1,
+                                            nodeTweenInfo,
+                                            {CFrame = movingPlatform.Nodes[index].CFrame:ToWorldSpace(objectSpaceCFrame)}
+                                        ):Play()
                                     end
                                 end
 
@@ -84,12 +74,20 @@ function gameplayMechanicManager.Initialize()
 
                             coreModule.Services.RunService.RenderStepped:Wait()
                         else
-                            coreModule.Debug("MovingPlatform: "..movingPlatform:GetFullName()..", has 0 nodes to move between.", coreModule.Shared.Enums.DebugLevel.Exception, warn)
+                            coreModule.Debug(
+                                ("MovingPlatform: %s, has 0 nodes to move between."):format(movingPlatform:GetFullName()), 
+                                coreModule.Shared.Enums.DebugLevel.Exception, 
+                                warn
+                            )
                         end
                     end
                 end)()
-            else
-                coreModule.Debug("MovingPlatform: "..movingPlatform:GetFullName()..", has PrimaryPart: "..tostring(movingPlatform.PrimaryPart ~= nil)..", has Nodes: "..tostring(movingPlatform:FindFirstChild("Nodes") ~= nil)..".", coreModule.Shared.Enums.DebugLevel.Exception,	warn)
+            elseif movingPlatform:IsA("Model") then
+                coreModule.Debug(
+                    ("MovingPlatform: %s, has PrimaryPart: %s, has Nodes: %s"):format(movingPlatform:GetFullName(), tostring(movingPlatform.PrimaryPart ~= nil), tostring(movingPlatform:FindFirstChild("Nodes") ~= nil)), 
+                    coreModule.Shared.Enums.DebugLevel.Exception,	
+                    warn
+                )
             end
         end
     end

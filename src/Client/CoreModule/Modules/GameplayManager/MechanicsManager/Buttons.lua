@@ -38,9 +38,9 @@ function gameplayMechanicManager.Initialize()
 
 					gameplayMechanicManager.SimulateButtonPress(buttonObject)
 				end)
-			else  
+			elseif buttonObject:IsA("Model") then
 				coreModule.Debug(
-					"Button: "..buttonObject:GetFullName()..", has PrimaryPart: "..tostring(buttonObject.PrimaryPart ~= nil)..", has TransformationModel: "..tostring(buttonObject:FindFirstChild("TransformationModel") ~= nil),
+					("Button: %s, has PrimaryPart: %s, has TransformationModel: %s."):format(buttonObject:GetFullName(), tostring(buttonObject.PrimaryPart ~= nil), tostring(buttonObject:FindFirstChild("TransformationModel") ~= nil)),
 					coreModule.Shared.Enums.DebugLevel.Exception,
 					warn
 				)

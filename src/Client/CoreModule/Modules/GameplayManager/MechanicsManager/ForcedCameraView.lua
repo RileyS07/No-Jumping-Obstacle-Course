@@ -2,6 +2,11 @@
 local gameplayMechanicManager = {}
 gameplayMechanicManager.MechanicContainer = nil
 
+local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local mechanicsManager = require(coreModule.GetObject("/Parent"))
+local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
+local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
+
 -- Initialize
 function gameplayMechanicManager.Initialize()
     gameplayMechanicManager.MechanicContainer = mechanicsManager.GetPlatformerMechanics():WaitForChild("ForcedCameraViews")
@@ -12,9 +17,13 @@ function gameplayMechanicManager.Initialize()
 
             -- The PrimaryPart is what the player will touch, and Camera's CFrame is what their view will match.
             if forcedCameraView:IsA("Model") and forcedCameraView.PrimaryPart and forcedCameraView:FindFirstChild("Camera") then
-
-            else
-				--coreModule.Debug("ForcedCameraView: "..forcedCameraView:GetFullName().." has PrimaryPart: "..tostring(spinningPlatform.PrimaryPart ~= nil)..", has Stand: "..tostring(spinningPlatform:FindFirstChild("Stand") ~= nil)..".", coreModule.Shared.Enums.DebugLevel.Exception, warn)
+				print("Blah blah blah")
+			elseif forcedCameraView:IsA("Model") then
+				coreModule.Debug(
+					("ForcedCameraView: %s, has PrimaryPart: %s, has Camera: %s."):format(forcedCameraView:GetFullName(), tostring(forcedCameraView.PrimaryPart ~= nil), tostring(forcedCameraView:FindFirstChild("Camera") ~= nil)),
+					coreModule.Shared.Enums.DebugLevel.Exception, 
+					warn
+				)
             end
         end
     end

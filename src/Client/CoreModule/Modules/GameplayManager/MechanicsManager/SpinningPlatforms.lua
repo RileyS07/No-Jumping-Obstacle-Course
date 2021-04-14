@@ -32,8 +32,9 @@ function gameplayMechanicManager.Initialize()
 						-- This resets the position to the ideal center position; This is so that when we reapply the offset from the center it doesn't gradually fly off into the distance.
 						spinningPlatform.PrimaryPart.Position = (spinningPlatform.Stand.CFrame*CFrame.new(0, spinningPlatform.Stand.Size.Y/2 + spinningPlatform.PrimaryPart.Size.Y/2, 0)).Position
 						-- This rotates a little based on the desired length and frame time and then applies the offset from the center.
-						spinningPlatform.PrimaryPart.CFrame = spinningPlatform.PrimaryPart.CFrame*CFrame.Angles(0, math.rad(360/(spinningPlatform:GetAttribute("Length") or 3)*deltaTime), 0)*CFrame.new(offsetFromCenter)
-
+						local goalUnphasedPrimaryPartCFrame = spinningPlatform.PrimaryPart.CFrame*CFrame.Angles(0, math.rad(360/(spinningPlatform:GetAttribute("Length") or 3)*deltaTime), 0)*CFrame.new(offsetFromCenter)
+						spinningPlatform.PrimaryPart.CFrame = CFrame.fromMatrix(goalUnphasedPrimaryPartCFrame.Position, goalUnphasedPrimaryPartCFrame.RightVector, spinningPlatform.Stand.CFrame.UpVector)
+						
 						-- Moving the welded parts.
 						if weldOffsetValues then
 							for weldConstraint, objectSpaceCFrame in next, weldOffsetValues do
@@ -42,8 +43,12 @@ function gameplayMechanicManager.Initialize()
 						end
 					end
 				end)()
-			else
-				coreModule.Debug("SpinningPlatform: "..spinningPlatform:GetFullName().." has PrimaryPart: "..tostring(spinningPlatform.PrimaryPart ~= nil)..", has Stand: "..tostring(spinningPlatform:FindFirstChild("Stand") ~= nil)..".", coreModule.Shared.Enums.DebugLevel.Exception, warn)
+			elseif spinningPlatform:IsA("Model") then
+				coreModule.Debug(
+					("SpinningPlatform: %s, has PrimaryPart: %s, has Stand: %s."):format(spinningPlatform:GetFullName(), tostring(spinningPlatform.PrimaryPart ~= nil), tostring(spinningPlatform:FindFirstChild("Stand") ~= nil)), 
+					coreModule.Shared.Enums.DebugLevel.Exception, 
+					warn
+				)
 			end
 		end
 	end
