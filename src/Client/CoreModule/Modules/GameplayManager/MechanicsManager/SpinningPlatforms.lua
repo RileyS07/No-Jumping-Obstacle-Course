@@ -97,8 +97,6 @@ function gameplayMechanicManager.SetupTrippingFunctionality(spinningPlatform)
 	local function onTouched(hit)
 		local player = coreModule.Services.Players:GetPlayerFromCharacter(hit.Parent)
 
-		-- Guard clause #1 is checking if the player is actually the LocalPlayer and that they're alive; #2 is checking to see if the button is already being simulated by the client.
-
 		-- Guard clause #1 is checking if the player is actually the LocalPlayer and that they're alive; #2 is checking to see if the spinning platform has already tripped the client.
 		if player ~= clientEssentialsLibrary.GetPlayer() or not utilitiesLibrary.IsPlayerAlive(player) then return end
 		if gameplayMechanicManager.SpinningPlatformsActive[spinningPlatform] then return end
