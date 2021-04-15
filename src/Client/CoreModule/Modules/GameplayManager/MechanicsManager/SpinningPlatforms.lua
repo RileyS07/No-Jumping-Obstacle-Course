@@ -33,8 +33,19 @@ function gameplayMechanicManager.Initialize()
 						spinningPlatform.PrimaryPart.Position = (spinningPlatform.Stand.CFrame*CFrame.new(0, spinningPlatform.Stand.Size.Y/2 + spinningPlatform.PrimaryPart.Size.Y/2, 0)).Position
 						-- This rotates a little based on the desired length and frame time and then applies the offset from the center.
 						local goalUnphasedPrimaryPartCFrame = spinningPlatform.PrimaryPart.CFrame*CFrame.Angles(0, math.rad(360/(spinningPlatform:GetAttribute("Length") or 3)*deltaTime), 0)*CFrame.new(offsetFromCenter)
-						spinningPlatform.PrimaryPart.CFrame = CFrame.fromMatrix(goalUnphasedPrimaryPartCFrame.Position, goalUnphasedPrimaryPartCFrame.RightVector, spinningPlatform.Stand.CFrame.UpVector)
-						
+						local goalFinalCFrameMatrix = CFrame.fromMatrix(
+							goalUnphasedPrimaryPartCFrame.Position, 
+							goalUnphasedPrimaryPartCFrame.RightVector, 
+							spinningPlatform.Stand.CFrame.UpVector
+						)
+
+						spinningPlatform.PrimaryPart.CFrame = goalFinalCFrameMatrix
+
+						-- Temporary Debugging
+						if spinningPlatform.Name == "Special" then
+							print("FinalUp = ", goalFinalCFrameMatrix.UpVector, "GoalUp = ", spinningPlatform.Stand.CFrame.UpVector, "ActualUp = ", spinningPlatform.PrimaryPart.CFrame.UpVector, "UnphasedUp = ", goalUnphasedPrimaryPartCFrame.UpVector)
+						end
+
 						-- Moving the welded parts.
 						if weldOffsetValues then
 							for weldConstraint, objectSpaceCFrame in next, weldOffsetValues do
