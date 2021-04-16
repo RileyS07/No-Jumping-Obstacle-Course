@@ -28,7 +28,7 @@ function gameplayMechanicManager.Initialize()
 					buttonObject.PrimaryPart.TimerInterface.TimerState.Text = script:GetAttribute("InactiveStateText") or "Press me!"
 				end
 
-				-- Player touched the button
+				-- Player touched the button.
 				buttonObject.PrimaryPart.Touched:Connect(function(hit)
 					local player = coreModule.Services.Players:GetPlayerFromCharacter(hit.Parent)
 

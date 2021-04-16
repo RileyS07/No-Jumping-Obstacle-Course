@@ -1,8 +1,8 @@
 -- Variables
 local cutsceneManager = {}
 cutsceneManager.Interface = {}
-cutsceneManager.IsPlayingBeingShownDialog = false
-cutsceneManager.IsPlayerBeingShownCutscene = false
+cutsceneManager.IsPlayingBeingShownDialogValue = false
+cutsceneManager.IsPlayerBeingShownCutsceneValue = false
 
 local coreModule = require(script:FindFirstAncestor("CoreModule"))
 local userInterfaceManager = require(coreModule.GetObject("/Parent.UserInterfaceManager"))
@@ -59,23 +59,12 @@ function cutsceneManager.StartDialogTextAnimation(finalDialogText, callbackFunct
 end
 
 
--- A consistent way of tweening the camera for cinematic effects.
-function cutsceneManager.TweenCurrentCameraCFrame(goalCFrame, optionalTweenInformation)
-	if not workspace.CurrentCamera then return end
-	return coreModule.Services.TweenService:Create(
-		workspace.CurrentCamera, 
-		optionalTweenInformation or TweenInfo.new(1), 
-		{CFrame = goalCFrame}
-	)
-end
-
-
 -- Updates values and cleans up after itself
 function cutsceneManager.UpdatePlayerBeingShownCutscene(newValue)
-	cutsceneManager.IsPlayerBeingShownCutscene = newValue
+	cutsceneManager.IsPlayerBeingShownCutsceneValue = newValue
 
 	-- The cutscene ended so we need to clean up a little.
-	if not cutsceneManager.IsPlayerBeingShownCutscene then
+	if not cutsceneManager.IsPlayerBeingShownCutsceneValue then
 		userInterfaceManager.DisableInterface("DialogInterface")
 		utilitiesLibrary.FreezePlayer(clientEssentialsLibrary.GetPlayer(), true)
 	else
@@ -85,22 +74,41 @@ end
 
 
 function cutsceneManager.IsPlayerBeingShownCutscene()
-	return cutsceneManager.IsPlayerBeingShownCutscene
+	return cutsceneManager.IsPlayerBeingShownCutsceneValue
 end
 
 
 function cutsceneManager.UpdatePlayerBeingShownDialog(newValue)
-	cutsceneManager.IsPlayingBeingShownDialog = newValue
+	cutsceneManager.IsPlayingBeingShownDialogValue = newValue
 end
 
 
 function cutsceneManager.IsPlayerBeingShownDialog()
-	return cutsceneManager.IsPlayingBeingShownDialog
+	return cutsceneManager.IsPlayingBeingShownDialogValue
 end
 
 
 function cutsceneManager.IsCameraReadyForManipulation()
 	return workspace.CurrentCamera.CameraSubject ~= nil	
+end
+
+
+function cutsceneManager.YieldTillCameraIsReadyForManipulation()
+	if not cutsceneManager.IsCameraReadyForManipulation() then
+		repeat wait() until cutsceneManager.IsCameraReadyForManipulation()
+	end
+end
+
+
+-- Private Methods
+-- A consistent way of tweening the camera for cinematic effects.
+function cutsceneManager.TweenCurrentCameraCFrame(goalCFrame, optionalTweenInformation)
+	if not workspace.CurrentCamera then return end
+	return coreModule.Services.TweenService:Create(
+		workspace.CurrentCamera, 
+		optionalTweenInformation or TweenInfo.new(1), 
+		{CFrame = goalCFrame}
+	)
 end
 
 

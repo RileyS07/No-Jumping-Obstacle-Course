@@ -29,9 +29,7 @@ end
 -- Methods
 -- This is in it's own method just in case somewhere down the line we want a client triggered tutorial instead of server triggered.
 function mechanicTutorialsManager.PlayTutorial(tutorialModule)
-	if not cutsceneManager.IsCameraReadyForManipulation() then
-		repeat wait() until cutsceneManager.IsCameraReadyForManipulation()
-	end
+	cutsceneManager.YieldTillCameraIsReadyForManipulation()
 
 	cutsceneManager.UpdatePlayerBeingShownCutscene(true)
 	require(tutorialModule).PlayTutorial()
