@@ -28,20 +28,6 @@ function gameplayMechanicManager.Initialize()
                         }
                     }})
 
-                    -- I can't use Tweens to move the welded object because I can't ensure that the service will follow the same path as the platform itself.
-                    coroutine.wrap(function()
-                        if weldOffsetValues then
-                            while true do
-                                coreModule.Services.RunService.RenderStepped:Wait()
-
-                                -- We have to update all of them.
-                                for weldConstraint, objectSpaceCFrame in next, weldOffsetValues do
-                                    weldConstraint.Part1.CFrame = movingPlatform.PrimaryPart.CFrame:ToWorldSpace(objectSpaceCFrame)
-                                end
-                            end
-                        end
-                    end)()
-
                     -- This is where the magic happens; All of the logic for moving the platforms will be in here.
                     while true do
                         
@@ -66,6 +52,17 @@ function gameplayMechanicManager.Initialize()
                                     false,
                                     gameplayMechanicManager.GetPlatformDelay(platformConfig, index)
                                 )
+
+                                -- Tweening the welded objects; This really isn't ideal because in some circumstances the path the welded objects isn't the same as the path the platform takes and it can look really bad.
+                                if weldOffsetValues then
+                                    for weldConstraint, objectSpaceCFrame in next, weldOffsetValues do
+                                        coreModule.Services.TweenService:Create(
+                                            weldConstraint.Part1,
+                                            nodeTweenInfo,
+                                            {CFrame = movingPlatform.Nodes[index].CFrame:ToWorldSpace(objectSpaceCFrame)}
+                                        ):Play()
+                                    end
+                                end
 
                                 -- Now we can finally move the actual platform.
                                 local platformMovementTweenObject = coreModule.Services.TweenService:Create(

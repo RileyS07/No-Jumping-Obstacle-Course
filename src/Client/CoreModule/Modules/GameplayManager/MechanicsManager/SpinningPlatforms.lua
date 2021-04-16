@@ -23,28 +23,25 @@ function gameplayMechanicManager.Initialize()
 				coroutine.wrap(function()
 					local offsetFromCenter = gameplayMechanicManager.GetOffsetFromCenter(spinningPlatform)
 					local weldOffsetValues = gameplayMechanicManager.GetWeldOffsetValues(spinningPlatform)
+					local storedRotationInDegrees = 0
 					gameplayMechanicManager.SetupTrippingFunctionality(spinningPlatform)
 
 					-- The actual spinning math.
 					while true do
-						local deltaTime = coreModule.Services.RunService.Heartbeat:Wait()
+						local deltaTime = coreModule.Services.RunService.RenderStepped:Wait()
 
 						-- This resets the position to the ideal center position; This is so that when we reapply the offset from the center it doesn't gradually fly off into the distance.
 						spinningPlatform.PrimaryPart.Position = (spinningPlatform.Stand.CFrame*CFrame.new(0, spinningPlatform.Stand.Size.Y/2 + spinningPlatform.PrimaryPart.Size.Y/2, 0)).Position
 						-- This rotates a little based on the desired length and frame time and then applies the offset from the center.
-						local goalUnphasedPrimaryPartCFrame = spinningPlatform.PrimaryPart.CFrame*CFrame.Angles(0, math.rad(360/(spinningPlatform:GetAttribute("Length") or 3)*deltaTime), 0)*CFrame.new(offsetFromCenter)
+						local goalUnphasedPrimaryPartCFrame = spinningPlatform.PrimaryPart.CFrame*CFrame.new(offsetFromCenter)
 						local goalFinalCFrameMatrix = CFrame.fromMatrix(
 							goalUnphasedPrimaryPartCFrame.Position, 
-							goalUnphasedPrimaryPartCFrame.RightVector, 
+							spinningPlatform.Stand.CFrame.RightVector, 
 							spinningPlatform.Stand.CFrame.UpVector
-						)
+						)*CFrame.Angles(0, math.rad(storedRotationInDegrees) + math.rad(360/(spinningPlatform:GetAttribute("Length") or 3)*deltaTime), 0)
 
 						spinningPlatform.PrimaryPart.CFrame = goalFinalCFrameMatrix
-
-						-- Temporary Debugging
-						if spinningPlatform.Name == "Special" then
-							print("FinalUp = ", goalFinalCFrameMatrix.UpVector, "GoalUp = ", spinningPlatform.Stand.CFrame.UpVector, "ActualUp = ", spinningPlatform.PrimaryPart.CFrame.UpVector, "UnphasedUp = ", goalUnphasedPrimaryPartCFrame.UpVector)
-						end
+						storedRotationInDegrees = math.deg(math.rad(storedRotationInDegrees) + math.rad(360/(spinningPlatform:GetAttribute("Length") or 3)*deltaTime))%360
 
 						-- Moving the welded parts.
 						if weldOffsetValues then
