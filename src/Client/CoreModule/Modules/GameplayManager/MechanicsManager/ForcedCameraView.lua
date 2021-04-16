@@ -1,6 +1,7 @@
 -- Variables
 local gameplayMechanicManager = {}
 gameplayMechanicManager.MechanicContainer = nil
+gameplayMechanicManager.ResetMechanicContainer = nil
 
 local coreModule = require(script:FindFirstAncestor("CoreModule"))
 local mechanicsManager = require(coreModule.GetObject("/Parent"))
@@ -11,6 +12,7 @@ local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilitie
 -- Initialize
 function gameplayMechanicManager.Initialize()
     gameplayMechanicManager.MechanicContainer = mechanicsManager.GetPlatformerMechanics():WaitForChild("ForcedCameraViews")
+	gameplayMechanicManager.ResetMechanicContainer = mechanicsManager.GetPlatformerMechanics():WaitForChild("ResetCameraViews")
 
     -- Setting up the ForcedCameraViews to be functional.
     for _, forcedCameraViewsContainer in next, gameplayMechanicManager.MechanicContainer:GetChildren() do
@@ -32,6 +34,33 @@ function gameplayMechanicManager.Initialize()
 			elseif forcedCameraView:IsA("Model") then
 				coreModule.Debug(
 					("ForcedCameraView: %s, has PrimaryPart: %s, has Camera: %s."):format(forcedCameraView:GetFullName(), tostring(forcedCameraView.PrimaryPart ~= nil), tostring(forcedCameraView:FindFirstChild("Camera") ~= nil)),
+					coreModule.Shared.Enums.DebugLevel.Exception, 
+					warn
+				)
+            end
+        end
+    end
+
+	-- Setting up the ResetCameraViews to be functional.
+	for _, resetCameraViewsContainer in next, gameplayMechanicManager.ResetMechanicContainer:GetChildren() do
+        for _, resetCameraView in next, resetCameraViewsContainer:GetChildren() do
+
+            -- The platform itself is what the player will touch.
+            if resetCameraView:IsA("BasePart") then
+
+				-- Player touched the platform.
+				resetCameraView.Touched:Connect(function(hit)
+					local player = coreModule.Services.Players:GetPlayerFromCharacter(hit.Parent)
+					
+					-- Guard clause #1 is checking if the player is actually the LocalPlayer and that they're alive; #2 is checking if the CurrentCamera is valid.
+					if player ~= clientEssentialsLibrary.GetPlayer() or not utilitiesLibrary.IsPlayerAlive(player) then return end
+					if not workspace.CurrentCamera then return end
+
+					gameplayMechanicManager.ResetForcedCameraView()
+				end)
+			else
+				coreModule.Debug(
+					("ResetCameraViews: %s, IsA: %s."):format(resetCameraView:GetFullName(), resetCameraView.ClassName),
 					coreModule.Shared.Enums.DebugLevel.Exception, 
 					warn
 				)
@@ -71,66 +100,28 @@ function gameplayMechanicManager.SimulateForcedCameraView(forcedCameraViewCFrame
 end
 
 
---
-return gameplayMechanicManager
---[[
+function gameplayMechanicManager.ResetForcedCameraView(functionParameters)
+	functionParameters = setmetatable(functionParameters or {}, {__index = {
+		IgnoreCutsceneValues = false
+	}})
 
--- Variables
-local forcedCameraAnglesMechanic = {}
+	--[[
+		These guard clauses check for 3 things:
+		1) Is the client alive?
+		2) Unless there's an exception are they being shown a cutscene?
+		3) Is the CurrentCamera valid?
+	]]
 
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
-local clientMechanicsManager = require(coreModule.GetObject("/Parent"))
-local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
-local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
-local config = require(script.Config)
+	if not utilitiesLibrary.IsPlayerAlive(clientEssentialsLibrary.GetPlayer()) then return end
+	if not functionParameters.IgnoreCutsceneValues and cutsceneManager.IsPlayerBeingShownCutscene() then return end
+	if not workspace.CurrentCamera then return end
+	cutsceneManager.YieldTillCameraIsReadyForManipulation()
 
--- Initialize
-function forcedCameraAnglesMechanic.Initialize()
-	if not clientMechanicsManager.GetPlatformerMechanicsContainer():FindFirstChild("Forced Camera Angles") then return end
-	
-	--
-	for _, mechanicContainer in next, clientMechanicsManager.GetPlatformerMechanicsContainer()["Forced Camera Angles"]:GetChildren() do
-		if mechanicContainer:IsA("Model") and mechanicContainer.PrimaryPart and mechanicContainer:FindFirstChild("Camera") then
-			mechanicContainer.PrimaryPart.Touched:Connect(function(hit)
-				local player = coreModule.Services.Players:GetPlayerFromCharacter(hit.Parent)
-				if not utilitiesLibrary.IsPlayerAlive(player) then return end
-				if player ~= clientEssentialsLibrary.GetPlayer() then return end
-				if not workspace.CurrentCamera then return end
-				
-				--
-				workspace.CurrentCamera.CameraType = Enum.CameraType.Scriptable
-				coreModule.Services.TweenService:Create(workspace.CurrentCamera, TweenInfo.new(config.AnimationLength), {CFrame = mechanicContainer.Camera.CFrame}):Play()
-			end)
-		end
-	end
-	
-	-- Restoration
-	if clientMechanicsManager.GetPlatformerMechanicsContainer():FindFirstChild("Reset Camera Angles") then
-		for _, mechanicContainer in next, clientMechanicsManager.GetPlatformerMechanicsContainer()["Reset Camera Angles"]:GetChildren() do
-			if mechanicContainer:IsA("BasePart") then
-				mechanicContainer.Touched:Connect(function(hit)
-					local player = coreModule.Services.Players:GetPlayerFromCharacter(hit.Parent)
-					if not utilitiesLibrary.IsPlayerAlive(player) then return end
-					if player ~= clientEssentialsLibrary.GetPlayer() then return end
-					if not workspace.CurrentCamera then return end
-					
-					--
-					workspace.CurrentCamera.CameraType = Enum.CameraType.Custom
-					workspace.CurrentCamera.CameraSubject = clientEssentialsLibrary.GetPlayer().Character.Humanoid
-				end)
-			end
-		end
-	end
-	
-	coreModule.Shared.GetObject("//Remotes.RestoreDefaultPlayerConditions").OnClientEvent:Connect(function()
-		if not utilitiesLibrary.IsPlayerAlive(clientEssentialsLibrary.GetPlayer()) then return end
-		if not workspace.CurrentCamera then return end
-		
-		workspace.CurrentCamera.CameraType = Enum.CameraType.Custom
-		workspace.CurrentCamera.CameraSubject = clientEssentialsLibrary.GetPlayer().Character.Humanoid
-	end)
+	-- Reset the camera to their humanoid.
+	workspace.CurrentCamera.CameraType = Enum.CameraType.Custom
+	workspace.CurrentCamera.CameraSubject = clientEssentialsLibrary.GetPlayer().Character.Humanoid
 end
 
+
 --
-return forcedCameraAnglesMechanic
-]]
+return gameplayMechanicManager
