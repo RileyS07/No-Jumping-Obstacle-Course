@@ -32,13 +32,17 @@ function gameplayMechanicManager.Initialize()
 
 						-- This resets the position to the ideal center position; This is so that when we reapply the offset from the center it doesn't gradually fly off into the distance.
 						spinningPlatform.PrimaryPart.Position = (spinningPlatform.Stand.CFrame*CFrame.new(0, spinningPlatform.Stand.Size.Y/2 + spinningPlatform.PrimaryPart.Size.Y/2, 0)).Position
-						-- This rotates a little based on the desired length and frame time and then applies the offset from the center.
-						local goalUnphasedPrimaryPartCFrame = spinningPlatform.PrimaryPart.CFrame*CFrame.new(offsetFromCenter)
+						
+						-- The final CFrame matrix of where the spinner will be and how it will be oriented; This supports all angles and all offsets.
 						local goalFinalCFrameMatrix = CFrame.fromMatrix(
-							goalUnphasedPrimaryPartCFrame.Position, 
+							spinningPlatform.PrimaryPart.Position, 
 							spinningPlatform.Stand.CFrame.RightVector, 
 							spinningPlatform.Stand.CFrame.UpVector
-						)*CFrame.Angles(0, math.rad(storedRotationInDegrees) + math.rad(360/(spinningPlatform:GetAttribute("Length") or 3)*deltaTime), 0)
+						)*CFrame.Angles(
+							0, 
+							math.rad(storedRotationInDegrees) + math.rad(360/(spinningPlatform:GetAttribute("Length") or 3)*deltaTime), 
+							0
+						)*CFrame.new(offsetFromCenter)
 
 						spinningPlatform.PrimaryPart.CFrame = goalFinalCFrameMatrix
 						storedRotationInDegrees = math.deg(math.rad(storedRotationInDegrees) + math.rad(360/(spinningPlatform:GetAttribute("Length") or 3)*deltaTime))%360
