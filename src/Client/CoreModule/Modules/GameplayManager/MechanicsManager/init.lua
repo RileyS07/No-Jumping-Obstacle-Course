@@ -14,6 +14,7 @@ function mechanicsManager.Initialize()
 	coreModule.LoadModule("/ManualSwitchPlatforms")
 	coreModule.LoadModule("/MovingPlatforms")
 	coreModule.LoadModule("/SpinningPlatforms")
+	coreModule.LoadModule("/SwitchPlatforms")
 end
 
 
