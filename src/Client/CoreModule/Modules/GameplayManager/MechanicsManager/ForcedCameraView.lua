@@ -18,8 +18,8 @@ function gameplayMechanicManager.Initialize()
     for _, forcedCameraViewsContainer in next, gameplayMechanicManager.MechanicContainer:GetChildren() do
         for _, forcedCameraView in next, forcedCameraViewsContainer:GetChildren() do
 
-            -- The PrimaryPart is what the player will touch, and Camera's CFrame is what their view will match.
-            if forcedCameraView:IsA("Model") and forcedCameraView.PrimaryPart and forcedCameraView:FindFirstChild("Camera") then
+            -- The PrimaryPart is what the player will touch.
+            if forcedCameraView:IsA("Model") and forcedCameraView.PrimaryPart then
 
 				-- Player touched the pad.
 				forcedCameraView.PrimaryPart.Touched:Connect(function(hit)
@@ -29,7 +29,22 @@ function gameplayMechanicManager.Initialize()
 					if player ~= clientEssentialsLibrary.GetPlayer() or not utilitiesLibrary.IsPlayerAlive(player) then return end
 					if not workspace.CurrentCamera then return end
 
-					gameplayMechanicManager.SimulateForcedCameraView(forcedCameraView.Camera.CFrame)
+					-- Update the camera cframe.
+					if forcedCameraView:FindFirstChild("Camera") then
+						gameplayMechanicManager.SimulateForcedCameraView(forcedCameraView.Camera.CFrame)
+					end
+
+					-- Update the field of view?
+					if forcedCameraView:GetAttribute("FieldOfView") then
+						if not workspace.CurrentCamera then return end
+						cutsceneManager.YieldTillCameraIsReadyForManipulation()
+						
+						coreModule.Services.TweenService:Create(
+							workspace.CurrentCamera,
+							TweenInfo.new(1, Enum.EasingStyle.Linear),
+							{FieldOfView = forcedCameraView:GetAttribute("FieldOfView")}
+						):Play()
+					end
 				end)
 			elseif forcedCameraView:IsA("Model") then
 				coreModule.Debug(
@@ -120,6 +135,11 @@ function gameplayMechanicManager.ResetForcedCameraView(functionParameters)
 	-- Reset the camera to their humanoid.
 	workspace.CurrentCamera.CameraType = Enum.CameraType.Custom
 	workspace.CurrentCamera.CameraSubject = clientEssentialsLibrary.GetPlayer().Character.Humanoid
+	coreModule.Services.TweenService:Create(
+		workspace.CurrentCamera,
+		TweenInfo.new(1, Enum.EasingStyle.Linear),
+		{FieldOfView = 70}
+	):Play()
 end
 
 
