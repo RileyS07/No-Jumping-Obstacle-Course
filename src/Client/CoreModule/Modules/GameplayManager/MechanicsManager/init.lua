@@ -1,14 +1,17 @@
 -- Variables
 local mechanicsManager = {}
 local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local playerMouseLibrary = require(coreModule.GetObject("Libraries.UserInput.Mouse"))
 
 -- Initialize
 function mechanicsManager.Initialize()
 	mechanicsManager.GetPlatformerMechanics()
-	
+	playerMouseLibrary.Initialize()
+
 	-- Loading modules
 	coreModule.LoadModule("/Buttons")
 	coreModule.LoadModule("/ForcedCameraView")
+	coreModule.LoadModule("/ManualSwitchPlatforms")
 	coreModule.LoadModule("/MovingPlatforms")
 	coreModule.LoadModule("/SpinningPlatforms")
 end
