@@ -30,6 +30,7 @@ function soundEffectsManager.PlaySoundEffect(soundEffectName, functionParameters
 	}})
 
 	-- Guard clause to make sure it even exists.
+	if not soundEffectsManager.SoundEffectsFolder then return end
 	if not soundEffectName or not soundEffectsManager.SoundEffectsFolder:FindFirstChild(soundEffectName) then return end
 
 	-- Does a cache exist? If not we create one; I do this to save some on performance but it can be detrimental for memory so maybe a more complex solution in the future.

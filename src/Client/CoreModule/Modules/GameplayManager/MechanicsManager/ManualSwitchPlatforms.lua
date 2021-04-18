@@ -37,6 +37,48 @@ function gameplayMechanicManager.Initialize()
 
         gameplayMechanicManager.SimulateSwitchActivation(raycastResult.Instance)
     end)
+
+    -- Keybinds setup for the ManualSwitchPlatforms.
+    local keybindActionName = "ManualSwitchPlatforms"
+    local keybindButtonTitle = script:GetAttribute("KeybindButtonTitle") or "Switch"
+    local keybindButtonDescription = script:GetAttribute("KeybindButtonDescription") or "Switch Description."
+    local keybindButtonImageContent = script:GetAttribute("KeybindButtonImageContent") or "rbxassetid://3926305904"
+
+    local function keybindActionFunction(_, userInputState, inputObject)
+        if userInputState ~= Enum.UserInputState.Begin then return end
+        
+        for _, switchPlatform in next, gameplayMechanicManager.MechanicContainer:GetDescendants() do
+            gameplayMechanicManager.SimulateSwitchActivation(switchPlatform)
+        end
+    end
+
+    -- The functionality will only be avaliable if the player is within x studs of the platform.
+    coroutine.wrap(function()
+        while true do
+            if utilitiesLibrary.IsPlayerAlive(clientEssentialsLibrary.GetPlayer()) then
+                local isPlayerNearAnySwitchPlatforms = false
+
+                for _, switchPlatform in next, gameplayMechanicManager.MechanicContainer:GetDescendants() do
+                    if switchPlatform:IsA("BasePart") and clientEssentialsLibrary.GetPlayer():DistanceFromCharacter(switchPlatform.Position) <= (script:GetAttribute("MaxBindDistance") or 30) then
+                        isPlayerNearAnySwitchPlatforms = true
+                    end
+                end
+
+                -- Now that we have the results let's bind/unbind.
+                if isPlayerNearAnySwitchPlatforms then
+                    coreModule.Services.ContextActionService:BindAction(keybindActionName, keybindActionFunction, true, Enum.KeyCode.E)
+                    coreModule.Services.ContextActionService:SetTitle(keybindActionName, keybindButtonTitle)
+                    coreModule.Services.ContextActionService:SetDescription(keybindActionName, keybindButtonDescription)
+                    coreModule.Services.ContextActionService:SetImage(keybindActionName, keybindButtonImageContent)
+                else  
+                    coreModule.Services.ContextActionService:UnbindAction(keybindActionName)
+                end
+            end
+
+
+            wait(0.5)
+        end
+    end)()
 end
 
 
