@@ -126,13 +126,7 @@ function gameplayMechanicManager.SimulateButtonPress(buttonObject, functionParam
 						-- Invisible
 						or (buttonObject:GetAttribute("InvisibleTransparency") or script:GetAttribute("DefaultInvisibleTransparency") or 0.5)
 					
-					-- Poof! Smoke animation when they change + sound effect.
-					local smokeParticleEmitter = coreModule.Shared.GetObject("//Assets.Objects.ParticleEmitters.Smoke"):Clone()
-					smokeParticleEmitter.Parent = basePart
-
-					smokeParticleEmitter:Emit(script:GetAttribute("SmokeParticleEmittance") or 5)
-					coreModule.Services.Debris:AddItem(smokeParticleEmitter, smokeParticleEmitter.Lifetime.Max)
-					soundEffectsManager.PlaySoundEffect("Poof", {Parent = basePart})
+					mechanicsManager.PlayAppearanceChangedEffect(basePart)
 				end
 			end
 		end

@@ -102,13 +102,7 @@ function gameplayMechanicManager.SimulateSwitchActivation(switchPlatform)
     local function transformSwitchPlatform()
         switchPlatform.CanCollide = not switchPlatform.CanCollide
         switchPlatform.Transparency = switchPlatform.CanCollide and (switchPlatform:GetAttribute("VisibleTransparency") or script:GetAttribute("DefaultVisibleTransparency") or 0) or (switchPlatform:GetAttribute("InvisibleTransparency") or script:GetAttribute("DefaultInvisibleTransparency") or 0.5)
-   
-        local smokeParticleEmitter = coreModule.Shared.GetObject("//Assets.Objects.ParticleEmitters.Smoke"):Clone()
-        smokeParticleEmitter.Parent = switchPlatform
-
-        smokeParticleEmitter:Emit(script:GetAttribute("SmokeParticleEmittance") or 5)
-        coreModule.Services.Debris:AddItem(smokeParticleEmitter, smokeParticleEmitter.Lifetime.Max)
-        soundEffectsManager.PlaySoundEffect("Poof", {Parent = switchPlatform})
+        mechanicsManager.PlayAppearanceChangedEffect(switchPlatform)
     end
     
     transformSwitchPlatform()
