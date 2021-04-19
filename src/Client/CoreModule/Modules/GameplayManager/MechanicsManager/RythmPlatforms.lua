@@ -4,9 +4,6 @@ gameplayMechanicManager.MechanicContainer = nil
 
 local coreModule = require(script:FindFirstAncestor("CoreModule"))
 local mechanicsManager = require(coreModule.GetObject("/Parent"))
-local soundEffectsManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.SoundEffects"))
-local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
-local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
 
 -- Initialize
 function gameplayMechanicManager.Initialize()
@@ -18,71 +15,13 @@ function gameplayMechanicManager.Initialize()
 
 			-- We put each RythmPlatform into it's own coroutine so they all run separate from eachother.
 			coroutine.wrap(function()
-				local platformConfig = setmetatable(rythmPlatform:FindFirstChild("Config") and require(rythmPlatform.Config) or {}, {__index = {
-					-- Duration is how long the beat stays active.
-					[1] = {Duration = 3},
-					[2] = {Duration = 3}
-				}})
+				local validBeatMap = gameplayMechanicManager.GenerateValidBeatmap(
+					rythmPlatform:FindFirstChild("Beatmap") and require(rythmPlatform.Beatmap), 
+					#rythmPlatform:GetChildren()
+				)
 
 				while true do
-					for index = 1, math.max(#platformConfig, 2) do
-
-						-- Update the BaseParts for CanCollide and Transparency.
-						for _, basePart in next, rythmPlatform:GetDescendants() do
-
-							-- The parts need to be named after numbers.
-							if basePart:IsA("BasePart") and tonumber(basePart.Parent.Name) then
-								basePart.CanCollide = tonumber(basePart.Parent.Name) == index
-								basePart.Transparency = 
-									-- Visible
-									basePart.CanCollide and (rythmPlatform:GetAttribute("VisibleTransparency") or script:GetAttribute("DefaultVisibleTransparency") or 0) 
-									-- Invisible
-									or (rythmPlatform:GetAttribute("InvisibleTransparency") or script:GetAttribute("DefaultInvisibleTransparency") or 0.5)
-							end
-						end
-
-						-- Wait before starting the animation; duration - numBlinks*blinkLength.
-						wait((platformConfig[index].Duration or script:GetAttribute("DefaultBeatDuration") or 3) - (script:GetAttribute("NumberOfBlinks") or 3)*(script:GetAttribute("BlinkLength") or 0.45))
-
-						-- Blinking animation.
-						for blinkIndex = 1, script:GetAttribute("NumberOfBlinks") or 3 do
-							for _, basePart in next, rythmPlatform:GetDescendants() do
-								if basePart:IsA("BasePart") and tonumber(basePart.Parent.Name) then
-									if tonumber(basePart.Parent.Name) == index then
-
-										-- The magic behind the blinking.
-										coreModule.Services.TweenService:Create(
-											basePart, 
-											TweenInfo.new((script:GetAttribute("BlinkLength") or 0.45)/2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, 0, true), 
-											{Transparency = script:GetAttribute("GoalTransparency") or 0.5, Color = script:GetAttribute("GoalColor") or Color3.new(1, 1, 1)}
-										):Play()
-									end
-								end
-							
-							--[[-- Poof! Smoke animation when they change + sound effect.
-							local smokeParticleEmitter = coreModule.Shared.GetObject("//Assets.Objects.ParticleEmitters.Smoke"):Clone()
-							smokeParticleEmitter.Parent = basePart
-
-							smokeParticleEmitter:Emit(script:GetAttribute("SmokeParticleEmittance") or 5)
-							coreModule.Services.Debris:AddItem(smokeParticleEmitter, smokeParticleEmitter.Lifetime.Max)
-							soundEffectsManager.PlaySoundEffect("Poof", {Parent = basePart})								
-							]]
-							end
-							wait(script:GetAttribute("BlinkLength") or 0.45)
-						end
-
-						--[[ Final poof! Smoke animation when they change + sound effect.
-						for _, basePart in next, rythmPlatform:GetDescendants() do
-							if basePart:IsA("BasePart") and tonumber(basePart.Parent.Name) then
-								local smokeParticleEmitter = coreModule.Shared.GetObject("//Assets.Objects.ParticleEmitters.Smoke"):Clone()
-								smokeParticleEmitter.Parent = basePart
-
-								smokeParticleEmitter:Emit(script:GetAttribute("SmokeParticleEmittance") or 5)
-								coreModule.Services.Debris:AddItem(smokeParticleEmitter, smokeParticleEmitter.Lifetime.Max)
-								soundEffectsManager.PlaySoundEffect("Poof", {Parent = basePart})	
-							end
-						end]]
-					end
+					gameplayMechanicManager.SimulateBeatMap(rythmPlatform, validBeatMap)
 				end
 			end)()
 		end
@@ -92,73 +31,83 @@ end
 
 -- Methods
 function gameplayMechanicManager.SimulateBeatMap(rythmPlatform, beatMap)
+	if typeof(rythmPlatform) ~= "Instance" then return end
+	if typeof(beatMap) ~= "table" or #beatMap == 0 then return end
+	
+	for beatMapIndex = 1, #beatMap do
+		
+		-- So the idea is that we do this first to set us up for success even though it is the second half of the effect.
+		for _, basePart in next, rythmPlatform:GetDescendants() do
+			if basePart:IsA("BasePart") and tonumber(basePart.Parent.Name) then
+				basePart.CanCollide = tonumber(basePart.Parent.Name) == beatMapIndex
+				basePart.Transparency = 
+					-- Visible
+					basePart.CanCollide and (rythmPlatform:GetAttribute("VisibleTransparency") or script:GetAttribute("DefaultVisibleTransparency") or 0) 
+					-- Invisible
+					or (rythmPlatform:GetAttribute("InvisibleTransparency") or script:GetAttribute("DefaultInvisibleTransparency") or 0.5)
+			end
+		end
 
+		-- Wait before starting the animation; duration - numBlinks*blinkLength.
+		wait((beatMap[beatMapIndex].Duration or 3) - (script:GetAttribute("NumberOfBlinks") or 3)*(script:GetAttribute("BlinkLength") or 0.45))
+
+		-- Blinking animation.
+		for blinkIndex = 1, (script:GetAttribute("NumberOfBlinks") or 3) do
+			for _, basePart in next, rythmPlatform:GetDescendants() do
+				if basePart:IsA("BasePart") and tonumber(basePart.Parent.Name) == beatMapIndex then
+					coreModule.Services.TweenService:Create(
+						basePart, 
+						TweenInfo.new((script:GetAttribute("BlinkLength") or 0.45)/2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, 0, true), 
+						{
+							Transparency = script:GetAttribute("GoalTransparency") or 0.5, 
+							Color = script:GetAttribute("GoalColor") or Color3.new(1, 1, 1)
+						}
+					):Play()
+				end
+
+				-- The blinking animation plays only for baseparts about to switch; This one plays for all of them that are valid.
+				if basePart:IsA("BasePart") and tonumber(basePart.Parent.Name) then
+					mechanicsManager.PlayAppearanceChangedEffect(basePart, 2)
+				end
+			end
+
+			wait(script:GetAttribute("BlinkLength") or 0.45)
+		end
+
+		-- There's actually a final animation that happens before they switch.
+		for _, basePart in next, rythmPlatform:GetDescendants() do
+			if basePart:IsA("BasePart") and tonumber(basePart.Parent.Name) then
+				mechanicsManager.PlayAppearanceChangedEffect(basePart, 2)
+			end
+		end
+	end
 end
 
 
-function gameplayMechanicManager.GenerateValidBeatmap(possibleBeatMap, numberOfSequencesNeeded)
+-- Outputs a valid beat map the simulator function can use.
+function gameplayMechanicManager.GenerateValidBeatmap(possibleBeatMap, minimumNumberOfSequencesNeeded)
+	minimumNumberOfSequencesNeeded = typeof(minimumNumberOfSequencesNeeded) == "number" and minimumNumberOfSequencesNeeded or 2
+	local validBeatMap = {}
 
+	-- Is the possibleBeatMap valid? If so let's try to salvage it.
+	if typeof(possibleBeatMap) == "table" and #possibleBeatMap > 0 then
+		for index = 1, #possibleBeatMap do
+			if possibleBeatMap[index].Duration and tonumber(possibleBeatMap[index].Duration) then
+				table.insert(validBeatMap, {Duration = tonumber(possibleBeatMap[index].Duration)})
+			end
+		end
+	end
+
+	-- Fill in the gaps?
+	if #validBeatMap < minimumNumberOfSequencesNeeded then
+		while #validBeatMap < minimumNumberOfSequencesNeeded do
+			table.insert(validBeatMap, {Duration = 3})
+		end
+	end
+
+	return validBeatMap
 end
 
 
 --
 return gameplayMechanicManager
---[[
-
--- Variables
-local rhythmBlocksMechanic = {}
-
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
-local clientMechanicsManager = require(coreModule.GetObject("/Parent"))
-local soundEffectsManager = require(coreModule.GetObject("Game.PlayerManager.SoundEffectsManager"))
-local config = require(script.Config)
-
--- Initialize
-function rhythmBlocksMechanic.Initialize()
-	if not clientMechanicsManager.GetPlatformerMechanicsContainer():FindFirstChild("Rhythm Blocks") then return end
-	
-	--
-	for _, rythmBlockContainer in next, clientMechanicsManager.GetPlatformerMechanicsContainer()["Rhythm Blocks"]:GetChildren() do
-		if rythmBlockContainer:FindFirstChild("Config") and #require(rythmBlockContainer.Config).BeatMap > 0 then
-			coroutine.wrap(function()
-				local rythmBlockConfig = require(rythmBlockContainer.Config)
-				
-				--
-				while true do
-					for beatMapIndex = 1, #rythmBlockConfig.BeatMap do
-						for _, object in next, rythmBlockContainer:GetDescendants() do
-							if object:IsA("BasePart") and tonumber(object.Parent.Name) then
-								object.CanCollide = tonumber(object.Parent.Name) == beatMapIndex
-								object.Transparency = object.CanCollide and config.DefaultVisibleTransparency or config.DefaultInvisibleTransparency
-							end
-						end
-						
-						-- Wait before animation
-						wait((rythmBlockConfig.BeatMap[beatMapIndex].Duration or config.DefaultBeatDuration) - config.AnimationInformation.TotalNumberOfBlinks*config.AnimationInformation.HalfBlinkLength*2)
-						
-						-- Animation
-						for blinkIndex = 1, config.AnimationInformation.TotalNumberOfBlinks do
-							for _, object in next, rythmBlockContainer:GetDescendants() do
-								if object:IsA("BasePart") and tonumber(object.Parent.Name) then
-									if tonumber(object.Parent.Name) == beatMapIndex then
-										coreModule.Services.TweenService:Create(object, TweenInfo.new(config.AnimationInformation.HalfBlinkLength, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, 0, true), {Transparency = config.AnimationInformation.GoalTransparency, Color = config.AnimationInformation.GoalColor}):Play()
-									end
-								end
-							end
-							
-							soundEffectsManager.PlaySoundEffect("Beep", {Parent = rythmBlockContainer[beatMapIndex]:GetChildren()[Random.new():NextInteger(1, #rythmBlockContainer[beatMapIndex]:GetChildren())]})
-							wait(config.AnimationInformation.HalfBlinkLength*2)
-						end
-						
-						-- Poof!
-						soundEffectsManager.PlaySoundEffect("Poof", {Parent = rythmBlockContainer[beatMapIndex]:GetChildren()[Random.new():NextInteger(1, #rythmBlockContainer[beatMapIndex]:GetChildren())]})
-					end
-				end
-			end)()
-		end
-	end
-end
-
---
-return rhythmBlocksMechanic
-]]
