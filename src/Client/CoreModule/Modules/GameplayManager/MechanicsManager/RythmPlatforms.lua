@@ -1,3 +1,97 @@
+-- Variables
+local gameplayMechanicManager = {}
+gameplayMechanicManager.MechanicContainer = nil
+
+local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local mechanicsManager = require(coreModule.GetObject("/Parent"))
+local soundEffectsManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.SoundEffects"))
+local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
+local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
+
+-- Initialize
+function gameplayMechanicManager.Initialize()
+	gameplayMechanicManager.MechanicContainer = mechanicsManager.GetPlatformerMechanics():WaitForChild("RythmPlatforms")
+
+	-- Setting up the RythmPlatforms to be functional.
+	for _, rythmPlatformContainer in next, gameplayMechanicManager.MechanicContainer:GetChildren() do
+		for _, rythmPlatform in next, rythmPlatformContainer:GetChildren() do
+
+			-- We put each RythmPlatform into it's own coroutine so they all run separate from eachother.
+			coroutine.wrap(function()
+				local platformConfig = setmetatable(rythmPlatform:FindFirstChild("Config") and require(rythmPlatform.Config) or {}, {__index = {
+					-- Duration is how long the beat stays active.
+					[1] = {Duration = 3},
+					[2] = {Duration = 3}
+				}})
+
+				while true do
+					for index = 1, math.max(#platformConfig, 2) do
+						
+						-- Update the BaseParts for CanCollide and Transparency.
+						for _, basePart in next, rythmPlatform:GetDescendants() do
+
+							-- The parts need to be named after numbers.
+							if basePart:IsA("BasePart") and tonumber(basePart.Parent.Name) then
+								basePart.CanCollide = tonumber(basePart.Parent.Name) == index
+								basePart.Transparency = 
+									-- Visible
+									basePart.CanCollide and (rythmPlatform:GetAttribute("VisibleTransparency") or script:GetAttribute("DefaultVisibleTransparency") or 0) 
+									-- Invisible
+									or (rythmPlatform:GetAttribute("InvisibleTransparency") or script:GetAttribute("DefaultInvisibleTransparency") or 0.5)
+							end
+
+							-- Wait before starting the animation; duration - numBlinks*blinkLength.
+							wait((platformConfig[index].Duration or script:GetAttribute("DefaultBeatDuration") or 3) - (script:GetAttribute("NumberOfBlinks") or 3)*(script:GetAttribute("BlinkLength") or 0.45))
+
+							-- Blinking animation.
+							for blinkIndex = 1, script:GetAttribute("NumberOfBlinks") or 3 do
+								for _, basePart in next, rythmPlatform:GetDescendants() do
+									if basePart:IsA("BasePart") and tonumber(basePart.Parent.Name) then
+										if tonumber(basePart.Parent.Name) == index then
+
+											-- The magic behind the blinking.
+											coreModule.Services.TweenService:Create(
+												basePart, 
+												TweenInfo.new((script:GetAttribute("BlinkLength") or 0.45)/2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, 0, true), 
+												{Transparency = script:GetAttribute("GoalTransparency") or 0.5, Color = script:GetAttribute("GoalColor") or Color3.new(1, 1, 1)}
+											):Play()
+										end
+									end
+								end
+								
+								-- Poof! Smoke animation when they change + sound effect.
+								local smokeParticleEmitter = coreModule.Shared.GetObject("//Assets.Objects.ParticleEmitters.Smoke"):Clone()
+								smokeParticleEmitter.Parent = basePart
+
+								smokeParticleEmitter:Emit(script:GetAttribute("SmokeParticleEmittance") or 5)
+								coreModule.Services.Debris:AddItem(smokeParticleEmitter, smokeParticleEmitter.Lifetime.Max)
+								soundEffectsManager.PlaySoundEffect("Poof", {Parent = basePart})								
+								
+								wait(script:GetAttribute("BlinkLength") or 0.45)
+							end
+
+							-- Final poof! Smoke animation when they change + sound effect.
+							for _, basePart in next, rythmPlatform:GetDescendants() do
+								if basePart:IsA("BasePart") and tonumber(basePart.Parent.Name) then
+									local smokeParticleEmitter = coreModule.Shared.GetObject("//Assets.Objects.ParticleEmitters.Smoke"):Clone()
+									smokeParticleEmitter.Parent = basePart
+
+									smokeParticleEmitter:Emit(script:GetAttribute("SmokeParticleEmittance") or 5)
+									coreModule.Services.Debris:AddItem(smokeParticleEmitter, smokeParticleEmitter.Lifetime.Max)
+									soundEffectsManager.PlaySoundEffect("Poof", {Parent = basePart})	
+								end
+							end
+						end
+					end
+				end
+			end)()
+		end
+	end
+end
+
+
+--
+return gameplayMechanicManager
 --[[
 
 -- Variables

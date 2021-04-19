@@ -13,6 +13,7 @@ function mechanicsManager.Initialize()
 	coreModule.LoadModule("/ForcedCameraView")
 	coreModule.LoadModule("/ManualSwitchPlatforms")
 	coreModule.LoadModule("/MovingPlatforms")
+	coreModule.LoadModule("/RythmPlatforms")
 	coreModule.LoadModule("/SpinningPlatforms")
 	coreModule.LoadModule("/SwitchPlatforms")
 end
