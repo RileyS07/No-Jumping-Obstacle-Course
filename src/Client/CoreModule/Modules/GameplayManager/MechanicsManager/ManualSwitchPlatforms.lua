@@ -41,7 +41,7 @@ function gameplayMechanicManager.Initialize()
     local keybindActionName = "ManualSwitchPlatforms"
     local keybindButtonTitle = script:GetAttribute("KeybindButtonTitle") or "Switch"
     local keybindButtonDescription = script:GetAttribute("KeybindButtonDescription") or "Switch Description."
-    local keybindButtonImageContent = script:GetAttribute("KeybindButtonImageContent") or "rbxassetid://3926305904"
+    local keybindButtonImageContent = script:GetAttribute("KeybindButtonImageContent") or "rbxassetid://6704235678"
 
     local function keybindActionFunction(_, userInputState, inputObject)
         if userInputState ~= Enum.UserInputState.Begin then return end
