@@ -175,24 +175,30 @@ function teleportationManager.TeleportPlayerPostTranslationToCFrame(player, goal
 	if teleportationManager.IsPlayerBeingTeleported(player) then return end
 	teleportationManager.PlayersBeingTeleported[player] = true
 
-	-- We need to double check if they're still alive after yielding though.
-	if not utilitiesLibrary.IsPlayerAlive(player) then teleportationManager.PlayersBeingTeleported[player] = nil return end
+	-- We can start the effect.
 	teleportationManager.Remotes.TeleportationStateUpdated:InvokeClient(player, true)
-	wait(0.5)
+	wait(script:GetAttribute("TeleportationAnimationLength") or 0.5)
 
-	-- We need to TRIPLE check if they're still alive after yielding though.
+	-- We need to double check if they're still alive after yielding though.
 	if not utilitiesLibrary.IsPlayerAlive(player) then teleportationManager.PlayersBeingTeleported[player] = nil return end
 	player.Character:SetPrimaryPartCFrame(goalCFrame)
 
-	wait(0.5)
-
+	wait(script:GetAttribute("TeleportationAnimationLength") or 0.5)
 	teleportationManager.Remotes.TeleportationStateUpdated:InvokeClient(player, false)
 	teleportationManager.PlayersBeingTeleported[player] = nil
 end
 
 
 function teleportationManager.TeleportPlayerPostTranslationToPlaceId(player, goalPlaceId)
+	if coreModule.Services.RunService:IsStudio() then return end
+	if not utilitiesLibrary.IsPlayerValid(player) then return end
+	if not goalPlaceId or not tonumber(goalPlaceId) or tonumber(goalPlaceId) <= 0 then return end
+	if teleportationManager.IsPlayerBeingTeleported(player) then return end
+	teleportationManager.PlayersBeingTeleported[player] = true
 
+	-- We can start the effect.
+	teleportationManager.Remotes.TeleportationStateUpdated:InvokeClient(player, true)
+	pcall(coreModule.Services.TeleportService.TeleportAsync, coreModule.Services.TeleportService, goalPlaceId, {player})
 end
 
 
