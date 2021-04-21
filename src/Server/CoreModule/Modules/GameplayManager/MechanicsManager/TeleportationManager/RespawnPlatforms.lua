@@ -3,6 +3,7 @@ local respawnPlatformsManager = {}
 respawnPlatformsManager.MechanicContainer = nil
 
 local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local teleportationManager = require(coreModule.GetObject("/Parent"))
 local userDataManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.UserDataManager"))
 local badgeLibrary = require(coreModule.GetObject("Libraries.BadgeLibrary"))
 local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
@@ -29,7 +30,7 @@ function respawnPlatformsManager.Initialize()
 					The following code is an attempt to find a compromise between normal collisions and animation caused collisions.
 				]]
 
-				if hit.Name:match("%a+ %a+") and respawnPlatformsManager.MechanicContainer:FindFirstChild("Miscellaneous") then
+				if hit.Name:match("%a+ %a+") and respawnPlatformsManager.MechanicContainer:FindFirstChild("Miscellaneous") and script:GetAttribute("InverseCollisionForgiveness") then
 					
 					-- Miscellaneous contains things such as the Baseplate which will never be accidentally collided with.
 					if not respawnPlatform:IsDescendantOf(respawnPlatformsManager.MechanicContainer.Miscellaneous) then
@@ -44,14 +45,14 @@ function respawnPlatformsManager.Initialize()
 						if not primaryPartRaycastCheckResults then
 							
 							-- So now we have to check at the secondary point of collision.
-							local secondaryPointPosition = player.Character:GetPrimaryPartCFrame().Position:Lerp(hit.Position, script:GetAttribute("InverseCollisionForgiveness") or 0.93)
+							local secondaryPointPosition = player.Character:GetPrimaryPartCFrame().Position:Lerp(hit.Position, script:GetAttribute("InverseCollisionForgiveness"))
 							local secondaryRaycastCheckResults = workspace:Raycast(secondaryPointPosition, commonRaycastDirectionVector, commonRaycastParameters)
 							if not secondaryRaycastCheckResults then return end
 						end
 					end
 				end
 				
-				-- generalTeleportationManager.TeleportPlayer(player)
+				teleportationManager.TeleportPlayer(player)
 			end)
 		end
 	end

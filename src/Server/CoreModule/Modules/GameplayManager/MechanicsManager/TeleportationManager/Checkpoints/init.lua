@@ -10,10 +10,10 @@ local badgeConfig = require(script.Badges)
 
 -- Initialize
 function checkpointsManager.Initialize()
-	if not workspace.Map.Gameplay.PlatformerMechanics:FindFirstChild("Checkpoints") then return end
+	if not workspace.Map.Gameplay.LevelStorage:FindFirstChild("Checkpoints") then return end
 	
 	-- Setting up the checkpoints to be functional.
-	for _, checkpointPlatform in next, workspace.Map.Gameplay.PlatformerMechanics.Checkpoints:GetChildren() do
+	for _, checkpointPlatform in next, workspace.Map.Gameplay.LevelStorage.Checkpoints:GetChildren() do
 
 		-- Checkpoints have to be numbers or else they do not matter.
 		if checkpointPlatform:IsA("BasePart") and tonumber(checkpointPlatform.Name) then
@@ -67,7 +67,7 @@ function checkpointsManager.UpdateCurrentCheckpoint(player, checkpointNumber)
 	
 	-- Backwards compatibility for things like badges and CompletedStages.
 	if originalCurrentCheckpoint ~= userData.UserInformation.CurrentCheckpoint then
-		checkpointsManager.Remotes.PlaySoundEffect:FireClient(player, "CheckpointTouched", {Parent = workspace.Map.Gameplay.PlatformerMechanics.Checkpoints[checkpointNumber]})
+		checkpointsManager.Remotes.PlaySoundEffect:FireClient(player, "CheckpointTouched", {Parent = workspace.Map.Gameplay.LevelStorage.Checkpoints[checkpointNumber]})
 		
 		-- Backwards compatability for CompletedStages.
 		if not table.find(userData.UserInformation.CompletedStages, checkpointNumber) then

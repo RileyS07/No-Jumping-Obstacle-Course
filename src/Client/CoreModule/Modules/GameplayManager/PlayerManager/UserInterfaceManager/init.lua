@@ -6,6 +6,8 @@ local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEs
 -- Initialize
 function userInterfaceManager.Initialize()
 	
+	-- Loading modules.
+	coreModule.LoadModule("/TeleportationOverlay")
 end
 
 
@@ -18,7 +20,7 @@ function userInterfaceManager.EnableInterface(interfaceName, disableOtherInterfa
 		userInterfaceManager.DisableInterface(interfaceName, true)
 
 	-- Just a safety check to make sure the interface actually exists.
-	elseif userInterfaceManager.GetInterface(interfaceName) then
+	elseif userInterfaceManager.GetInterface(interfaceName) and userInterfaceManager.GetInterface(interfaceName):IsA("GuiBase2d") then
 		userInterfaceManager.GetInterface(interfaceName).Enabled = true
 	end
 end
@@ -29,7 +31,7 @@ function userInterfaceManager.DisableInterface(interfaceName, exceptionBoolean)
 
 	-- You only want a specific interface to be disabled only.
 	if interfaceName and not exceptionBoolean then
-		if not userInterfaceManager.GetInterface(interfaceName) then return end
+		if not userInterfaceManager.GetInterface(interfaceName) or not userInterfaceManager.GetInterface(interfaceName):IsA("GuiBase2d") then return end
 		userInterfaceManager.GetInterface(interfaceName).Enabled = false
 
 	-- This can either be disable all interfaces or disable all interfaces except interfaceName correspondant.
@@ -37,7 +39,7 @@ function userInterfaceManager.DisableInterface(interfaceName, exceptionBoolean)
 		for _, interfaceObject in next, clientEssentialsLibrary.GetPlayer():WaitForChild("PlayerGui"):GetChildren() do
 
 			-- This line is important so we don't disable stuff like Chat and PlayerList etc.
-			if coreModule.Services.StarterGui:FindFirstChild(interfaceObject.Name) then
+			if coreModule.Services.StarterGui:FindFirstChild(interfaceObject.Name) and interfaceObject:IsA("GuiBase2d") then
 				interfaceObject.Enabled = exceptionBoolean and interfaceObject.Name == interfaceName
 			end
 		end
