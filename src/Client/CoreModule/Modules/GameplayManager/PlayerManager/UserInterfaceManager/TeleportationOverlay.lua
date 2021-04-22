@@ -12,13 +12,13 @@ function specificInterfaceManager.Initialize()
     specificInterfaceManager.Interface.Overlay = specificInterfaceManager.Interface.ScreenGui:WaitForChild("Overlay")
 
     -- The screen fades to white when teleporting.
-    coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.TeleportationStateUpdated").OnClientInvoke = function(isTeleporting)
+    coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.TeleportationStateUpdated").OnClientInvoke = function(isTeleporting, animationLength)
         if specificInterfaceManager.LastTweenObject then specificInterfaceManager.LastTweenObject:Cancel() end
         userInterfaceManager.EnableInterface(specificInterfaceManager.Interface.ScreenGui.Name, true)
 
         specificInterfaceManager.LastTweenObject = coreModule.Services.TweenService:Create(
             specificInterfaceManager.Interface.Overlay,
-            TweenInfo.new(0.5, Enum.EasingStyle.Linear),
+            TweenInfo.new(animationLength, Enum.EasingStyle.Linear),
             {BackgroundTransparency = isTeleporting and 0 or 1}
         )
         specificInterfaceManager.LastTweenObject:Play()

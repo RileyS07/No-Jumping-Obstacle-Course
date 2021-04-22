@@ -183,7 +183,7 @@ function teleportationManager.TeleportPlayerPostTranslationToCFrame(player, goal
 	teleportationManager.PlayersBeingTeleported[player] = true
 
 	-- We can start the effect.
-	teleportationManager.Remotes.TeleportationStateUpdated:InvokeClient(player, true)
+	teleportationManager.Remotes.TeleportationStateUpdated:InvokeClient(player, true, script:GetAttribute("TeleportationAnimationLength") or 0.5)
 	wait(script:GetAttribute("TeleportationAnimationLength") or 0.5)
 
 	-- We need to double check if they're still alive after yielding though.
@@ -191,7 +191,7 @@ function teleportationManager.TeleportPlayerPostTranslationToCFrame(player, goal
 	player.Character:SetPrimaryPartCFrame(goalCFrame)
 
 	wait(script:GetAttribute("TeleportationAnimationLength") or 0.5)
-	teleportationManager.Remotes.TeleportationStateUpdated:InvokeClient(player, false)
+	teleportationManager.Remotes.TeleportationStateUpdated:InvokeClient(player, false, script:GetAttribute("TeleportationAnimationLength") or 0.5)
 	teleportationManager.PlayersBeingTeleported[player] = nil
 
 	-- Do we restore player conditions?
