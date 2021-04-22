@@ -6,7 +6,7 @@ local coreModule = require(script:FindFirstAncestor("CoreModule"))
 local userDataManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.UserDataManager"))
 local badgeLibrary = require(coreModule.GetObject("Libraries.BadgeLibrary"))
 local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
-local badgeConfig = require(script.Badges)
+local badgeStorageLibrary = require(coreModule.Shared.GetObject("Libraries.BadgeStorage"))
 
 -- Initialize
 function checkpointsManager.Initialize()
@@ -76,7 +76,7 @@ function checkpointsManager.UpdateCurrentCheckpoint(player, checkpointNumber)
 		
 		-- Backwards compatibility for award trial badges.
 		if checkpointNumber > 1 and checkpointNumber%10 == 1 then
-			badgeLibrary.AwardBadge(player, badgeConfig.TrialBadges[math.floor(checkpointNumber/10)])
+			badgeLibrary.AwardBadge(player, badgeStorageLibrary.GetBadgeList("Trials")[math.floor(checkpointNumber/10)])
 		end
 		
 		-- If they're the same then UpdateFarthestCheckpoint has already made the remote call.
