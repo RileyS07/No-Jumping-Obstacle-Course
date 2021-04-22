@@ -28,6 +28,19 @@ function checkpointsManager.Initialize()
 		end
 	end
 
+	-- The client wants to teleport to a specific stage.
+	coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.TeleportToStage").OnServerEvent:Connect(function(player, checkpointNumber)
+		if not typeof(checkpointNumber) ~= "number" then return end
+		if not workspace.Map.Gameplay.LevelStorage.Checkpoints:FindFirstChild(checkpointNumber) then return end
+		if not utilitiesLibrary.IsPlayerAlive(player) then return end
+		if not userDataManager.GetData(player) then return end
+		if userDataManager.GetData(player).UserInformation.FarthestCheckpoint < checkpointNumber then return end
+
+		-- Update their Farthest and Current checkpoints.
+		checkpointsManager.UpdateFarthestCheckpoint(player, checkpointNumber)
+		checkpointsManager.UpdateCurrentCheckpoint(player, checkpointNumber)
+	end)
+
 	-- Setting up remotes + assets.
 	checkpointsManager.Remotes.CheckpointInformationUpdated = coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.CheckpointInformationUpdated")
 	checkpointsManager.Remotes.PlaySoundEffect = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.PlaySoundEffect")
@@ -77,6 +90,7 @@ function checkpointsManager.UpdateCurrentCheckpoint(player, checkpointNumber)
 		-- Backwards compatibility for award trial badges.
 		if checkpointNumber > 1 and checkpointNumber%10 == 1 then
 			badgeLibrary.AwardBadge(player, badgeStorageLibrary.GetBadgeList("Trials")[math.floor(checkpointNumber/10)])
+			checkpointsManager.Remotes.PlaySoundEffect:FireClient(player, "Clapping")
 		end
 		
 		-- If they're the same then UpdateFarthestCheckpoint has already made the remote call.

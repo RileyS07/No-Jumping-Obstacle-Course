@@ -8,15 +8,13 @@ local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilitie
 
 -- Initialize
 function teleporterObjectsManager.Initialize()
+    if not teleporterObjectsManager.GetTeleportersContainer() then return end
+
+    -- Setup.
     teleporterObjectsManager.Remotes.GetTeleportationConsent = coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.GetTeleportationConsent")
     
     -- Loading modules.
     coreModule.LoadModule("/BonusStages")
-  --[[  teleporterObjectsManager.GetTeleportationConsent(
-        coreModule.Services.Players:WaitForChild("Rile_ey"), 
-        "Example", 
-        "Are you sure you want to teleport to <font color=\"#5352ed\"><b>The Basic</b></font> bonus level?"
-    )]]
 end
 
 
@@ -35,6 +33,11 @@ end
 
 function teleporterObjectsManager.IsWaitingOnPlayerConsent(player)
     return teleporterObjectsManager.WaitingForPlayerConsent[player]
+end
+
+
+function teleporterObjectsManager.GetTeleportersContainer()
+    return workspace.Map.Gameplay:FindFirstChild("Teleporters")
 end
 
 
