@@ -42,6 +42,7 @@ function userDataManager.LoadData(player)
 		loadedProfileData:Reconcile()
 		loadedProfileData:ListenToRelease(function()
 			userDataManager.StoredProfiles[player] = nil
+			userDataManager.ProfilesBeingLoaded[player] = nil
 			player:Kick()
 		end)
 
