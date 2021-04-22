@@ -52,6 +52,7 @@ function respawnPlatformsManager.Initialize()
 					end
 				end
 				
+				-- Respawns them.
 				teleportationManager.TeleportPlayer(player)
 			end)
 		end

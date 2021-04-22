@@ -15,6 +15,7 @@ function teleportationManager.Initialize()
 	-- Loading modules.
 	coreModule.LoadModule("/Checkpoints")
 	coreModule.LoadModule("/RespawnPlatforms")
+	coreModule.LoadModule("/TeleporterObjectsManager")
 end
 
 

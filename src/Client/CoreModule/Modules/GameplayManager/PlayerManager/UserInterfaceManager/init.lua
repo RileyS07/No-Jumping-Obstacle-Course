@@ -1,12 +1,17 @@
 -- Variables
 local userInterfaceManager = {}
+userInterfaceManager.ActiveContainers = {}
+userInterfaceManager.ActiveContainerUpdated = Instance.new("BindableEvent")	-- => screenGui, container, isActive
+
 local coreModule = require(script:FindFirstAncestor("CoreModule"))
 local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
+local clientAnimationsLibrary = require(coreModule.GetObject("Libraries.ClientAnimations"))
 
 -- Initialize
 function userInterfaceManager.Initialize()
 	
 	-- Loading modules.
+	coreModule.LoadModule("/TeleportationConsent")
 	coreModule.LoadModule("/TeleportationOverlay")
 end
 
@@ -48,7 +53,67 @@ end
 
 
 function userInterfaceManager.GetInterface(interfaceName)
+	if typeof(interfaceName) ~= "string" then return end
 	return clientEssentialsLibrary.GetPlayer():WaitForChild("PlayerGui"):WaitForChild(interfaceName)
+end
+
+
+function userInterfaceManager.UpdateActiveContainer(container, functionParameters)
+	functionParameters = setmetatable(functionParameters or {}, {__index = {
+		CloseIfAlreadyActive = true,
+		OnlyOpenWhenNoActiveContainer = false,
+		OverrideBlur = false
+	}})
+
+	-- Type checking.
+	if not container or typeof(container) ~= "Instance" or not container:IsA("GuiObject") then return end
+	if not container:FindFirstAncestorOfClass("ScreenGui") then return end
+	local screenGui = container:FindFirstAncestorOfClass("ScreenGui")
+	userInterfaceManager.EnableInterface(screenGui.Name)
+
+	-- Is there any active container?
+	if not userInterfaceManager.IsActiveContainer(nil) then
+
+		-- Is this the active container? If so let's close it.
+		if userInterfaceManager.IsActiveContainer(container) then
+			if not functionParameters.CloseIfAlreadyActive then return end
+
+			clientAnimationsLibrary.PlayAnimation("CloseContainer", userInterfaceManager.ActiveContainers[screenGui])
+			userInterfaceManager.ActiveContainerUpdated:Fire(screenGui, userInterfaceManager.ActiveContainers[screenGui], false)
+			userInterfaceManager.ActiveContainers[screenGui] = nil
+
+		-- It's not the active container but there is one so we need to close that one and open this one.
+		elseif not functionParameters.OnlyOpenWhenNoActiveContainer then
+			clientAnimationsLibrary.PlayAnimation("CloseContainer", userInterfaceManager.ActiveContainers[screenGui])
+			userInterfaceManager.ActiveContainerUpdated:Fire(screenGui, userInterfaceManager.ActiveContainers[screenGui], false)
+
+			userInterfaceManager.ActiveContainers[screenGui] = container
+			clientAnimationsLibrary.PlayAnimation("OpenContainer", userInterfaceManager.ActiveContainers[screenGui])
+			userInterfaceManager.ActiveContainerUpdated:Fire(screenGui, userInterfaceManager.ActiveContainers[screenGui], true)
+		end
+
+	-- There is no active container.
+	else
+		userInterfaceManager.ActiveContainers[screenGui] = container
+		clientAnimationsLibrary.PlayAnimation("OpenContainer", userInterfaceManager.ActiveContainers[screenGui])
+		userInterfaceManager.ActiveContainerUpdated:Fire(screenGui, userInterfaceManager.ActiveContainers[screenGui], true)
+	end
+
+	-- Do we apply a blur?
+	if not functionParameters.OverrideBlur and coreModule.Services.Lighting:FindFirstChild("MenuBlur") then
+		coreModule.Services.TweenService:Create(
+			coreModule.Services.Lighting.MenuBlur,
+			TweenInfo.new(0.5, Enum.EasingStyle.Linear),
+			{Size = userInterfaceManager.IsActiveContainer(nil) and 0 or 13}
+		):Play()
+	end
+end
+
+
+function userInterfaceManager.IsActiveContainer(container)
+	if not container or typeof(container) ~= "Instance" or not container:IsA("GuiObject") then return end
+	if not container:FindFirstAncestorOfClass("ScreenGui") then return end
+	return userInterfaceManager.ActiveContainers[container:FindFirstAncestorOfClass("ScreenGui")] == container
 end
 
 
