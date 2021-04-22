@@ -5,6 +5,7 @@ specificInterfaceManager.LastTweenObject = nil
 
 local coreModule = require(script:FindFirstAncestor("CoreModule"))
 local userInterfaceManager = require(coreModule.GetObject("/Parent"))
+local clientAnimationsLibrary = require(coreModule.GetObject("Libraries.ClientAnimations"))
 
 -- Initialize
 function specificInterfaceManager.Initialize()
@@ -15,19 +16,14 @@ function specificInterfaceManager.Initialize()
     coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.TeleportationStateUpdated").OnClientInvoke = function(isTeleporting, animationLength)
         if specificInterfaceManager.LastTweenObject then specificInterfaceManager.LastTweenObject:Cancel() end
         userInterfaceManager.EnableInterface(specificInterfaceManager.Interface.ScreenGui.Name, true)
-
-        specificInterfaceManager.LastTweenObject = coreModule.Services.TweenService:Create(
-            specificInterfaceManager.Interface.Overlay,
-            TweenInfo.new(animationLength, Enum.EasingStyle.Linear),
-            {BackgroundTransparency = isTeleporting and 0 or 1}
-        )
-        specificInterfaceManager.LastTweenObject:Play()
+        clientAnimationsLibrary.PlayAnimation("TeleportationOverlay", specificInterfaceManager.Interface.Overlay, animationLength, isTeleporting)
 
         -- Do we hide the interface?
         if not isTeleporting then
             coroutine.wrap(function()
-                specificInterfaceManager.LastTweenObject.Completed:Wait()
-                if specificInterfaceManager.Interface.Overlay.BackgroundTransparency == 1 then
+                wait(animationLength)
+
+                if math.round(specificInterfaceManager.Interface.Overlay.BackgroundTransparency) == 1 then
                     userInterfaceManager.DisableInterface(specificInterfaceManager.Interface.ScreenGui.Name)
                 end
             end)()
