@@ -72,7 +72,7 @@ function userInterfaceManager.UpdateActiveContainer(container, functionParameter
 	userInterfaceManager.EnableInterface(screenGui.Name)
 
 	-- Is there any active container?
-	if not userInterfaceManager.IsActiveContainer(nil) then
+	if userInterfaceManager.HasActiveContainer(screenGui) then
 
 		-- Is this the active container? If so let's close it.
 		if userInterfaceManager.IsActiveContainer(container) then
@@ -104,7 +104,7 @@ function userInterfaceManager.UpdateActiveContainer(container, functionParameter
 		coreModule.Services.TweenService:Create(
 			coreModule.Services.Lighting.MenuBlur,
 			TweenInfo.new(0.5, Enum.EasingStyle.Linear),
-			{Size = userInterfaceManager.IsActiveContainer(nil) and 0 or 13}
+			{Size = userInterfaceManager.HasActiveContainer(screenGui) and 13 or 0}
 		):Play()
 	end
 end
@@ -114,6 +114,12 @@ function userInterfaceManager.IsActiveContainer(container)
 	if not container or typeof(container) ~= "Instance" or not container:IsA("GuiObject") then return end
 	if not container:FindFirstAncestorOfClass("ScreenGui") then return end
 	return userInterfaceManager.ActiveContainers[container:FindFirstAncestorOfClass("ScreenGui")] == container
+end
+
+
+function userInterfaceManager.HasActiveContainer(screenGui)
+	if not screenGui or typeof(screenGui) ~= "Instance" or not screenGui:IsA("ScreenGui") then return end
+	return userInterfaceManager.ActiveContainers[screenGui] ~= nil
 end
 
 

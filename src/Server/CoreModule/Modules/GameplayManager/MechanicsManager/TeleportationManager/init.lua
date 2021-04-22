@@ -20,7 +20,7 @@ end
 
 
 -- Methods
--- TODO: Actually complete this.
+-- This translates the user's information + given data into a format that the private functions can utilize.
 function teleportationManager.TeleportPlayer(player, functionParamaters)
 	functionParamaters = setmetatable(functionParamaters or {}, {__index = {
 		ManualTeleportationLocation = nil,	-- This can be a Vector3/CFrame or a PlaceId.
@@ -163,6 +163,12 @@ function teleportationManager.TeleportPlayer(player, functionParamaters)
 end
 
 
+-- This will restore the client to what it was like the second they joined with no modifiers.
+function teleportationManager.RestorePlayerConditions()
+
+end
+
+
 function teleportationManager.IsPlayerBeingTeleported(player)
 	return teleportationManager.PlayersBeingTeleported[player]
 end
@@ -187,6 +193,11 @@ function teleportationManager.TeleportPlayerPostTranslationToCFrame(player, goal
 	wait(script:GetAttribute("TeleportationAnimationLength") or 0.5)
 	teleportationManager.Remotes.TeleportationStateUpdated:InvokeClient(player, false)
 	teleportationManager.PlayersBeingTeleported[player] = nil
+
+	-- Do we restore player conditions?
+	if restorePlayerConditions then
+		teleportationManager.RestorePlayerConditions()
+	end
 end
 
 
