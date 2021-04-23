@@ -1,5 +1,7 @@
 -- Variables
 local gameplayMusicManager = {}
+gameplayMusicManager.PrimarySoundObject = nil
+gameplayMusicManager.SecondarySoundObject = nil
 gameplayMusicManager.MusicState = nil
 gameplayMusicManager.Assets = {}
 
@@ -10,6 +12,15 @@ function gameplayMusicManager.Initialize()
     gameplayMusicManager.MusicState = coreModule.Enums.MusicState.None
     gameplayMusicManager.Assets.MusicContainer = coreModule.Shared.GetObject("//Assets.Sounds.Music")
 
+	gameplayMusicManager.PrimarySoundObject = Instance.new("Sound")
+	gameplayMusicManager.SecondarySoundObject = Instance.new("Sound")
+	gameplayMusicManager.PrimarySoundObject.Parent, gameplayMusicManager.SecondarySoundObject.Parent = script, script
+
+	-- UpdateMusic bindings.
+	gameplayMusicManager.UpdateMusic(coreModule.Shared.GetObject("//Remotes.Data.GetUserData"):InvokeServer())
+	coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.CheckpointInformationUpdated").OnClientEvent:Connect(function(userData)
+		gameplayMusicManager.UpdateMusic(userData)
+	end)
 end
 
 
@@ -18,30 +29,35 @@ end
 function gameplayMusicManager.UpdateMusic(userData)
     if not userData then return end
     if not gameplayMusicManager.Assets.MusicContainer then return end
-
+	if #gameplayMusicManager.Assets.MusicContainer:GetChildren() == 0 then return end
+	
     -- SpecialLocationIdentifier; Checking to see if we can apply any special music for these special locations.
     if userData.UserInformation.SpecialLocationIdentifier ~= coreModule.Shared.Enums.SpecialLocation.None then
 
         -- TherapyZone.
         if userData.UserInformation.SpecialLocationIdentifier == coreModule.Shared.Enums.SpecialLocation.TherapyZone then
-            if gameplayMusicManager.Assets.MusicContainer:FindFirstChild("TherapyZone") and (gameplayMusicManager.Assets.MusicContainer.TherapyZone:IsA("Sound") or gameplayMusicManager.Assets.MusicContainer.TherapyZone:IsA("SoundGroup")) then
-                gameplayMusicManager.UpdateMusicPostTranslation(gameplayMusicManager.Assets.MusicContainer.TherapyZone)
+
+			local soundContainer = gameplayMusicManager.Assets.MusicContainer:FindFirstChild("TherapyZone")
+            if soundContainerand (soundContainer:IsA("Sound") or soundContainer:IsA("SoundGroup")) then
+                return gameplayMusicManager.UpdateMusicPostTranslation(soundContainer)
             else
                 coreModule.Debug(
                     ("GameplayMusic: %s does not exist."):format("TherapyZone"),
-                    coreModule.Shared.DebugLevel.Exception,
+                    coreModule.Shared.Enums.DebugLevel.Exception,
                     warn
                 )
             end
 
         -- VictoryZone.
         elseif userData.UserInformation.SpecialLocationIdentifier == coreModule.Shared.Enums.SpecialLocation.VictoryZone then
-            if gameplayMusicManager.Assets.MusicContainer:FindFirstChild("VictoryZone") and (gameplayMusicManager.Assets.MusicContainer.VictoryZone:IsA("Sound") or gameplayMusicManager.Assets.MusicContainer.VictoryZone:IsA("SoundGroup")) then
-                gameplayMusicManager.UpdateMusicPostTranslation(gameplayMusicManager.Assets.MusicContainer.VictoryZone)
+
+			local soundContainer = gameplayMusicManager.Assets.MusicContainer:FindFirstChild("VictoryZone")
+            if soundContainer and (soundContainer:IsA("Sound") or soundContainer:IsA("SoundGroup")) then
+                return gameplayMusicManager.UpdateMusicPostTranslation(soundContainer)
             else
                 coreModule.Debug(
                     ("GameplayMusic: %s does not exist."):format("VictoryZone"),
-                    coreModule.Shared.DebugLevel.Exception,
+                    coreModule.Shared.Enums.DebugLevel.Exception,
                     warn
                 )
             end
@@ -50,12 +66,14 @@ function gameplayMusicManager.UpdateMusic(userData)
 
     -- Next we're gonna see if they're in a BonusStage.
     if userData.UserInformation.CurrentBonusStage ~= "" then
-        if gameplayMusicManager.Assets.MusicContainer:FindFirstChild(userData.UserInformation.CurrentBonusStage) and (gameplayMusicManager.Assets.MusicContainer[userData.UserInformation.CurrentBonusStage]:IsA("Sound") or gameplayMusicManager.Assets.MusicContainer[userData.UserInformation.CurrentBonusStage]:IsA("SoundGroup")) then
-            gameplayMusicManager.UpdateMusicPostTranslation(gameplayMusicManager.Assets.MusicContainer[userData.UserInformation.CurrentBonusStage])
+
+		local soundContainer = gameplayMusicManager.Assets.MusicContainer:FindFirstChild(userData.UserInformation.CurrentBonusStage)
+        if soundContainer and (soundContainer:IsA("Sound") or soundContainer:IsA("SoundGroup")) then
+            return gameplayMusicManager.UpdateMusicPostTranslation(soundContainer)
         else
             coreModule.Debug(
                 ("GameplayMusic: %s does not exist."):format(userData.UserInformation.CurrentBonusStage),
-                coreModule.Shared.DebugLevel.Exception,
+                coreModule.Shared.Enums.DebugLevel.Exception,
                 warn
             )
         end
@@ -63,35 +81,125 @@ function gameplayMusicManager.UpdateMusic(userData)
 
     -- Can we apply a special music for a Trial?
     if userData.UserInformation.CurrentCheckpoint > 0 and userData.UserInformation.CurrentCheckpoint%10 == 0 then
-        if gameplayMusicManager.Assets.MusicContainer:FindFirstChild("Zone "..tostring(userData.UserInformation.CurrentCheckpoint/10).." Trial") and (gameplayMusicManager.Assets.MusicContainer["Zone "..tostring(userData.UserInformation.CurrentCheckpoint/10).." Trial"]:IsA("Sound") or gameplayMusicManager.Assets.MusicContainer["Zone "..tostring(userData.UserInformation.CurrentCheckpoint/10).." Trial"]:IsA("SoundGroup")) then
-            gameplayMusicManager.UpdateMusicPostTranslation(gameplayMusicManager.Assets.MusicContainer["Zone "..tostring(userData.UserInformation.CurrentCheckpoint/10).." Trial"])
+
+		local soundContainer = gameplayMusicManager.Assets.MusicContainer:FindFirstChild("Zone "..tostring(userData.UserInformation.CurrentCheckpoint/10).." Trial")
+        if soundContainer and (soundContainer:IsA("Sound") or soundContainer:IsA("SoundGroup")) then
+            return gameplayMusicManager.UpdateMusicPostTranslation(soundContainer)
         else
             coreModule.Debug(
                 ("GameplayMusic: %s does not exist."):format("Zone "..tostring(userData.UserInformation.CurrentCheckpoint/10).." Trial"),
-                coreModule.Shared.DebugLevel.Exception,
+                coreModule.Shared.Enums.DebugLevel.Exception,
                 warn
             )
         end
     end
-    --[[
-function musicManager.GetMusicNameFromData()
-	if not musicManager.UserData then return end
-	
-	--
-	if musicManager.UserData.CurrentStats.IsInTherapy then return config.TherapyMusicName end
-	if musicManager.UserData.CurrentStats.IsInVictory then return config.VictoryMusicName end
-	if musicManager.UserData.CurrentStats.BonusLevelName ~= "" then return config.BonusLevelMusicNameFormat:format(musicManager.UserData.CurrentStats.BonusLevelName) end
-	if musicManager.UserData.CurrentStats.CurrentUsingCheckpoint%10 == 0 then return config.TrialLevelMusicNameFormat:format(math.ceil(musicManager.UserData.CurrentStats.CurrentUsingCheckpoint/10)) end
-	return config.NormalLevelMusicNameFormat:format(math.ceil(musicManager.UserData.CurrentStats.CurrentUsingCheckpoint/10))
-end
-    ]]
+
+	-- Is there any for this specific stage?
+	local stageSpecificSoundContainer = gameplayMusicManager.Assets.MusicContainer:FindFirstChild("Stage "..tostring(userData.UserInformation.CurrentCheckpoint))
+	if stageSpecificSoundContainer and (stageSpecificSoundContainer:IsA("Sound") or stageSpecificSoundContainer:IsA("SoundGroup")) then
+		return gameplayMusicManager.UpdateMusicPostTranslation(stageSpecificSoundContainer)
+	else
+		coreModule.Debug(
+			("GameplayMusic: %s does not exist."):format("Stage "..tostring(userData.UserInformation.CurrentCheckpoint)),
+			coreModule.Shared.Enums.DebugLevel.Exception,
+			warn
+		)
+	end
+
+	-- Is there any for this zone?
+	local zoneSpecificSoundContainer = gameplayMusicManager.Assets.MusicContainer:FindFirstChild("Zone "..tostring(math.ceil(userData.UserInformation.CurrentCheckpoint/10)))
+	if zoneSpecificSoundContainer and (zoneSpecificSoundContainer:IsA("Sound") or zoneSpecificSoundContainer:IsA("SoundGroup")) then
+		return gameplayMusicManager.UpdateMusicPostTranslation(zoneSpecificSoundContainer)
+	else
+		coreModule.Debug(
+			("GameplayMusic: %s does not exist."):format("Stage "..tostring(userData.UserInformation.CurrentCheckpoint)),
+			coreModule.Shared.Enums.DebugLevel.Standard,
+			warn
+		)
+	end
+
+	-- Desperation to have at least a sound playing.
+	local musicContainerChildren = gameplayMusicManager.Assets.MusicContainer:GetChildren()
+	for reverseIndex = #musicContainerChildren, 1, -1 do
+		local soundContainer = musicContainerChildren[reverseIndex]
+
+		if soundContainer and (soundContainer:IsA("Sound") or soundContainer:IsA("SoundGroup")) then
+            return gameplayMusicManager.UpdateMusicPostTranslation(soundContainer)
+		end
+	end
 end
 
 
 -- Private Methods
 -- This takes in a Sound object or SoundGroup.
 function gameplayMusicManager.UpdateMusicPostTranslation(soundContainer)
+	if typeof(soundContainer) ~= "Instance" then return end
+	if not soundContainer:IsA("Sound") and not soundContainer:IsA("SoundGroup") then return end
+	if gameplayMusicManager.PrimarySoundObject.Name == soundContainer then return end
+	gameplayMusicManager.PrimarySoundObject.Name = soundContainer
+	
+	-- Sounds vs SoundGroups act differently.
+	if soundContainer:IsA("Sound") then
 
+	else
+
+	end
+	--musicManager.CurrentPlayingMusicsName = newMusicName
+	--[[
+	if coreModule.Shared.GetObject("//Assets.Sounds.Music."..musicManager.CurrentPlayingMusicsName):IsA("Sound") then
+		if musicManager.IsPlayingMusic then
+			if musicManager.IsFadingMusic then
+				musicManager.SecondaryMusicObject.SoundId = coreModule.Shared.GetObject("//Assets.Sounds.Music."..musicManager.CurrentPlayingMusicsName).SoundId
+				return
+			end
+			
+			--
+			musicManager.SecondaryMusicObject.SoundId = coreModule.Shared.GetObject("//Assets.Sounds.Music."..musicManager.CurrentPlayingMusicsName).SoundId
+			musicManager.SecondaryMusicObject.TimePosition = 0
+			musicManager.IsFadingMusic = true
+			musicFadingLibrary.Fade(musicManager.PrimaryMusicObject, musicManager.SecondaryMusicObject, config.MusicFadeDuration)
+			musicManager.PrimaryMusicObject.Name, musicManager.SecondaryMusicObject.Name = musicManager.SecondaryMusicObject.Name, musicManager.PrimaryMusicObject.Name
+			musicManager.PrimaryMusicObject, musicManager.SecondaryMusicObject = musicManager.SecondaryMusicObject, musicManager.PrimaryMusicObject
+			musicManager.SecondaryMusicObject.TimePosition = 0
+			musicManager.IsFadingMusic = false
+		else
+			musicManager.PrimaryMusicObject.SoundId = coreModule.Shared.GetObject("//Assets.Sounds.Music."..musicManager.CurrentPlayingMusicsName).SoundId
+			musicManager.IsPlayingMusic = true
+		end
+	else
+		coroutine.wrap(function()
+			while musicManager.CurrentPlayingMusicsName == newMusicName do
+				for index = 1, #coreModule.Shared.GetObject("//Assets.Sounds.Music."..musicManager.CurrentPlayingMusicsName):GetChildren() do
+					if musicManager.CurrentPlayingMusicsName ~= newMusicName then return end
+					
+					--
+					if musicManager.IsPlayingMusic then
+						if musicManager.IsFadingMusic then
+							musicManager.SecondaryMusicObject.SoundId = coreModule.Shared.GetObject("//Assets.Sounds.Music."..musicManager.CurrentPlayingMusicsName):GetChildren()[index].SoundId
+							return
+						end
+
+						--
+						musicManager.SecondaryMusicObject.SoundId = coreModule.Shared.GetObject("//Assets.Sounds.Music."..musicManager.CurrentPlayingMusicsName):GetChildren()[index].SoundId
+						musicManager.SecondaryMusicObject.TimePosition = 0
+						musicManager.IsFadingMusic = true
+						musicFadingLibrary.Fade(musicManager.PrimaryMusicObject, musicManager.SecondaryMusicObject, config.MusicFadeDuration)
+						musicManager.PrimaryMusicObject.Name, musicManager.SecondaryMusicObject.Name = musicManager.SecondaryMusicObject.Name, musicManager.PrimaryMusicObject.Name
+						musicManager.PrimaryMusicObject, musicManager.SecondaryMusicObject = musicManager.SecondaryMusicObject, musicManager.PrimaryMusicObject
+						musicManager.SecondaryMusicObject.TimePosition = 0
+						musicManager.IsFadingMusic = false
+					else
+						musicManager.PrimaryMusicObject.SoundId = coreModule.Shared.GetObject("//Assets.Sounds.Music."..musicManager.CurrentPlayingMusicsName):GetChildren()[index].SoundId
+						musicManager.IsPlayingMusic = true
+					end
+					
+					--
+					musicManager.PrimaryMusicObject.DidLoop:Wait()
+				end
+			end
+		end)()
+	end
+	print(soundContainer.Name)]]
 end
 
 

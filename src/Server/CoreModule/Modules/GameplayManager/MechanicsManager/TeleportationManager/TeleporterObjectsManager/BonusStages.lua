@@ -101,7 +101,7 @@ function bonusStagesManager.Initialize()
 							teleportationManager.TeleportPlayer(player)
 						else
 							userData.UserInformation.CurrentBonusStageCheckpoint = tonumber(checkpoint.Name)
-							checkpointsManager.Remotes.PlaySoundEffect:FireClient(player, "CheckpointTouched", {Parent = checkpoint}) 
+							bonusStagesManager.Remotes.PlaySoundEffect:FireClient(player, "CheckpointTouched", {Parent = checkpoint}) 
 						end
 
 						-- Updated.
