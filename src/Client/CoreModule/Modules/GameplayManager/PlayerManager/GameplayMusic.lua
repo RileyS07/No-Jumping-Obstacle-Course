@@ -38,7 +38,7 @@ function gameplayMusicManager.UpdateMusic(userData)
         if userData.UserInformation.SpecialLocationIdentifier == coreModule.Shared.Enums.SpecialLocation.TherapyZone then
 
 			local soundContainer = gameplayMusicManager.Assets.MusicContainer:FindFirstChild("TherapyZone")
-            if soundContainerand (soundContainer:IsA("Sound") or soundContainer:IsA("SoundGroup")) then
+            if soundContainer and (soundContainer:IsA("Sound") or soundContainer:IsA("SoundGroup")) then
                 return gameplayMusicManager.UpdateMusicPostTranslation(soundContainer)
             else
                 coreModule.Debug(
@@ -137,7 +137,7 @@ function gameplayMusicManager.UpdateMusicPostTranslation(soundContainer)
 	if not soundContainer:IsA("Sound") and not soundContainer:IsA("SoundGroup") then return end
 	if gameplayMusicManager.PrimarySoundObject.Name == soundContainer then return end
 	gameplayMusicManager.PrimarySoundObject.Name = soundContainer
-	
+
 	-- Sounds vs SoundGroups act differently.
 	if soundContainer:IsA("Sound") then
 
