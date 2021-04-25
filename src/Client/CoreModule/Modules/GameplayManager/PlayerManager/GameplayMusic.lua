@@ -14,6 +14,8 @@ function gameplayMusicManager.Initialize()
 
 	gameplayMusicManager.PrimarySoundObject = Instance.new("Sound")
 	gameplayMusicManager.SecondarySoundObject = Instance.new("Sound")
+	gameplayMusicManager.PrimarySoundObject.Looped, gameplayMusicManager.SecondarySoundObject.Looped = true, true
+	gameplayMusicManager.PrimarySoundObject.Playing, gameplayMusicManager.SecondarySoundObject.Playing = true, true
 	gameplayMusicManager.PrimarySoundObject.Parent, gameplayMusicManager.SecondarySoundObject.Parent = script, script
 
 	-- UpdateMusic bindings.
@@ -101,7 +103,7 @@ function gameplayMusicManager.UpdateMusic(userData)
 	else
 		coreModule.Debug(
 			("GameplayMusic: %s does not exist."):format("Stage "..tostring(userData.UserInformation.CurrentCheckpoint)),
-			coreModule.Shared.Enums.DebugLevel.Exception,
+			coreModule.Shared.Enums.DebugLevel.Standard,
 			warn
 		)
 	end
@@ -135,200 +137,96 @@ end
 function gameplayMusicManager.UpdateMusicPostTranslation(soundContainer)
 	if typeof(soundContainer) ~= "Instance" then return end
 	if not soundContainer:IsA("Sound") and not soundContainer:IsA("SoundGroup") then return end
-	if gameplayMusicManager.PrimarySoundObject.Name == soundContainer then return end
-	gameplayMusicManager.PrimarySoundObject.Name = soundContainer
+	if gameplayMusicManager.PrimarySoundObject.Name == soundContainer.Name then return end
+	gameplayMusicManager.PrimarySoundObject.Name = soundContainer.Name
 
 	-- Sounds vs SoundGroups act differently.
 	if soundContainer:IsA("Sound") then
+		if gameplayMusicManager.MusicState ~= coreModule.Enums.MusicState.None then
 
-	else
-
-	end
-	--musicManager.CurrentPlayingMusicsName = newMusicName
-	--[[
-	if coreModule.Shared.GetObject("//Assets.Sounds.Music."..musicManager.CurrentPlayingMusicsName):IsA("Sound") then
-		if musicManager.IsPlayingMusic then
-			if musicManager.IsFadingMusic then
-				musicManager.SecondaryMusicObject.SoundId = coreModule.Shared.GetObject("//Assets.Sounds.Music."..musicManager.CurrentPlayingMusicsName).SoundId
+			-- If it's in the process of fading between songs we just update and let it do it's thing.
+			if gameplayMusicManager.MusicState == coreModule.Enums.MusicState.Fading then
+				gameplayMusicManager.SecondarySoundObject.SoundId = soundContainer.SoundId
 				return
 			end
-			
-			--
-			musicManager.SecondaryMusicObject.SoundId = coreModule.Shared.GetObject("//Assets.Sounds.Music."..musicManager.CurrentPlayingMusicsName).SoundId
-			musicManager.SecondaryMusicObject.TimePosition = 0
-			musicManager.IsFadingMusic = true
-			musicFadingLibrary.Fade(musicManager.PrimaryMusicObject, musicManager.SecondaryMusicObject, config.MusicFadeDuration)
-			musicManager.PrimaryMusicObject.Name, musicManager.SecondaryMusicObject.Name = musicManager.SecondaryMusicObject.Name, musicManager.PrimaryMusicObject.Name
-			musicManager.PrimaryMusicObject, musicManager.SecondaryMusicObject = musicManager.SecondaryMusicObject, musicManager.PrimaryMusicObject
-			musicManager.SecondaryMusicObject.TimePosition = 0
-			musicManager.IsFadingMusic = false
+
+			-- So this means we need to switch sources so we can fade properly.
+			gameplayMusicManager.MusicState = coreModule.Enums.MusicState.Fading
+			gameplayMusicManager.SwitchSoundObjects(soundContainer)
+			gameplayMusicManager.MusicState = coreModule.Enums.MusicState.Playing
 		else
-			musicManager.PrimaryMusicObject.SoundId = coreModule.Shared.GetObject("//Assets.Sounds.Music."..musicManager.CurrentPlayingMusicsName).SoundId
-			musicManager.IsPlayingMusic = true
+			gameplayMusicManager.MusicState = coreModule.Enums.MusicState.Playing
+			gameplayMusicManager.PrimarySoundObject.SoundId = soundContainer.SoundId
 		end
-	else
+
+	-- We play SoundGroups like a sound track.
+	elseif #soundContainer:GetChildren() > 0 then
+
 		coroutine.wrap(function()
-			while musicManager.CurrentPlayingMusicsName == newMusicName do
-				for index = 1, #coreModule.Shared.GetObject("//Assets.Sounds.Music."..musicManager.CurrentPlayingMusicsName):GetChildren() do
-					if musicManager.CurrentPlayingMusicsName ~= newMusicName then return end
-					
-					--
-					if musicManager.IsPlayingMusic then
-						if musicManager.IsFadingMusic then
-							musicManager.SecondaryMusicObject.SoundId = coreModule.Shared.GetObject("//Assets.Sounds.Music."..musicManager.CurrentPlayingMusicsName):GetChildren()[index].SoundId
+			while gameplayMusicManager.PrimarySoundObject.Name == soundContainer.Name do
+				for index = 1, #soundContainer:GetChildren() do
+					if gameplayMusicManager.PrimarySoundObject.Name ~= soundContainer.Name then return end
+
+					-- From here it's literally copy and paste...
+					if gameplayMusicManager.MusicState ~= coreModule.Enums.MusicState.None then
+
+						-- If it's in the process of fading between songs we just update and let it do it's thing.
+						if gameplayMusicManager.MusicState == coreModule.Enums.MusicState.Fading then
+							gameplayMusicManager.SecondarySoundObject.SoundId = soundContainer.SoundId
 							return
 						end
-
-						--
-						musicManager.SecondaryMusicObject.SoundId = coreModule.Shared.GetObject("//Assets.Sounds.Music."..musicManager.CurrentPlayingMusicsName):GetChildren()[index].SoundId
-						musicManager.SecondaryMusicObject.TimePosition = 0
-						musicManager.IsFadingMusic = true
-						musicFadingLibrary.Fade(musicManager.PrimaryMusicObject, musicManager.SecondaryMusicObject, config.MusicFadeDuration)
-						musicManager.PrimaryMusicObject.Name, musicManager.SecondaryMusicObject.Name = musicManager.SecondaryMusicObject.Name, musicManager.PrimaryMusicObject.Name
-						musicManager.PrimaryMusicObject, musicManager.SecondaryMusicObject = musicManager.SecondaryMusicObject, musicManager.PrimaryMusicObject
-						musicManager.SecondaryMusicObject.TimePosition = 0
-						musicManager.IsFadingMusic = false
+			
+						-- So this means we need to switch sources so we can fade properly.
+						gameplayMusicManager.MusicState = coreModule.Enums.MusicState.Fading
+						gameplayMusicManager.SwitchSoundObjects(soundContainer)
+						gameplayMusicManager.MusicState = coreModule.Enums.MusicState.Playing
 					else
-						musicManager.PrimaryMusicObject.SoundId = coreModule.Shared.GetObject("//Assets.Sounds.Music."..musicManager.CurrentPlayingMusicsName):GetChildren()[index].SoundId
-						musicManager.IsPlayingMusic = true
+						gameplayMusicManager.MusicState = coreModule.Enums.MusicState.Playing
+						gameplayMusicManager.PrimarySoundObject.SoundId = soundContainer.SoundId
 					end
-					
-					--
-					musicManager.PrimaryMusicObject.DidLoop:Wait()
 				end
 			end
 		end)()
 	end
-	print(soundContainer.Name)]]
+end
+
+
+-- This methods allows for clean fading of music using FadeBetweenSounds; THIS METHOD DOES NOT HANDLE STATE CHANGES.
+function gameplayMusicManager.SwitchSoundObjects(soundObject)
+	gameplayMusicManager.SecondarySoundObject.SoundId = soundObject.SoundId
+	gameplayMusicManager.SecondarySoundObject.TimePosition = 0
+
+	gameplayMusicManager.FadeBetweenSounds()
+
+	-- Switch time.
+	gameplayMusicManager.PrimarySoundObject.Name, gameplayMusicManager.SecondarySoundObject.Name = gameplayMusicManager.SecondarySoundObject.Name, gameplayMusicManager.PrimarySoundObject.Name
+	gameplayMusicManager.PrimarySoundObject, gameplayMusicManager.SecondarySoundObject = gameplayMusicManager.SecondarySoundObject, gameplayMusicManager.PrimarySoundObject
+
+	-- Finish.
+	gameplayMusicManager.SecondarySoundObject.TimePosition = 0
+end
+
+
+function gameplayMusicManager.FadeBetweenSounds()
+	local currentSoundObjectFadeTween = coreModule.Services.TweenService:Create(
+		gameplayMusicManager.PrimarySoundObject,
+		TweenInfo.new(0.5, Enum.EasingStyle.Linear),
+		{Volume = 0}
+	)
+
+	currentSoundObjectFadeTween:Play()
+	currentSoundObjectFadeTween.Completed:Wait()
+
+	local nextSoundObjectFadeTween = coreModule.Services.TweenService:Create(
+		gameplayMusicManager.SecondarySoundObject,
+		TweenInfo.new(0.5, Enum.EasingStyle.Linear),
+		{Volume = 0.25}
+	)
+
+	nextSoundObjectFadeTween:Play()
+	nextSoundObjectFadeTween.Completed:Wait()
 end
 
 
 --
 return gameplayMusicManager
-
---[[
-
--- Variables
-local musicManager = {}
-musicManager.PrimaryMusicObject = script:WaitForChild("PrimaryMusic")
-musicManager.SecondaryMusicObject = script:WaitForChild("SecondaryMusic")
-musicManager.CurrentPlayingMusicsName = ""
-musicManager.IsPlayingMusic = false
-musicManager.IsFadingMusic = false
-musicManager.CanPlayMusic = true
-musicManager.UserData = nil
-
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
-local musicFadingLibrary = require(coreModule.Shared.GetObject("Libraries.MusicFading"))
-local config = require(script.Config)
-
--- Initialize
-function musicManager.Initialize()
-	musicManager.UserData = coreModule.Shared.GetObject("//Remotes.GetUserData"):InvokeServer()
-	
-	--
-	musicManager.UpdateMusic()
-	coreModule.Shared.GetObject("//Remotes.StageInformationUpdated").OnClientEvent:Connect(function(userData)
-		musicManager.UserData = userData
-		musicManager.UpdateMusic()
-	end)
-end
-
--- Methods
-function musicManager.UpdateMusic()
-	if not musicManager.CanPlayMusic then return end
-	if not musicManager.GetMusicNameFromData() then return end
-	if musicManager.CurrentPlayingMusicsName == musicManager.GetMusicNameFromData() then return end
-	
-	--
-	local newMusicName = musicManager.GetMusicNameFromData()
-	if not coreModule.Shared.GetObject("//Assets.Sounds.Music"):FindFirstChild(newMusicName) then
-		newMusicName = coreModule.Shared.GetObject("//Assets.Sounds.Music"):GetChildren()[Random.new():NextInteger(1, #coreModule.Shared.GetObject("//Assets.Sounds.Music"):GetChildren())].Name
-	end
-	
-	--
-	musicManager.CurrentPlayingMusicsName = newMusicName
-	if coreModule.Shared.GetObject("//Assets.Sounds.Music."..musicManager.CurrentPlayingMusicsName):IsA("Sound") then
-		if musicManager.IsPlayingMusic then
-			if musicManager.IsFadingMusic then
-				musicManager.SecondaryMusicObject.SoundId = coreModule.Shared.GetObject("//Assets.Sounds.Music."..musicManager.CurrentPlayingMusicsName).SoundId
-				return
-			end
-			
-			--
-			musicManager.SecondaryMusicObject.SoundId = coreModule.Shared.GetObject("//Assets.Sounds.Music."..musicManager.CurrentPlayingMusicsName).SoundId
-			musicManager.SecondaryMusicObject.TimePosition = 0
-			musicManager.IsFadingMusic = true
-			musicFadingLibrary.Fade(musicManager.PrimaryMusicObject, musicManager.SecondaryMusicObject, config.MusicFadeDuration)
-			musicManager.PrimaryMusicObject.Name, musicManager.SecondaryMusicObject.Name = musicManager.SecondaryMusicObject.Name, musicManager.PrimaryMusicObject.Name
-			musicManager.PrimaryMusicObject, musicManager.SecondaryMusicObject = musicManager.SecondaryMusicObject, musicManager.PrimaryMusicObject
-			musicManager.SecondaryMusicObject.TimePosition = 0
-			musicManager.IsFadingMusic = false
-		else
-			musicManager.PrimaryMusicObject.SoundId = coreModule.Shared.GetObject("//Assets.Sounds.Music."..musicManager.CurrentPlayingMusicsName).SoundId
-			musicManager.IsPlayingMusic = true
-		end
-	else
-		coroutine.wrap(function()
-			while musicManager.CurrentPlayingMusicsName == newMusicName do
-				for index = 1, #coreModule.Shared.GetObject("//Assets.Sounds.Music."..musicManager.CurrentPlayingMusicsName):GetChildren() do
-					if musicManager.CurrentPlayingMusicsName ~= newMusicName then return end
-					
-					--
-					if musicManager.IsPlayingMusic then
-						if musicManager.IsFadingMusic then
-							musicManager.SecondaryMusicObject.SoundId = coreModule.Shared.GetObject("//Assets.Sounds.Music."..musicManager.CurrentPlayingMusicsName):GetChildren()[index].SoundId
-							return
-						end
-
-						--
-						musicManager.SecondaryMusicObject.SoundId = coreModule.Shared.GetObject("//Assets.Sounds.Music."..musicManager.CurrentPlayingMusicsName):GetChildren()[index].SoundId
-						musicManager.SecondaryMusicObject.TimePosition = 0
-						musicManager.IsFadingMusic = true
-						musicFadingLibrary.Fade(musicManager.PrimaryMusicObject, musicManager.SecondaryMusicObject, config.MusicFadeDuration)
-						musicManager.PrimaryMusicObject.Name, musicManager.SecondaryMusicObject.Name = musicManager.SecondaryMusicObject.Name, musicManager.PrimaryMusicObject.Name
-						musicManager.PrimaryMusicObject, musicManager.SecondaryMusicObject = musicManager.SecondaryMusicObject, musicManager.PrimaryMusicObject
-						musicManager.SecondaryMusicObject.TimePosition = 0
-						musicManager.IsFadingMusic = false
-					else
-						musicManager.PrimaryMusicObject.SoundId = coreModule.Shared.GetObject("//Assets.Sounds.Music."..musicManager.CurrentPlayingMusicsName):GetChildren()[index].SoundId
-						musicManager.IsPlayingMusic = true
-					end
-					
-					--
-					musicManager.PrimaryMusicObject.DidLoop:Wait()
-				end
-			end
-		end)()
-	end
-end
-
-function musicManager.GetMusicNameFromData()
-	if not musicManager.UserData then return end
-	
-	--
-	if musicManager.UserData.CurrentStats.IsInTherapy then return config.TherapyMusicName end
-	if musicManager.UserData.CurrentStats.IsInVictory then return config.VictoryMusicName end
-	if musicManager.UserData.CurrentStats.BonusLevelName ~= "" then return config.BonusLevelMusicNameFormat:format(musicManager.UserData.CurrentStats.BonusLevelName) end
-	if musicManager.UserData.CurrentStats.CurrentUsingCheckpoint%10 == 0 then return config.TrialLevelMusicNameFormat:format(math.ceil(musicManager.UserData.CurrentStats.CurrentUsingCheckpoint/10)) end
-	return config.NormalLevelMusicNameFormat:format(math.ceil(musicManager.UserData.CurrentStats.CurrentUsingCheckpoint/10))
-end
-
-function musicManager.Update(settingValue)
-	if not musicManager.PrimaryMusicObject or not musicManager.SecondaryMusicObject then return end
-	musicManager.CanPlayMusic = settingValue
-	
-	--
-	if settingValue then
-		musicManager.PrimaryMusicObject.Playing = true
-		musicManager.SecondaryMusicObject.Playing = true
-		coroutine.wrap(musicManager.UpdateMusic)()
-	else
-		musicManager.PrimaryMusicObject.Playing = false
-		musicManager.SecondaryMusicObject.Playing = false
-	end
-end
-
---
-return musicManager
-]]
