@@ -14,6 +14,12 @@ function coreModule.Initialize()
     coreModule.Enums = coreModule.SetupEnums()
     coreModule.DebugLevel = coreModule.Shared.Enums.DebugLevel.None
 
+    -- We don't want to load in the entire game if this is a temporary server.
+    if coreModule.Shared.GetObject("//Remotes.Server.IsReservedServer"):InvokeServer() then
+        coreModule.LoadModule("Modules.GameplayManager.PlayerManager.UserInterfaceManager.VersionUpdates")
+        return
+    end
+    
     -- Loading modules
     coreModule.LoadModule("Modules.GameplayManager")
 end

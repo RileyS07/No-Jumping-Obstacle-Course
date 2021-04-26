@@ -14,7 +14,14 @@ function coreModule.Initialize()
     coreModule.Enums = coreModule.SetupEnums()
     coreModule.DebugLevel = coreModule.Shared.Enums.DebugLevel.None
 
+    -- We don't want to load in the entire game if this is a temporary server.
+    if require(coreModule.GetObject("Modules.ServerManager.VersionUpdates")).IsReservedServer() then
+        coreModule.LoadModule("Modules.ServerManager")
+        return
+    end
+
     -- Loading modules
+    coreModule.LoadModule("Modules.ServerManager")
     coreModule.LoadModule("Modules.GameplayManager")
 end
 

@@ -24,7 +24,8 @@ end
 function teleportationManager.TeleportPlayer(player, functionParamaters)
 	functionParamaters = setmetatable(functionParamaters or {}, {__index = {
 		ManualTeleportationLocation = nil,	-- This can be a Vector3/CFrame or a PlaceId.
-		RestoreConditions = true
+		RestoreConditions = true,
+		TeleportOptions = {}
 	}})
 
 	-- Only two guard clauses here to see if they're alive and they have valid data; The individual specific sections will have their own guard clauses.
@@ -156,9 +157,9 @@ function teleportationManager.TeleportPlayer(player, functionParamaters)
 			functionParamaters.RestoreConditions
 		)
 
-	-- PlaceId
+	-- PlaceId.
 	elseif tonumber(functionParamaters.ManualTeleportationLocation) then
-		return teleportationManager.TeleportPlayerPostTranslationToPlaceId(player, functionParamaters.ManualTeleportationLocation)
+		return teleportationManager.TeleportPlayerPostTranslationToPlaceId(player, functionParamaters.ManualTeleportationLocation, functionParamaters.TeleportOptions)
 	end
 end
 
@@ -201,16 +202,49 @@ function teleportationManager.TeleportPlayerPostTranslationToCFrame(player, goal
 end
 
 
-function teleportationManager.TeleportPlayerPostTranslationToPlaceId(player, goalPlaceId)
+function teleportationManager.TeleportPlayerPostTranslationToPlaceId(player, goalPlaceId, teleportOptions)
 	if coreModule.Services.RunService:IsStudio() then return end
 	if not utilitiesLibrary.IsPlayerValid(player) then return end
 	if not goalPlaceId or not tonumber(goalPlaceId) or tonumber(goalPlaceId) <= 0 then return end
 	if teleportationManager.IsPlayerBeingTeleported(player) then return end
 	teleportationManager.PlayersBeingTeleported[player] = true
 
+	-- Setting up TeleportOptions.
+	local validTeleportOptions = Instance.new("TeleportOptions")
+	validTeleportOptions.ReservedServerAccessCode = teleportOptions and teleportOptions.ReservedServerAccessCode
+	validTeleportOptions.ShouldReserveServer = teleportOptions and teleportOptions.ShouldReserveServer or false
+
 	-- We can start the effect.
 	teleportationManager.Remotes.TeleportationStateUpdated:InvokeClient(player, true)
-	pcall(coreModule.Services.TeleportService.TeleportAsync, coreModule.Services.TeleportService, goalPlaceId, {player})
+	pcall(coreModule.Services.TeleportService.TeleportAsync, coreModule.Services.TeleportService, goalPlaceId, {player}, validTeleportOptions)
+end
+
+
+-- This is less secure than TeleportPlayerPostTranslationToPlaceId.
+function teleportationManager.TeleportPlayerListPostTranslationToPlaceId(players, goalPlaceId, teleportOptions)
+	if coreModule.Services.RunService:IsStudio() then return end
+	if typeof(players) ~= "table" then return end
+	if not goalPlaceId or not tonumber(goalPlaceId) or tonumber(goalPlaceId) <= 0 then return end
+	if typeof(teleportOptions) ~= "table" and typeof(teleportOptions) ~= "nil" then return end
+	print("It gets past the guard clauses")
+
+	-- Setting up TeleportOptions.
+	local validTeleportOptions = Instance.new("TeleportOptions")
+	validTeleportOptions.ReservedServerAccessCode = teleportOptions and teleportOptions.ReservedServerAccessCode or ""
+	validTeleportOptions.ShouldReserveServer = teleportOptions and teleportOptions.ShouldReserveServer or false
+
+	print(players, #players)
+	-- We can start the effect.
+	for _, player in next, players do
+		print(utilitiesLibrary.IsPlayerValid(player))
+		if utilitiesLibrary.IsPlayerValid(player) and not teleportationManager.IsPlayerBeingTeleported(player) then
+
+			-- We can start the effect.
+			teleportationManager.PlayersBeingTeleported[player] = true
+			teleportationManager.Remotes.TeleportationStateUpdated:InvokeClient(player, true)
+			print(pcall(coreModule.Services.TeleportService.TeleportAsync, coreModule.Services.TeleportService, goalPlaceId, {player}, validTeleportOptions))
+		end
+	end
 end
 
 

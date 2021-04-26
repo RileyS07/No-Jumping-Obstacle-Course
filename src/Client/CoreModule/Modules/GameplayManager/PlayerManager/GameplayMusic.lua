@@ -210,7 +210,7 @@ end
 function gameplayMusicManager.FadeBetweenSounds()
 	local currentSoundObjectFadeTween = coreModule.Services.TweenService:Create(
 		gameplayMusicManager.PrimarySoundObject,
-		TweenInfo.new(0.5, Enum.EasingStyle.Linear),
+		TweenInfo.new(1, Enum.EasingStyle.Linear),
 		{Volume = 0}
 	)
 
@@ -219,7 +219,7 @@ function gameplayMusicManager.FadeBetweenSounds()
 
 	local nextSoundObjectFadeTween = coreModule.Services.TweenService:Create(
 		gameplayMusicManager.SecondarySoundObject,
-		TweenInfo.new(0.5, Enum.EasingStyle.Linear),
+		TweenInfo.new(1, Enum.EasingStyle.Linear),
 		{Volume = 0.25}
 	)
 

@@ -13,6 +13,7 @@ function userInterfaceManager.Initialize()
 	-- Loading modules.
 	coreModule.LoadModule("/TeleportationConsent")
 	coreModule.LoadModule("/TeleportationOverlay")
+	coreModule.LoadModule("/VersionUpdates")
 end
 
 
