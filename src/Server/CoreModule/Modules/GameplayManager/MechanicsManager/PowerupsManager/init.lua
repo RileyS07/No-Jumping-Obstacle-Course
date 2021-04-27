@@ -16,7 +16,9 @@ function powerupsManager.Initialize()
     coreModule.LoadModule("/Ghost")
     coreModule.LoadModule("/Gravity")
     coreModule.LoadModule("/Forcefield")
+    coreModule.LoadModule("/Jump")
     coreModule.LoadModule("/Paint")
+    coreModule.LoadModule("/Speed")
 end
 
 
@@ -73,7 +75,7 @@ function powerupsManager.SetupPowerups()
                             powerupsManager.ApplyPowerup(player, powerupContainer.Name, powerupPlatform)
                             
                         -- We do want to reset it.
-                        else
+                        elseif powerupsManager.GetPowerupInformation(player, powerupContainer.Name) then
                             powerupsManager.RemovePowerup(player, powerupContainer.Name)
                         end
                     end)
@@ -123,7 +125,7 @@ function powerupsManager.RemovePowerup(player, powerupName)
     if utilitiesLibrary.IsPlayerAlive(player) then coreModule.Services.CollectionService:RemoveTag(player.Character, powerupName) end
     if powerupsManager.PowerupInformation[player] then powerupsManager.PowerupInformation[player][powerupName] = nil end
     powerupsManager.Remotes.PowerupInformationUpdated:FireClient(player, powerupName, powerupsManager.PowerupInformation[player])
-    powerupsManager.Remotes.PlaySoundEffect:FireClient(player, powerupName.."Powerup")
+    powerupsManager.Remotes.PlaySoundEffect:FireClient(player, powerupName.."PowerupRemoved")
 end
 
 
