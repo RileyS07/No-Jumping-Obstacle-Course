@@ -44,5 +44,12 @@ function utilitiesLibrary.Create(instanceName, propertiesDictionary)
 end
 
 
+-- Nil safe Destroy.
+function utilitiesLibrary.Destroy(instanceObject)
+	if typeof(instanceObject) ~= "Instance" then return end
+	instanceObject:Destroy()
+end
+
+
 --
 return utilitiesLibrary
