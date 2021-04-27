@@ -82,6 +82,10 @@ function gameplayMechanicManager.Initialize()
             end
         end
     end
+
+	coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.RestoreDefaultPlayerConditions").OnClientEvent:Connect(function()
+		gameplayMechanicManager.ResetForcedCameraView()
+	end)
 end
 
 

@@ -11,6 +11,7 @@ local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilitie
 function teleportationManager.Initialize()
 	if not workspace.Map.Gameplay:FindFirstChild("LevelStorage") then return end
 	teleportationManager.Remotes.TeleportationStateUpdated = coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.TeleportationStateUpdated")
+	teleportationManager.Remotes.RestoreDefaultPlayerConditions = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.RestoreDefaultPlayerConditions")
 
 	-- Loading modules.
 	coreModule.LoadModule("/Checkpoints")
@@ -165,8 +166,34 @@ end
 
 
 -- This will restore the client to what it was like the second they joined with no modifiers.
-function teleportationManager.RestorePlayerConditions()
+function teleportationManager.RestorePlayerConditions(player)
+	if not utilitiesLibrary.IsPlayerAlive(player) then return end
+	if not userDataManager.GetData(player) then return end
 
+	-- Local imports.
+	local powerupsManager = require(coreModule.GetObject("Modules.GameplayManager.MechanicsManager.PowerupsManager"))
+	local collisionsLibrary = require(coreModule.Shared.GetObject("Libraries.Collisions"))
+	local userData = userDataManager.GetData(player)
+
+	-- Restoration.
+	powerupsManager.RemoveAllPowerups(player)
+	collisionsLibrary.SetDescendantsCollisionGroup(player.Character, "Players")
+
+	player.Character.Humanoid.Health = player.Character.Humanoid.MaxHealth
+	player.Character.PrimaryPart.Velocity = Vector3.new()
+	
+	teleportationManager.Remotes.RestoreDefaultPlayerConditions:FireClient(player, userData)
+
+	-- Remove tags.
+	for _, collectionServiceTagName in next, coreModule.Services.CollectionService:GetTags(player.Character) do
+		coreModule.Services.CollectionService:RemoveTag(player.Character, collectionServiceTagName)
+	end
+
+	-- Should we allow them to keep jumping?
+	if userData.UserInformation.SpecialLocationIdentifier ~= coreModule.Shared.Enums.SpecialLocation.TherapyZone then
+		player.Character.Humanoid.UseJumpPower = false
+		player.Character.Humanoid.JumpPower = 0
+	end
 end
 
 
@@ -197,7 +224,7 @@ function teleportationManager.TeleportPlayerPostTranslationToCFrame(player, goal
 
 	-- Do we restore player conditions?
 	if restorePlayerConditions then
-		teleportationManager.RestorePlayerConditions()
+		teleportationManager.RestorePlayerConditions(player)
 	end
 end
 

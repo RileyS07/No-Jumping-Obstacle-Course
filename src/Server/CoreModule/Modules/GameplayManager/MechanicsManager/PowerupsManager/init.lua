@@ -120,9 +120,15 @@ function powerupsManager.RemovePowerup(player, powerupName)
 
     -- Time to start the removal process.
     if utilitiesLibrary.IsPlayerAlive(player) then coreModule.Services.CollectionService:RemoveTag(player.Character, powerupName) end
-    powerupsManager.PowerupInformation[player][powerupName] = nil
+    if powerupsManager.PowerupInformation[player] then powerupsManager.PowerupInformation[player][powerupName] = nil end
     powerupsManager.Remotes.PowerupInformationUpdated:FireClient(player, powerupName, powerupsManager.PowerupInformation[player])
     powerupsManager.Remotes.PlaySoundEffect:FireClient(player, powerupName.."Powerup")
+end
+
+
+function powerupsManager.RemoveAllPowerups(player)
+    powerupsManager.PowerupInformation[player] = nil
+    powerupsManager.Remotes.PowerupInformationUpdated:FireClient(player, nil, powerupsManager.PowerupInformation[player])
 end
 
 
