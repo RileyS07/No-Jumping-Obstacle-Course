@@ -23,7 +23,7 @@ function respawnPlatformsManager.Initialize()
 				-- Guard clauses to make sure the player is alive and doesn't have an exception tag.
 				local player = coreModule.Services.Players:GetPlayerFromCharacter(hit.Parent)
 				if not utilitiesLibrary.IsPlayerAlive(player) then return end
-				if coreModule.Services.CollectionService:HasTag(player.Character, "RespawnPlatformExceptionTag") then return end
+				if coreModule.Services.CollectionService:HasTag(player.Character, "Forcefield") then return end
 
 				--[[
 					This is where the fun stuff happens.
