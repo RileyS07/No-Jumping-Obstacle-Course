@@ -26,25 +26,21 @@ function utilitiesLibrary.IsPlayerAlive(player)
 end
 
 
--- TODO: Even while stopping the animations they will still play as normal even though they're anchored.
-function utilitiesLibrary.FreezePlayer(player, thawInstead)
-	if not utilitiesLibrary.IsPlayerAlive(player) then return end
+-- Creates an object in a single line.
+function utilitiesLibrary.Create(instanceName, propertiesDictionary)
+	if typeof(instanceName) ~= "string" then return end
+	if typeof(propertiesDictionary) ~= "table" then return end
 
-	-- Freeze them; Anchor their PrimaryPart and stop all Animations.
-	if not thawInstead then
-		player.Character.PrimaryPart.Anchored = true
-
-		-- Stop all Animations
-		if player.Character.Humanoid:FindFirstChild("Animator") then
-			for _, playingAnimationTrack in next, player.Character.Humanoid.Animator:GetPlayingAnimationTracks() do
-				playingAnimationTrack:Stop()
-			end
+	local instanceObject = Instance.new(instanceName)
+	for propertyName, propertyValue in next, propertiesDictionary do
+		if propertyName ~= "Parent" then
+			instanceObject[propertyName] = propertyValue
 		end
-
-	-- Thaw them; Just unanchor their PrimaryPart
-	else
-		player.Character.PrimaryPart.Anchored = false
 	end
+
+	-- Add parent afterwards.
+	instanceObject.Parent = propertiesDictionary.Parent
+	return instanceObject
 end
 
 

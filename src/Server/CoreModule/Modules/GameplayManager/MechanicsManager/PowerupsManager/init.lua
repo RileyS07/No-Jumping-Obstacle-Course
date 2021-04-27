@@ -14,6 +14,7 @@ function powerupsManager.Initialize()
     -- Setup + loading modules.
     powerupsManager.SetupPowerups()
     coreModule.LoadModule("/Ghost")
+    coreModule.LoadModule("/Gravity")
     coreModule.LoadModule("/Forcefield")
     coreModule.LoadModule("/Paint")
 end

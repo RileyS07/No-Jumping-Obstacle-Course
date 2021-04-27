@@ -66,9 +66,14 @@ function cutsceneManager.UpdatePlayerBeingShownCutscene(newValue)
 	-- The cutscene ended so we need to clean up a little.
 	if not cutsceneManager.IsPlayerBeingShownCutsceneValue then
 		userInterfaceManager.DisableInterface("DialogInterface")
-		utilitiesLibrary.FreezePlayer(clientEssentialsLibrary.GetPlayer(), true)
-	else
-		utilitiesLibrary.FreezePlayer(clientEssentialsLibrary.GetPlayer())
+
+		if utilitiesLibrary.IsPlayerAlive(clientEssentialsLibrary.GetPlayer()) then 
+			clientEssentialsLibrary.GetPlayer().Character.PrimaryPart.Anchored = false
+		end
+
+	-- Cap. Freeze them.
+	elseif utilitiesLibrary.IsPlayerAlive(clientEssentialsLibrary.GetPlayer()) then 
+		clientEssentialsLibrary.GetPlayer().Character.PrimaryPart.Anchored = true
 	end
 end
 
