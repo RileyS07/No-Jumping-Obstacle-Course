@@ -191,7 +191,7 @@ function teleportationManager.RestorePlayerConditions(player)
 
 	-- Should we allow them to keep jumping?
 	if userData.UserInformation.SpecialLocationIdentifier ~= coreModule.Shared.Enums.SpecialLocation.TherapyZone then
-		player.Character.Humanoid.UseJumpPower = false
+		player.Character.Humanoid.JumpHeight = 0
 		player.Character.Humanoid.JumpPower = 0
 	end
 end
