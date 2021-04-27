@@ -22,7 +22,7 @@ function specificPowerupManager.Initialize()
     -- This is the actual functionality behind the paint powerup.
     if workspace.Map.Gameplay.PlatformerMechanics.Powerups[script.Name]:FindFirstChild("AccessableParts") then
         for _, accessablePart in next, workspace.Map.Gameplay.PlatformerMechanics.Powerups[script.Name].AccessableParts:GetChildren() do
-            collisionsLibrary.SetPartCollisionGroup(accessablePart, accessablePart.Name)
+            collisionsLibrary.SetPartCollisionGroup(accessablePart, accessablePart.Name.."Part")
         end
     end
     
