@@ -6,6 +6,7 @@ local teleportationManager = require(coreModule.GetObject("Modules.GameplayManag
 -- Initialize
 function characterManager.Initialize(player, character)
     teleportationManager.TeleportPlayer(player)
+    character:WaitForChild("Health"):Destroy()
 end
 
 

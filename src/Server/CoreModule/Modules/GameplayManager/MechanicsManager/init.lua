@@ -9,6 +9,7 @@ function mechanicsManager.Initialize()
 	-- Loading modules
 	coreModule.LoadModule("/PowerupsManager")
 	coreModule.LoadModule("/TeleportationManager")
+	coreModule.LoadModule("/HealingPlatforms")
 	coreModule.LoadModule("/StageInformationManager")
 end
 

@@ -34,7 +34,7 @@ function gameplayMechanicManager.Initialize()
 
 					-- Guard clause #1 is checking if the player is actually the LocalPlayer and that they're alive; #2 is checking to see if the button is already being simulated by the client.
 					if player ~= clientEssentialsLibrary.GetPlayer() or not utilitiesLibrary.IsPlayerAlive(player) then return end
-					if gameplayMechanicManager.ButtonsBeingSimulated[buttonObject] then return end
+					if gameplayMechanicManager.IsButtonBeingSimulated(buttonObject) then return end
 
 					gameplayMechanicManager.SimulateButtonPress(buttonObject)
 				end)
