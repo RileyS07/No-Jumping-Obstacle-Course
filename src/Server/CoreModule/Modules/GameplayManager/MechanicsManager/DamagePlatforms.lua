@@ -45,9 +45,6 @@ function gameplayMechanicManager.SimulateDamagePlatform(player, damagePlatform)
 
     gameplayMechanicManager.PlatformsBeingSimulated[damagePlatform] = gameplayMechanicManager.PlatformsBeingSimulated[damagePlatform] or {}
     gameplayMechanicManager.PlatformsBeingSimulated[damagePlatform][player] = true
-
-    -- Damage time.
-    gameplayMechanicManager.Remotes.PlaySoundEffect:FireClient(player, damagePlatform.Parent.Name.."Damage", {Parent = damagePlatform})
     
     -- How do we apply the damage?
     if damagePlatform.Parent.Name == "Poison" then
@@ -56,7 +53,8 @@ function gameplayMechanicManager.SimulateDamagePlatform(player, damagePlatform)
         for index = 1, (damagePlatform:GetAttribute("Duration") or script:GetAttribute("DefaultDuration") or 1)*(damagePlatform:GetAttribute("Speed") or script:GetAttribute("DefaultSpeed") or 1) do
             if not utilitiesLibrary.IsPlayerAlive(player) then break end
             if not coreModule.Services.CollectionService:HasTag(player.Character, "Poisoned") then break end
-
+            gameplayMechanicManager.Remotes.PlaySoundEffect:FireClient(player, damagePlatform.Parent.Name.."Damage", {Parent = damagePlatform})
+            
             -- Can they survive this?
             local damageAmount = damagePlatform:GetAttribute("Damage") or script:GetAttribute("DefaultDamage") or 10
             if player.Character.Humanoid.Health - damageAmount > 0 then
@@ -77,6 +75,7 @@ function gameplayMechanicManager.SimulateDamagePlatform(player, damagePlatform)
             if not utilitiesLibrary.IsPlayerAlive(player) then break end
 		    if coreModule.Services.CollectionService:HasTag(player.Character, "Forcefield") then break end
             if not gameplayMechanicManager.IsInstancesDescendantsInArray(player.Character, damagePlatform:GetTouchingParts()) then break end
+            gameplayMechanicManager.Remotes.PlaySoundEffect:FireClient(player, damagePlatform.Parent.Name.."Damage", {Parent = damagePlatform})
 
             -- Can they survive this?
             local damageAmount = damagePlatform:GetAttribute("Damage") or script:GetAttribute("DefaultDamage") or 10

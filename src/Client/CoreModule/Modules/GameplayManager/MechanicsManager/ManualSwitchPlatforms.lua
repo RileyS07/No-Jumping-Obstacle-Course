@@ -65,7 +65,7 @@ function gameplayMechanicManager.Initialize()
 
                 -- Now that we have the results let's bind/unbind.
                 if isPlayerNearAnySwitchPlatforms then
-                    coreModule.Services.ContextActionService:BindAction(keybindActionName, keybindActionFunction, true, Enum.KeyCode.E)
+                    coreModule.Services.ContextActionService:BindAction(keybindActionName, keybindActionFunction, true, Enum.KeyCode.Q)
                     coreModule.Services.ContextActionService:SetDescription(keybindActionName, keybindButtonDescription)
                     coreModule.Services.ContextActionService:SetImage(keybindActionName, keybindButtonImageContent)
                 else  
