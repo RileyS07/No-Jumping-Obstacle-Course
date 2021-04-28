@@ -2,6 +2,7 @@
 local teleportationManager = {}
 teleportationManager.PlayersBeingTeleported = {}
 teleportationManager.Remotes = {}
+teleportationManager.PlayerTeleported = Instance.new("BindableEvent")
 
 local coreModule = require(script:FindFirstAncestor("CoreModule"))
 local userDataManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.UserDataManager"))
@@ -221,7 +222,8 @@ function teleportationManager.TeleportPlayerPostTranslationToCFrame(player, goal
 	wait(script:GetAttribute("TeleportationAnimationLength") or 0.5)
 	teleportationManager.Remotes.TeleportationStateUpdated:InvokeClient(player, false, script:GetAttribute("TeleportationAnimationLength") or 0.5)
 	teleportationManager.PlayersBeingTeleported[player] = nil
-
+	teleportationManager.PlayerTeleported:Fire(player)
+	
 	-- Do we restore player conditions?
 	if restorePlayerConditions then
 		teleportationManager.RestorePlayerConditions(player)

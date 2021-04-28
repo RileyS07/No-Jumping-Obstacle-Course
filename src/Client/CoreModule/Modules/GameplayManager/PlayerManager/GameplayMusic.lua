@@ -114,7 +114,7 @@ function gameplayMusicManager.UpdateMusic(userData)
 		return gameplayMusicManager.UpdateMusicPostTranslation(zoneSpecificSoundContainer)
 	else
 		coreModule.Debug(
-			("GameplayMusic: %s does not exist."):format("Zone "..tostring(userData.UserInformation.CurrentCheckpoint)),
+			("GameplayMusic: %s does not exist."):format("Zone "..tostring(math.ceil(userData.UserInformation.CurrentCheckpoint/10))),
 			coreModule.Shared.Enums.DebugLevel.Standard,
 			warn
 		)

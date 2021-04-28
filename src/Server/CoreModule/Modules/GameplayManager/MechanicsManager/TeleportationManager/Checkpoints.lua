@@ -1,6 +1,7 @@
 -- Variables
 local checkpointsManager = {}
 checkpointsManager.Remotes = {}
+checkpointsManager.CurrentCheckpointUpdated = Instance.new("BindableEvent")
 
 local coreModule = require(script:FindFirstAncestor("CoreModule"))
 local userDataManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.UserDataManager"))
@@ -80,8 +81,9 @@ function checkpointsManager.UpdateCurrentCheckpoint(player, checkpointNumber)
 	
 	-- Backwards compatibility for things like badges and CompletedStages.
 	if originalCurrentCheckpoint ~= userData.UserInformation.CurrentCheckpoint then
+		checkpointsManager.CurrentCheckpointUpdated:Fire(player, originalCurrentCheckpoint, userData.UserInformation.CurrentCheckpoint)
 		checkpointsManager.Remotes.PlaySoundEffect:FireClient(player, "CheckpointTouched", {Parent = workspace.Map.Gameplay.LevelStorage.Checkpoints[checkpointNumber]})
-		
+
 		-- Backwards compatability for CompletedStages.
 		if not table.find(userData.UserInformation.CompletedStages, checkpointNumber) then
 			table.insert(userData.UserInformation.CompletedStages, checkpointNumber, math.min(checkpointNumber, #userData.UserInformation.CompletedStages))

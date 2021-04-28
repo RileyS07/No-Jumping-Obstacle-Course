@@ -113,7 +113,7 @@ function gameplayLightingManager.UpdateLighting(userData)
 		return gameplayLightingManager.UpdateLightingPostTranslation(zoneSpecificLightingContainer)
 	else
 		coreModule.Debug(
-			("GameplayLighting: %s does not exist."):format("Zone "..tostring(userData.UserInformation.CurrentCheckpoint)),
+			("GameplayLighting: %s does not exist."):format("Zone "..tostring(math.ceil(userData.UserInformation.CurrentCheckpoint/10))),
 			coreModule.Shared.Enums.DebugLevel.Exception,
 			warn
 		)
