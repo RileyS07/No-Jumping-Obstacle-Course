@@ -16,8 +16,8 @@ end
 -- Private Methods
 function playerManager.SetupJoiningConnections()
 	local function onPlayerAdded(player)
-		userDataManager.LoadData(player)
 		playerManager.SetupCharacterConnections(player)
+		userDataManager.LoadData(player)
 
 		-- Loading submodules
 		coreModule.LoadModule("/Admin", player)
