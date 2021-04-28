@@ -44,6 +44,7 @@ function gameplayMechanicManager.SimulateHealingPlatform(player, healingPlatform
     if player.Character.Humanoid.Health == player.Character.Humanoid.MaxHealth then return end
     if typeof(healingPlatform) ~= "Instance" or not healingPlatform:IsA("Model") or not healingPlatform.PrimaryPart then return end
     if gameplayMechanicManager.IsPlatformBeingSimulated(player, healingPlatform) then return end
+    
     gameplayMechanicManager.PlatformsBeingSimulated[healingPlatform] = gameplayMechanicManager.PlatformsBeingSimulated[healingPlatform] or {}
     gameplayMechanicManager.PlatformsBeingSimulated[healingPlatform][player] = true
 
@@ -68,8 +69,8 @@ end
 
 
 function gameplayMechanicManager.IsPlatformBeingSimulated(player, healingPlatform)
-    if typeof(healingPlatform) ~= "Instance" then return end
     if typeof(player) ~= "Instance" then return end
+    if typeof(healingPlatform) ~= "Instance" then return end
     
     return gameplayMechanicManager.PlatformsBeingSimulated[healingPlatform] and gameplayMechanicManager.PlatformsBeingSimulated[healingPlatform][player]
 end
