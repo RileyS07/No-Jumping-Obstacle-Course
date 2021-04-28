@@ -12,7 +12,7 @@ function badgeLibrary.AwardBadge(player, badgeId)
 
 	-- Guard clauses against very simple mistakes.
 	if coreModule.Services.RunService:IsStudio() then return end
-	if not utilitiesLibrary.IsValidPlayer(player) then return end
+	if not utilitiesLibrary.IsPlayerValid(player) then return end
 	if not tonumber(badgeId) or badgeId <= 0 then return end
 	if badgeLibrary.UserOwnsBadge(player, badgeId) then return end
 	
@@ -37,7 +37,7 @@ end
 function badgeLibrary.UserOwnsBadge(player, badgeId)
 
 	-- Guard clauses against very simple mistakes.
-	if not utilitiesLibrary.IsValidPlayer(player) then return end
+	if not utilitiesLibrary.IsPlayerValid(player) then return end
 	if not tonumber(badgeId) or badgeId <= 0 then return end
 	
 	--  Check the BadgeOwnershipCache and update it if possible.
