@@ -66,7 +66,8 @@ function powerupsManager.SetupPowerups()
                             powerupsManager.PowerupInformation[player][powerupContainer.Name] = {
                                 Start = os.clock(),
                                 Duration = powerupPlatform:GetAttribute("Duration") or script:GetAttribute("DefaultDuration") or 30,
-                                IsFresh = powerupsManager.GetPowerupInformation(player, powerupContainer.Name) == nil
+                                IsFresh = powerupsManager.GetPowerupInformation(player, powerupContainer.Name) == nil,
+                                PlatformName = powerupPlatform.Name
                             }
 
                             coreModule.Services.CollectionService:AddTag(player.Character, powerupContainer.Name)

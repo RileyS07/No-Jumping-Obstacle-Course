@@ -1,6 +1,7 @@
 -- Variables
 local specificPowerupManager = {}
 local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local powerupsManager = require(coreModule.GetObject("/Parent"))
 local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
 local collisionsLibrary = require(coreModule.Shared.GetObject("Libraries.Collisions"))
 
@@ -13,9 +14,15 @@ function specificPowerupManager.Initialize()
 		collisionsLibrary.CollisionGroupSetCollidable(powerupContainer.Name, "Players", false)
 		collisionsLibrary.CollisionGroupSetCollidable(powerupContainer.Name, "Ghosts", false)
 
+        collisionsLibrary.CollisionGroupSetCollidable(powerupContainer.Name.."Ghost", "Ghosts", false)
+        collisionsLibrary.CollisionGroupSetCollidable(powerupContainer.Name.."Ghost", "Players", false)
+        collisionsLibrary.CollisionGroupSetCollidable(powerupContainer.Name.."Ghost", powerupContainer.Name.."Part", false)
+
         -- BluePaint shouldn't collide with RedPaint.
         for _, nestedPowerupContainer in next, workspace.Map.Gameplay.PlatformerMechanics.Powerups[script.Name]:GetChildren() do
             collisionsLibrary.CollisionGroupSetCollidable(powerupContainer.Name, nestedPowerupContainer.Name, false)
+            collisionsLibrary.CollisionGroupSetCollidable(powerupContainer.Name.."Ghost", nestedPowerupContainer.Name.."Ghost", false)
+            collisionsLibrary.CollisionGroupSetCollidable(powerupContainer.Name.."Ghost", "GhostsNoCollide", false)
         end
     end
 
@@ -31,7 +38,13 @@ function specificPowerupManager.Initialize()
 		if not utilitiesLibrary.IsPlayerAlive(player) then return end
 		if not character.Humanoid:FindFirstChild("HumanoidDescription") then return end
 		
-		collisionsLibrary.SetDescendantsCollisionGroup(character, "Players")
+        -- We have to do a special exception for Ghost powerup.
+        if powerupsManager.GetPowerupInformation(player, "Ghost") then
+            collisionsLibrary.SetDescendantsCollisionGroup(player.Character, "Ghosts")
+        else
+            collisionsLibrary.SetDescendantsCollisionGroup(player.Character, "Players")
+        end
+
         character.Humanoid:ApplyDescription(character.Humanoid.HumanoidDescription)
     end)
 end
@@ -41,7 +54,13 @@ end
 function specificPowerupManager.Apply(player, powerupPlatform)
     if not utilitiesLibrary.IsPlayerAlive(player) then return end
     
-    collisionsLibrary.SetDescendantsCollisionGroup(player.Character, powerupPlatform.Name)
+    -- We have to do a special exception for Ghost powerup.
+    if powerupsManager.GetPowerupInformation(player, "Ghost") then
+        collisionsLibrary.SetDescendantsCollisionGroup(player.Character, powerupPlatform.Name.."Ghost")
+    else
+        collisionsLibrary.SetDescendantsCollisionGroup(player.Character, powerupPlatform.Name)
+    end
+
 	for _, basePart in next, player.Character:GetChildren() do
 		if basePart:IsA("BasePart") then
 			basePart.Color = powerupPlatform:GetAttribute("Color") or Color3.new()

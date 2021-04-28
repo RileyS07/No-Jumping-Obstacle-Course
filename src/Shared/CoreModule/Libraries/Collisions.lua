@@ -3,13 +3,13 @@ local collisionsLibrary = {}
 local coreModule = require(script:FindFirstAncestor("CoreModule"))
 
 -- Methods
-function collisionsLibrary.GetCollisionGroup(groupName)
-	local collisionGroupExists = pcall(coreModule.Services.PhysicsService.GetCollisionGroupId, coreModule.Services.PhysicsService, groupName)
+function collisionsLibrary.GetCollisionGroup(collisionGroupName)
+	local collisionGroupExists = pcall(coreModule.Services.PhysicsService.GetCollisionGroupId, coreModule.Services.PhysicsService, collisionGroupName)
 	if not collisionGroupExists then
-		pcall(coreModule.Services.PhysicsService.CreateCollisionGroup, coreModule.Services.PhysicsService, groupName)
+		pcall(coreModule.Services.PhysicsService.CreateCollisionGroup, coreModule.Services.PhysicsService, collisionGroupName)
 	end
 	
-	return groupName
+	return collisionGroupName
 end
 
 
@@ -31,6 +31,11 @@ function collisionsLibrary.SetDescendantsCollisionGroup(object, collisionGroupNa
 			collisionsLibrary.SetPartCollisionGroup(basePart, collisionGroupName)
 		end
 	end
+end
+
+
+function collisionsLibrary.CollisionGroupContainsPart(collisionGroupName, basePart)
+	return coreModule.Services.PhysicsService:CollisionGroupContainsPart(collisionsLibrary.GetCollisionGroup(collisionGroupName), basePart)
 end
 
 

@@ -1,6 +1,7 @@
 -- Variables
 local specificPowerupManager = {}
 local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local powerupsManager = require(coreModule.GetObject("/Parent"))
 local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
 local collisionsLibrary = require(coreModule.Shared.GetObject("Libraries.Collisions"))
 
@@ -18,7 +19,13 @@ function specificPowerupManager.Initialize()
         local player = coreModule.Services.Players:GetPlayerFromCharacter(character)
 		if not utilitiesLibrary.IsPlayerAlive(player) then return end
         
-        collisionsLibrary.SetDescendantsCollisionGroup(character, "Players")
+        -- We have to do a special exception for Paint powerup.
+        if powerupsManager.GetPowerupInformation(player, "Paint") then
+            collisionsLibrary.SetDescendantsCollisionGroup(player.Character, powerupsManager.GetPowerupInformation(player, "Paint").PlatformName)
+        else
+            collisionsLibrary.SetDescendantsCollisionGroup(player.Character, "Players")
+        end 
+
 		for _, basePart in next, character:GetDescendants() do
 			if basePart:IsA("BasePart") and basePart.Transparency ~= 1 then
 				basePart.Transparency = 0
@@ -32,7 +39,13 @@ end
 function specificPowerupManager.Apply(player, powerupPlatform)
     if not utilitiesLibrary.IsPlayerAlive(player) then return end
     
-    collisionsLibrary.SetDescendantsCollisionGroup(player.Character, "Ghosts")
+    -- We have to do a special exception for Paint powerup.
+    if powerupsManager.GetPowerupInformation(player, "Paint") then
+        collisionsLibrary.SetDescendantsCollisionGroup(player.Character, powerupsManager.GetPowerupInformation(player, "Paint").PlatformName.."Ghost")
+    else
+        collisionsLibrary.SetDescendantsCollisionGroup(player.Character, "Ghosts")
+    end
+
     for _, basePart in next, player.Character:GetDescendants() do
 		if basePart:IsA("BasePart") and basePart.Transparency ~= 1 then
 			basePart.Transparency = 0.5
