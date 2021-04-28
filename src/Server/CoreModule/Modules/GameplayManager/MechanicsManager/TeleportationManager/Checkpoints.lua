@@ -69,7 +69,7 @@ end
 function checkpointsManager.UpdateCurrentCheckpoint(player, checkpointNumber)
 	if not utilitiesLibrary.IsPlayerValid(player) then return end
 	if not userDataManager.GetData(player) then return end
-
+	
 	-- This should be impossible but I still have it here just in case.
 	if userDataManager.GetData(player).UserInformation.FarthestCheckpoint < checkpointNumber then return end
 	
@@ -95,10 +95,7 @@ function checkpointsManager.UpdateCurrentCheckpoint(player, checkpointNumber)
 			checkpointsManager.Remotes.PlaySoundEffect:FireClient(player, "Clapping")
 		end
 		
-		-- If they're the same then UpdateFarthestCheckpoint has already made the remote call.
-		if userData.UserInformation.CurrentCheckpoint ~= userData.UserInformation.FarthestCheckpoint then
-			checkpointsManager.Remotes.CheckpointInformationUpdated:FireClient(player, userData)
-		end
+		checkpointsManager.Remotes.CheckpointInformationUpdated:FireClient(player, userData)
 	end
 end
 
