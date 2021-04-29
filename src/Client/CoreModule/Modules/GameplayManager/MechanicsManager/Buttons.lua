@@ -87,12 +87,15 @@ function gameplayMechanicManager.SimulateButtonPress(buttonObject, functionParam
 		wait(simulationLength - math.min(1, simulationLength/2))
 		
 		-- Upwards animation
-		buttonObject.PrimaryPart.Color = script:GetAttribute("InactiveStateColor") or Color3.fromRGB(104, 212, 113)
-		coreModule.Services.TweenService:Create(
+		local upwardsTweenObject = coreModule.Services.TweenService:Create(
 			buttonObject.PrimaryPart, buttonMovementTweenInfo, {
 				CFrame = buttonObject:GetPrimaryPartCFrame()*CFrame.new(script:GetAttribute("ActiveStateOffset") or Vector3.new(0, 0.3, 0))
 			}
-		):Play()
+		)
+
+		upwardsTweenObject:Play()
+		upwardsTweenObject.Completed:Wait()
+		buttonObject.PrimaryPart.Color = script:GetAttribute("InactiveStateColor") or Color3.fromRGB(104, 212, 113)
 	end)()
 
 	-- Button timer; 30 -> 29 -> 28 -> ...
