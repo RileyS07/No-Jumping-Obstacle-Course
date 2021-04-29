@@ -5,6 +5,7 @@ specificInterfaceManager.CurrentPlatformObject = nil
 
 local coreModule = require(script:FindFirstAncestor("CoreModule"))
 local userInterfaceManager = require(coreModule.GetObject("/Parent"))
+local soundEffectsManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.SoundEffects"))
 
 -- Initialize
 function specificInterfaceManager.Initialize()
@@ -21,13 +22,13 @@ function specificInterfaceManager.Initialize()
 		if not specificInterfaceManager.CurrentPlatformObject then return end
 		
 		-- The code was valid?
-		print(specificInterfaceManager.Interface.CodeOutputText.Text, specificInterfaceManager.CurrentPlatformObject:GetAttribute("Code") or "1234")
 		if specificInterfaceManager.Interface.CodeOutputText.Text == (specificInterfaceManager.CurrentPlatformObject:GetAttribute("Code") or "1234") then
 			userInterfaceManager.UpdateActiveContainer(specificInterfaceManager.Interface.Container)
 			doorMechanicManager.SimulateObject(specificInterfaceManager.CurrentPlatformObject)
 
 		-- Invalid
 		else
+			soundEffectsManager.PlaySoundEffect("Error")
 			specificInterfaceManager.Interface.CodeOutputText.Text = ""
 		end
 	end)
@@ -41,7 +42,12 @@ function specificInterfaceManager.Initialize()
 	for _, keyButton in next, specificInterfaceManager.Interface.KeypadContainer:GetChildren() do
 		if keyButton:IsA("GuiButton") then
 			keyButton.Activated:Connect(function()
-				specificInterfaceManager.Interface.CodeOutputText.Text = (specificInterfaceManager.Interface.CodeOutputText.Text..keyButton.Name):sub(1, 9)
+				if specificInterfaceManager.Interface.CodeOutputText.Text:len() >= (script:GetAttribute("MaxCharacters") or 9) then
+					soundEffectsManager.PlaySoundEffect("Error")
+				else
+					soundEffectsManager.PlaySoundEffect("KeypadPress")
+					specificInterfaceManager.Interface.CodeOutputText.Text = specificInterfaceManager.Interface.CodeOutputText.Text..keyButton.Name
+				end
 			end)
 		end
 	end
