@@ -36,62 +36,9 @@ function teleportationManager.TeleportPlayer(player, functionParamaters)
 	local userData = userDataManager.GetData(player)
 
 	-- If ManualTeleportationLocation is nil that means we assume they want to be teleported based on their userdata.
-	if not functionParamaters.ManualTeleportationLocation then
+	if typeof(functionParamaters.ManualTeleportationLocation) == "nil" then
 		
-		-- TherapyZone.
-		if userData.UserInformation.SpecialLocationIdentifier == coreModule.Shared.Enums.SpecialLocation.TherapyZone then
-
-			-- TherapyZone doesn't exist.
-			if not workspace.Map.Gameplay.LevelStorage:FindFirstChild("TherapyZone") then
-				coreModule.Debug("Workspace.Map.Gameplay.LevelStorage.TherapyZone doesn't exist.", nil, warn)
-				userData.UserInformation.SpecialLocationIdentifier = coreModule.Shared.Enums.SpecialLocation.None
-				teleportationManager.TeleportPlayer(player, functionParamaters)
-				return
-
-			-- Teleporter doesn't exist.
-			elseif workspace.Map.Gameplay.LevelStorage.TherapyZone:FindFirstChild("Teleporter") then
-				coreModule.Debug("Workspace.Map.Gameplay.LevelStorage.TherapyZone.Teleporter doesn't exist.", nil, warn)
-				userData.UserInformation.SpecialLocationIdentifier = coreModule.Shared.Enums.SpecialLocation.None
-				teleportationManager.TeleportPlayer(player, functionParamaters)
-				return
-			end
-
-			-- If it reached this point all is good.
-			return teleportationManager.TeleportPlayerPostTranslationToCFrame(
-				player, 
-				teleportationManager.GetSeamlessCFrameAboveBasePart(player, workspace.Map.Gameplay.LevelStorage.TherapyZone.Teleporter),
-				functionParamaters.RestoreConditions
-			)
-
-		-- VictoryZone.
-		elseif userData.UserInformation.SpecialLocationIdentifier == coreModule.Shared.Enums.SpecialLocation.VictoryZone then
-			
-			-- VictoryZone doesn't exist.
-			if not workspace.Map.Gameplay.LevelStorage:FindFirstChild("VictoryZone") then
-				coreModule.Debug("Workspace.Map.Gameplay.LevelStorage.VictoryZone doesn't exist.", nil, warn)
-				userData.UserInformation.SpecialLocationIdentifier = coreModule.Shared.Enums.SpecialLocation.None
-				teleportationManager.TeleportPlayer(player, functionParamaters)
-				return
-
-			-- Teleporter doesn't exist.
-			elseif workspace.Map.Gameplay.LevelStorage.VictoryZone:FindFirstChild("Teleporter") then
-				coreModule.Debug("Workspace.Map.Gameplay.LevelStorage.VictoryZone.Teleporter doesn't exist.", nil, warn)
-				userData.UserInformation.SpecialLocationIdentifier = coreModule.Shared.Enums.SpecialLocation.None
-				teleportationManager.TeleportPlayer(player, functionParamaters)
-				return
-			end
-
-			-- If it reached this point all is good.
-			return teleportationManager.TeleportPlayerPostTranslationToCFrame(
-				player, 
-				teleportationManager.GetSeamlessCFrameAboveBasePart(player, workspace.Map.Gameplay.LevelStorage.VictoryZone.Teleporter),
-				functionParamaters.RestoreConditions
-			)
-		end
-
-		-- If the code reached this point that means userData.UserInformation.SpecialLocationIdentifier == coreModule.Shared.Enums.SpecialLocation.None.
-
-		-- Bonus Stage.
+		-- Bonus Stages.
 		if userData.UserInformation.CurrentBonusStage ~= "" then
 			
 			-- BonusStages doesn't exist.
@@ -191,7 +138,7 @@ function teleportationManager.RestorePlayerConditions(player)
 	end
 
 	-- Should we allow them to keep jumping?
-	if userData.UserInformation.SpecialLocationIdentifier ~= coreModule.Shared.Enums.SpecialLocation.TherapyZone then
+	if userData.UserInformation.CurrentBonusStage ~= "Therapy Zone" then
 		player.Character.Humanoid.JumpHeight = 0
 		player.Character.Humanoid.JumpPower = 0
 	end

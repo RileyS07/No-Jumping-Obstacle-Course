@@ -33,40 +33,7 @@ function gameplayMusicManager.UpdateMusic(userData)
     if not gameplayMusicManager.Assets.MusicContainer then return end
 	if #gameplayMusicManager.Assets.MusicContainer:GetChildren() == 0 then return end
 	
-    -- SpecialLocationIdentifier; Checking to see if we can apply any special music for these special locations.
-    if userData.UserInformation.SpecialLocationIdentifier ~= coreModule.Shared.Enums.SpecialLocation.None then
-
-        -- TherapyZone.
-        if userData.UserInformation.SpecialLocationIdentifier == coreModule.Shared.Enums.SpecialLocation.TherapyZone then
-
-			local soundContainer = gameplayMusicManager.Assets.MusicContainer:FindFirstChild("TherapyZone")
-            if soundContainer and (soundContainer:IsA("Sound") or soundContainer:IsA("SoundGroup")) then
-                return gameplayMusicManager.UpdateMusicPostTranslation(soundContainer)
-            else
-                coreModule.Debug(
-                    ("GameplayMusic: %s does not exist."):format("TherapyZone"),
-                    coreModule.Shared.Enums.DebugLevel.Exception,
-                    warn
-                )
-            end
-
-        -- VictoryZone.
-        elseif userData.UserInformation.SpecialLocationIdentifier == coreModule.Shared.Enums.SpecialLocation.VictoryZone then
-
-			local soundContainer = gameplayMusicManager.Assets.MusicContainer:FindFirstChild("VictoryZone")
-            if soundContainer and (soundContainer:IsA("Sound") or soundContainer:IsA("SoundGroup")) then
-                return gameplayMusicManager.UpdateMusicPostTranslation(soundContainer)
-            else
-                coreModule.Debug(
-                    ("GameplayMusic: %s does not exist."):format("VictoryZone"),
-                    coreModule.Shared.Enums.DebugLevel.Exception,
-                    warn
-                )
-            end
-        end
-    end
-
-    -- Next we're gonna see if they're in a BonusStage.
+    -- First we're gonna see if they're in a BonusStage.
     if userData.UserInformation.CurrentBonusStage ~= "" then
 
 		local soundContainer = gameplayMusicManager.Assets.MusicContainer:FindFirstChild(userData.UserInformation.CurrentBonusStage)

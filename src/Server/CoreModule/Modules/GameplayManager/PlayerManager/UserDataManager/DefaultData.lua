@@ -10,9 +10,6 @@ return {
 		CurrentCheckpoint = 1,	-- This is where the player is currently and will respawn at
 		CurrentBonusStage = "",	-- The name of the bonus stage they're on currently; "" = none
 		CurrentBonusStageCheckpoint = 1,	-- Bonus stages can have checkpoints too!
-		
-		-- Misc.
-		SpecialLocationIdentifier = 0	-- The enums for this value can be found under Shared
 	},
 	
 	-- Settings that determine how the game appears/acts for their client

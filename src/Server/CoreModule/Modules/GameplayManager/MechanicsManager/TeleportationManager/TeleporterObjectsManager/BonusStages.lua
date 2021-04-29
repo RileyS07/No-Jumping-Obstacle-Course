@@ -144,7 +144,6 @@ function bonusStagesManager.SimulateTeleportation(player, teleporterObject, bonu
 
 	-- Now that we have the guard clauses we have to get consent to teleport them.
 	if teleporterObjectsManager.GetTeleportationConsent(player, teleporterObject.Name, "Are you sure you want to teleport to <font color=\"#5352ed\"><b>"..teleporterObject.Name.."</b></font> bonus level?", bonusStageLevelReference:GetAttribute("BackgroundImage") or "http://www.roblox.com/asset/?id=5632150459") then
-		userData.UserInformation.SpecialLocationIdentifier = coreModule.Shared.Enums.SpecialLocation.None
 		userData.UserInformation.CurrentBonusStageCheckpoint = 1
 		userData.UserInformation.CurrentBonusStage = teleporterObject.Name
 

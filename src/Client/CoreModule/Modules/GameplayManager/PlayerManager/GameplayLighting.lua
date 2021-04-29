@@ -29,40 +29,7 @@ function gameplayLightingManager.UpdateLighting(userData)
     if not gameplayLightingManager.Assets.LightingContainer.Default:FindFirstChild("Properties") then return end
     if not gameplayLightingManager.Assets.LightingContainer.Default.Properties:IsA("ModuleScript") then return end
 
-    -- SpecialLocationIdentifier; Checking to see if we can apply any special lighting for these special locations.
-    if userData.UserInformation.SpecialLocationIdentifier ~= coreModule.Shared.Enums.SpecialLocation.None then
-
-        -- TherapyZone.
-        if userData.UserInformation.SpecialLocationIdentifier == coreModule.Shared.Enums.SpecialLocation.TherapyZone then
-
-			local lightingContainer = gameplayLightingManager.Assets.LightingContainer:FindFirstChild("TherapyZone")
-            if lightingContainer then
-                return gameplayLightingManager.UpdateLightingPostTranslation(lightingContainer)
-            else
-                coreModule.Debug(
-                    ("GameplayLighting: %s does not exist."):format("TherapyZone"),
-                    coreModule.Shared.Enums.DebugLevel.Exception,
-                    warn
-                )
-            end
-
-        -- VictoryZone.
-        elseif userData.UserInformation.SpecialLocationIdentifier == coreModule.Shared.Enums.SpecialLocation.VictoryZone then
-
-			local lightingContainer = gameplayLightingManager.Assets.LightingContainer:FindFirstChild("VictoryZone")
-            if lightingContainer then
-                return gameplayLightingManager.UpdateLightingPostTranslation(lightingContainer)
-            else
-                coreModule.Debug(
-                    ("GameplayLighting: %s does not exist."):format("VictoryZone"),
-                    coreModule.Shared.Enums.DebugLevel.Exception,
-                    warn
-                )
-            end
-        end
-    end
-
-    -- Next we're gonna see if they're in a BonusStage.
+    -- First we're gonna see if they're in a BonusStage.
     if userData.UserInformation.CurrentBonusStage ~= "" then
 
 		local lightingContainer = gameplayLightingManager.Assets.LightingContainer:FindFirstChild(userData.UserInformation.CurrentBonusStage)

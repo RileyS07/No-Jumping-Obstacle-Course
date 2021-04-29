@@ -77,7 +77,7 @@ function checkpointsManager.UpdateCurrentCheckpoint(player, checkpointNumber)
 	local userData = userDataManager.GetData(player)
 	local originalCurrentCheckpoint = userData.UserInformation.CurrentCheckpoint
 	userData.UserInformation.CurrentCheckpoint = checkpointNumber
-	userData.UserInformation.SpecialLocationIdentifier = coreModule.Shared.Enums.SpecialLocation.None
+	userData.UserInformation.CurrentBonusStage = ""
 	
 	-- Backwards compatibility for things like badges and CompletedStages.
 	if originalCurrentCheckpoint ~= userData.UserInformation.CurrentCheckpoint then
