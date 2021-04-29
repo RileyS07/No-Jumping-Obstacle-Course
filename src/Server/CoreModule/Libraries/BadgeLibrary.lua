@@ -30,7 +30,7 @@ function badgeLibrary.AwardBadge(player, badgeId)
 	-- Award the badge + notify the server and client.
 	coreModule.Services.BadgeService:AwardBadge(player.UserId, badgeId)
 	badgeLibrary.BadgeOwnershipUpdated:Fire(player, badgeId)
-	coreModule.Shared.GetObject("//Remotes.BadgeOwnershipUpdated"):FireClient(player, badgeId)
+	coreModule.Shared.GetObject("//Remotes.Server.BadgeOwnershipUpdated"):FireClient(player, badgeId)
 end
 
 
