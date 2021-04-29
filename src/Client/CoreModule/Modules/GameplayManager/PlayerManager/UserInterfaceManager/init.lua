@@ -11,9 +11,17 @@ local clientAnimationsLibrary = require(coreModule.GetObject("Libraries.ClientAn
 function userInterfaceManager.Initialize()
 	
 	-- Loading modules.
+	coreModule.LoadModule("/DoorInterface")
 	coreModule.LoadModule("/TeleportationConsent")
 	coreModule.LoadModule("/TeleportationOverlay")
 	coreModule.LoadModule("/VersionUpdates")
+
+	-- Escape to exit.
+	coreModule.Services.GuiService.MenuOpened:Connect(function()
+		for screenGui, container in next, userInterfaceManager.ActiveContainers do
+			userInterfaceManager.UpdateActiveContainer(container)
+		end
+	end)
 end
 
 

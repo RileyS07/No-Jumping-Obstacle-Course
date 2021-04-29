@@ -56,12 +56,6 @@ end
 
 
 -- Methods
-function gameplayMechanicManager.IsObjectBeingSimulated(platformObject)
-    if typeof(platformObject) ~= "Instance" then return end
-    return gameplayMechanicManager.ObjectsBeingSimulated[platformObject]
-end
-
-
 function gameplayMechanicManager.SimulateObject(platformObject)
     if typeof(platformObject) ~= "Instance" then return end
     if not utilitiesLibrary.IsPlayerAlive(clientEssentialsLibrary.GetPlayer()) then return end
@@ -69,23 +63,17 @@ function gameplayMechanicManager.SimulateObject(platformObject)
 
     -- So this long and confusing math just checks if they're in front of the door or not.
     if math.round(platformObject.PrimaryPart.CFrame.LookVector:Dot(CFrame.lookAt(clientEssentialsLibrary.GetPlayer().Character:GetPrimaryPartCFrame().Position, platformObject:GetPrimaryPartCFrame().Position).LookVector)) ~= -1 then return end
-    
     gameplayMechanicManager.ObjectsBeingSimulated[platformObject] = true
 
-    -- Does the ProximityPrompt exist?
-    if platformObject.PrimaryPart:FindFirstChild(gameplayMechanicManager.Assets.CodeDoorProximityPrompt.Name) then
-        platformObject.PrimaryPart[gameplayMechanicManager.Assets.CodeDoorProximityPrompt.Name].Enabled = false
-    end
-
-    -- Play the animation.
+    -- Play the animation and clean up afterwards.
     clientAnimationsLibrary.PlayAnimation("OpenDoor", platformObject)
-
-    -- Clean up.
-    if platformObject.PrimaryPart:FindFirstChild(gameplayMechanicManager.Assets.CodeDoorProximityPrompt.Name) then
-        platformObject.PrimaryPart[gameplayMechanicManager.Assets.CodeDoorProximityPrompt.Name].Enabled = true
-    end
-
     gameplayMechanicManager.ObjectsBeingSimulated[platformObject] = nil
+end
+
+
+function gameplayMechanicManager.IsObjectBeingSimulated(platformObject)
+    if typeof(platformObject) ~= "Instance" then return end
+    return gameplayMechanicManager.ObjectsBeingSimulated[platformObject]
 end
 
 
