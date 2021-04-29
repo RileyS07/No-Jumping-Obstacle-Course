@@ -18,6 +18,7 @@ function powerupsManager.Initialize()
     coreModule.LoadModule("/Forcefield")
     coreModule.LoadModule("/Jump")
     coreModule.LoadModule("/Paint")
+    coreModule.LoadModule("/Radar")
     coreModule.LoadModule("/Speed")
 end
 
