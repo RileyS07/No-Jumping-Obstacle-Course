@@ -2,6 +2,7 @@
 local playerManager = {}
 local coreModule = require(script:FindFirstAncestor("CoreModule"))
 local userDataManager = require(coreModule.GetObject("/UserDataManager"))
+local collisionsLibrary = require(coreModule.Shared.GetObject("Libraries.Collisions"))
 
 -- Initialize
 function playerManager.Initialize()
@@ -10,6 +11,8 @@ function playerManager.Initialize()
 	-- This is for PlayerAdded and PlayerRemoving neatness.
 	playerManager.SetupJoiningConnections()
 	playerManager.SetupLeavingConnections()
+
+	collisionsLibrary.CollisionGroupSetCollidable("Players", "Players", false)
 end
 
 
@@ -38,6 +41,7 @@ end
 
 function playerManager.SetupCharacterConnections(player)
 	local function characterApperanceLoaded(character)
+		collisionsLibrary.SetDescendantsCollisionGroup(character, "Players")
 		coreModule.LoadModule("/CharacterManager", player, character)
 	end
 
