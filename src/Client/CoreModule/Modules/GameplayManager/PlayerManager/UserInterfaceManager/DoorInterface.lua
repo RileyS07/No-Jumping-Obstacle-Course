@@ -23,6 +23,7 @@ function specificInterfaceManager.Initialize()
 		
 		-- The code was valid?
 		if specificInterfaceManager.Interface.CodeOutputText.Text == (specificInterfaceManager.CurrentPlatformObject:GetAttribute("Code") or "1234") then
+			soundEffectsManager.PlaySoundEffect("Success")
 			userInterfaceManager.UpdateActiveContainer(specificInterfaceManager.Interface.Container)
 			doorMechanicManager.SimulateObject(specificInterfaceManager.CurrentPlatformObject)
 
