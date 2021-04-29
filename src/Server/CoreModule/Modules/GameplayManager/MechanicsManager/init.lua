@@ -11,6 +11,7 @@ function mechanicsManager.Initialize()
 	coreModule.LoadModule("/TeleportationManager")
 	coreModule.LoadModule("/DamagePlatforms")
 	coreModule.LoadModule("/HealingPlatforms")
+	coreModule.LoadModule("/JumpPlatforms")
 	coreModule.LoadModule("/StageInformationManager")
 end
 
