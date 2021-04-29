@@ -11,6 +11,7 @@ function mechanicsManager.Initialize()
 
 	-- Loading modules
 	coreModule.LoadModule("/Buttons")
+	coreModule.LoadModule("/Doors")
 	coreModule.LoadModule("/ForcedCameraView")
 	coreModule.LoadModule("/ManualSwitchPlatforms")
 	coreModule.LoadModule("/MovingPlatforms")

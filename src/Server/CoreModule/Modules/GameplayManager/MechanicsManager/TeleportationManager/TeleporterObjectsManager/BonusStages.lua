@@ -36,8 +36,12 @@ function bonusStagesManager.Initialize()
 				bonusStageTeleporterInterfaceClone.Container.Content.Title.Text = teleporterObject.Name
 
 				-- Difficulty; 1 star = 1 level of difficulty.
-				for index = 1, math.max(bonusStageLevelReference:GetAttribute("Difficulty") or 1) - 1 do
-					bonusStageTeleporterInterfaceClone.Container.Content.StarContainer.Star:Clone().Parent = bonusStageTeleporterInterfaceClone.Container.Content.StarContainer
+				if (bonusStageLevelReference:GetAttribute("Difficulty") or 1) > 0 then
+					for index = 1, (bonusStageLevelReference:GetAttribute("Difficulty") or 1) - 1 do
+						bonusStageTeleporterInterfaceClone.Container.Content.StarContainer.Star:Clone().Parent = bonusStageTeleporterInterfaceClone.Container.Content.StarContainer
+					end
+				else
+					bonusStageTeleporterInterfaceClone.Container.Content.StarContainer.Star:Destroy()
 				end
 
 				bonusStageTeleporterInterfaceClone.Parent = teleporterObject.PrimaryPart
