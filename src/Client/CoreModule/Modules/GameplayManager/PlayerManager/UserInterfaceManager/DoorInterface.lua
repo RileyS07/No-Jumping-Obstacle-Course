@@ -5,7 +5,9 @@ specificInterfaceManager.CurrentPlatformObject = nil
 
 local coreModule = require(script:FindFirstAncestor("CoreModule"))
 local userInterfaceManager = require(coreModule.GetObject("/Parent"))
+local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
 local soundEffectsManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.SoundEffects"))
+local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
 
 -- Initialize
 function specificInterfaceManager.Initialize()
@@ -64,6 +66,26 @@ function specificInterfaceManager.OpenInterface(platformObject)
 	specificInterfaceManager.Interface.CodeOutputText.Text = ""
 	specificInterfaceManager.Interface.HintText.Text = platformObject:GetAttribute("Hint") or "No hint..."
 	userInterfaceManager.UpdateActiveContainer(specificInterfaceManager.Interface.Container)
+
+	-- Go away.
+	if userInterfaceManager.IsActiveContainer(specificInterfaceManager.Interface.Container) then
+		if not platformObject:IsA("Model") or not platformObject.PrimaryPart then return end
+
+		coroutine.wrap(function()
+			while true do
+				if not userInterfaceManager.IsActiveContainer(specificInterfaceManager.Interface.Container) then return end
+				if specificInterfaceManager.CurrentPlatformObject ~= platformObject then return end
+				if not utilitiesLibrary.IsPlayerAlive(clientEssentialsLibrary.GetPlayer()) then return end
+
+				-- Close it.
+				if clientEssentialsLibrary.GetPlayer():DistanceFromCharacter(platformObject:GetPrimaryPartCFrame().Position) > 25 then
+					userInterfaceManager.UpdateActiveContainer(specificInterfaceManager.Interface.Container)
+				end
+
+				coreModule.Services.RunService.Stepped:Wait()
+			end
+		end)()
+	end
 end
 
 
