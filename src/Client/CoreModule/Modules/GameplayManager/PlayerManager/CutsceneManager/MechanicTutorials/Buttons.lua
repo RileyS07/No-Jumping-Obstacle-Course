@@ -39,7 +39,7 @@ function tutorialManager.PlayTutorial()
 		end
 	end):Wait()
 
-	buttonMechanicManager.SimulateButtonPress(buttonObject, {ManualSimulationLength = 7})
+	buttonMechanicManager.SimulatePlatform(buttonObject, {ManualSimulationLength = 7})
 	
 	-- Transformation Animation
 	local transformationCameraTween = cutsceneManager.TweenCurrentCameraCFrame(CFrame.lookAt(buttonTutorialStorage["3"].Position, buttonObject.TransformationModel:GetPrimaryPartCFrame().Position))
