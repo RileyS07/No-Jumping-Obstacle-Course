@@ -4,15 +4,15 @@ local coreModule = require(script:FindFirstAncestor("CoreModule"))
 local soundEffectsManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.SoundEffects"))
 
 -- Methods
-function specificClientAnimation.Play(buttonObject, simulationLength, showTimerCountdown)
+function specificClientAnimation.Play(platformObject, simulationLength, showTimerCountdown)
     if not showTimerCountdown then return end
     
-    if typeof(buttonObject) ~= "Instance" or not buttonObject:IsA("Model") or not buttonObject.PrimaryPart then return end
-    if not buttonObject.PrimaryPart:FindFirstChild("TimerInterface") or not buttonObject.PrimaryPart.TimerInterface:FindFirstChild("TimerState") then return end
+    if typeof(platformObject) ~= "Instance" or not platformObject:IsA("Model") or not platformObject.PrimaryPart then return end
+    if not platformObject.PrimaryPart:FindFirstChild("TimerInterface") or not platformObject.PrimaryPart.TimerInterface:FindFirstChild("TimerState") then return end
     if typeof(simulationLength) ~= "number" or simulationLength <= 0 then return end
 
     -- Button timer; 30 -> 29 -> 28 -> ...
-    local timerStateText = buttonObject.PrimaryPart.TimerInterface.TimerState
+    local timerStateText = platformObject.PrimaryPart.TimerInterface.TimerState
 
     for index = simulationLength, 1, -1 do
         timerStateText.Text = index

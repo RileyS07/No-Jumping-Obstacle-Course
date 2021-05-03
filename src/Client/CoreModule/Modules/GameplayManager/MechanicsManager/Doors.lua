@@ -2,7 +2,7 @@
 local gameplayMechanicManager = {}
 gameplayMechanicManager.Assets = {}
 gameplayMechanicManager.MechanicContainer = nil
-gameplayMechanicManager.ObjectsBeingSimulated = {}
+gameplayMechanicManager.PlatformsBeingSimulated = {}
 
 local coreModule = require(script:FindFirstAncestor("CoreModule"))
 local mechanicsManager = require(coreModule.GetObject("/Parent"))
@@ -34,7 +34,7 @@ function gameplayMechanicManager.Initialize()
                         if proximityPrompt ~= platformObject.PrimaryPart[gameplayMechanicManager.Assets.CodeDoorProximityPrompt.Name] then return end
                         if player ~= clientEssentialsLibrary.GetPlayer() then return end
                         if not utilitiesLibrary.IsPlayerAlive(player) then return end
-                        if gameplayMechanicManager.IsObjectBeingSimulated(platformObject) then return end
+                        if gameplayMechanicManager.IsPlatformBeingSimulated(platformObject) then return end
 
                         -- So this long and confusing math just checks if they're in front of the door or not.
                         if math.round(platformObject.PrimaryPart.CFrame.LookVector:Dot(CFrame.lookAt(player.Character:GetPrimaryPartCFrame().Position, platformObject:GetPrimaryPartCFrame().Position).LookVector)) ~= -1 then return end
@@ -56,24 +56,30 @@ end
 
 
 -- Methods
-function gameplayMechanicManager.SimulateObject(platformObject)
-    if typeof(platformObject) ~= "Instance" then return end
-    if not utilitiesLibrary.IsPlayerAlive(clientEssentialsLibrary.GetPlayer()) then return end
-    if gameplayMechanicManager.IsObjectBeingSimulated(platformObject) then return end
+function gameplayMechanicManager.SimulatePlatform(platformObject)
+    if typeof(platformObject) ~= "Instance" or not platformObject:IsA("Model") or not platformObject.PrimaryPart then return end
+    if not utilitiesLibrary.IsPlayerAlive() then return end
+    if gameplayMechanicManager.IsPlatformBeingSimulated(platformObject) then return end
 
     -- So this long and confusing math just checks if they're in front of the door or not.
     if math.round(platformObject.PrimaryPart.CFrame.LookVector:Dot(CFrame.lookAt(clientEssentialsLibrary.GetPlayer().Character:GetPrimaryPartCFrame().Position, platformObject:GetPrimaryPartCFrame().Position).LookVector)) ~= -1 then return end
-    gameplayMechanicManager.ObjectsBeingSimulated[platformObject] = true
+    gameplayMechanicManager.UpdatePlatformBeingSimulated(platformObject, true)
 
     -- Play the animation and clean up afterwards.
     clientAnimationsLibrary.PlayAnimation("OpenDoor", platformObject)
-    gameplayMechanicManager.ObjectsBeingSimulated[platformObject] = nil
+    gameplayMechanicManager.UpdatePlatformBeingSimulated(platformObject, nil)
 end
 
 
-function gameplayMechanicManager.IsObjectBeingSimulated(platformObject)
-    if typeof(platformObject) ~= "Instance" then return end
-    return gameplayMechanicManager.ObjectsBeingSimulated[platformObject]
+function gameplayMechanicManager.IsPlatformBeingSimulated(platformObject)
+	if not platformObject then return end
+	return gameplayMechanicManager.PlatformsBeingSimulated[platformObject]
+end
+
+
+function gameplayMechanicManager.UpdatePlatformBeingSimulated(platformObject, newValue)
+	if not platformObject then return end
+	gameplayMechanicManager.PlatformsBeingSimulated[platformObject] = newValue
 end
 
 
