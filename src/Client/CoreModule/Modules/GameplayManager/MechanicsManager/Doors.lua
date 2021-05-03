@@ -17,8 +17,8 @@ function gameplayMechanicManager.Initialize()
     local doorInterfaceManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.UserInterfaceManager.DoorInterface"))
 
     -- Setting up the platform to be functional.
-    for _, platformContainerFolder in next, gameplayMechanicManager.MechanicContainer:GetChildren() do
-        for _, platformObject in next, platformContainerFolder:GetChildren() do
+    for _, platformContainer in next, gameplayMechanicManager.MechanicContainer:GetChildren() do
+        for _, platformObject in next, platformContainer:GetChildren() do
 
             -- This platform is required to be a Model with a PrimaryPart; We create the ProximityPrompt at run time.
             if platformObject:IsA("Model") and platformObject.PrimaryPart then
