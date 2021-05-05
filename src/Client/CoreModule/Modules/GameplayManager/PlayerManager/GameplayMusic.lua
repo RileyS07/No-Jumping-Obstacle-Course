@@ -6,6 +6,7 @@ gameplayMusicManager.MusicState = nil
 gameplayMusicManager.Assets = {}
 
 local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local userInterfaceManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.UserInterfaceManager"))
 
 -- Initialize
 function gameplayMusicManager.Initialize()
@@ -29,11 +30,27 @@ end
 -- Methods
 -- This translates the user's userdata into a Sound object or a SoundGroup.
 function gameplayMusicManager.UpdateMusic(userData)
-    if not userData then return end
     if not gameplayMusicManager.Assets.MusicContainer then return end
 	if #gameplayMusicManager.Assets.MusicContainer:GetChildren() == 0 then return end
 	
-    -- First we're gonna see if they're in a BonusStage.
+	-- FIRST we check if there is a priority interface and also if there's music for it.
+	if userInterfaceManager.GetPriorityInterface() then
+		local soundContainer = gameplayMusicManager.Assets.MusicContainer:FindFirstChild(userInterfaceManager.GetPriorityInterface().Name)
+		if soundContainer and (soundContainer:IsA("Sound") or soundContainer:IsA("SoundGroup")) then
+			return gameplayMusicManager.UpdateMusicPostTranslation(soundContainer)
+		else
+			coreModule.Debug(
+                ("GameplayMusic: %s does not exist."):format(userInterfaceManager.GetPriorityInterface().Name),
+                coreModule.Shared.Enums.DebugLevel.Exception,
+                warn
+            )
+		end
+	end
+
+	-- Past this point we only rely on data.
+	if not userData then return end
+
+    -- Second we're gonna see if they're in a BonusStage.
     if userData.UserInformation.CurrentBonusStage ~= "" then
 
 		local soundContainer = gameplayMusicManager.Assets.MusicContainer:FindFirstChild(userData.UserInformation.CurrentBonusStage)

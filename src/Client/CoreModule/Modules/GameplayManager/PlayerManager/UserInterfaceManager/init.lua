@@ -1,6 +1,7 @@
 -- Variables
 local userInterfaceManager = {}
 userInterfaceManager.ActiveContainers = {}
+userInterfaceManager.PriorityInterface = nil
 userInterfaceManager.ActiveContainerUpdated = Instance.new("BindableEvent")	-- => screenGui, container, isActive
 
 local coreModule = require(script:FindFirstAncestor("CoreModule"))
@@ -11,6 +12,7 @@ local clientAnimationsLibrary = require(coreModule.GetObject("Libraries.ClientAn
 function userInterfaceManager.Initialize()
 	
 	-- Loading modules.
+	coreModule.LoadModule("/LoadingScreen")
 	coreModule.LoadModule("/DoorInterface")
 	coreModule.LoadModule("/TeleportationConsent")
 	coreModule.LoadModule("/TeleportationOverlay")
@@ -27,10 +29,20 @@ end
 
 -- Methods
 -- Enables a specific ScreenGui while also giving functionality to disable all other interfaces while you're at it.
-function userInterfaceManager.EnableInterface(interfaceName, disableOtherInterfaces)
+function userInterfaceManager.EnableInterface(interfaceName, functionParameters)
+	functionParameters = setmetatable(functionParameters or {}, {__index = {
+		DisableOtherInterfaces = false,
+		IsPriority = false
+	}})
+
+	-- Updates the priority interface.
+	if userInterfaceManager.GetPriorityInterface() then return end
+	if functionParameters.IsPriority and userInterfaceManager.GetInterface(interfaceName) then
+		userInterfaceManager.PriorityInterface = userInterfaceManager.GetInterface(interfaceName)
+	end
 
 	-- Gives the responsibility of enabling the interface to DisableInterface since disableOtherInterfaces is true.
-	if disableOtherInterfaces then
+	if functionParameters.DisableOtherInterfaces then
 		userInterfaceManager.DisableInterface(interfaceName, true)
 
 	-- Just a safety check to make sure the interface actually exists.
@@ -48,13 +60,18 @@ function userInterfaceManager.DisableInterface(interfaceName, exceptionBoolean)
 		if not userInterfaceManager.GetInterface(interfaceName) or not userInterfaceManager.GetInterface(interfaceName):IsA("GuiBase2d") then return end
 		userInterfaceManager.GetInterface(interfaceName).Enabled = false
 
+		if userInterfaceManager.GetPriorityInterface() and interfaceName == userInterfaceManager.GetPriorityInterface().Name then
+			userInterfaceManager.PriorityInterface = nil
+		end
 	-- This can either be disable all interfaces or disable all interfaces except interfaceName correspondant.
 	else
 		for _, interfaceObject in next, clientEssentialsLibrary.GetPlayer():WaitForChild("PlayerGui"):GetChildren() do
 
 			-- This line is important so we don't disable stuff like Chat and PlayerList etc.
 			if coreModule.Services.StarterGui:FindFirstChild(interfaceObject.Name) and interfaceObject:IsA("GuiBase2d") then
-				interfaceObject.Enabled = exceptionBoolean and interfaceObject.Name == interfaceName
+				if not userInterfaceManager.GetPriorityInterface() or (userInterfaceManager.GetPriorityInterface() ~= interfaceObject or (exceptionBoolean and userInterfaceManager.GetPriorityInterface().Name == interfaceName)) then
+					interfaceObject.Enabled = exceptionBoolean and interfaceObject.Name == interfaceName
+				end
 			end
 		end
 	end
@@ -129,6 +146,11 @@ end
 function userInterfaceManager.HasActiveContainer(screenGui)
 	if not screenGui or typeof(screenGui) ~= "Instance" or not screenGui:IsA("ScreenGui") then return end
 	return userInterfaceManager.ActiveContainers[screenGui] ~= nil
+end
+
+
+function userInterfaceManager.GetPriorityInterface()
+	return userInterfaceManager.PriorityInterface
 end
 
 

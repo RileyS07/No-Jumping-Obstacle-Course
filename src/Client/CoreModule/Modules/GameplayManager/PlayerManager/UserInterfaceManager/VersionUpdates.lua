@@ -12,13 +12,13 @@ function specificInterfaceManager.Initialize()
 
     -- The game's version was updated; Someone hit shutdown lol.
     coreModule.Shared.GetObject("//Remotes.Server.VersionUpdated").OnClientEvent:Connect(function()
-        userInterfaceManager.EnableInterface(specificInterfaceManager.Interface.ScreenGui.Name, true)
+        userInterfaceManager.EnableInterface(specificInterfaceManager.Interface.ScreenGui.Name, {DisableOtherInterfaces = true})
         clientEssentialsLibrary.SetCoreGuiEnabled(Enum.CoreGuiType.All, false)
     end)
 
     -- Is it a reserved server?
     if coreModule.Shared.GetObject("//Remotes.Server.IsReservedServer"):InvokeServer() then
-        userInterfaceManager.EnableInterface(specificInterfaceManager.Interface.ScreenGui.Name, true)
+        userInterfaceManager.EnableInterface(specificInterfaceManager.Interface.ScreenGui.Name, {DisableOtherInterfaces = true})
         clientEssentialsLibrary.SetCoreGuiEnabled(Enum.CoreGuiType.All, false)
     end
 end

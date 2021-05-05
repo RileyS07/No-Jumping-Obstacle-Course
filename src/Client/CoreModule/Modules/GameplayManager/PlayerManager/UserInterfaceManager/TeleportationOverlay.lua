@@ -15,7 +15,7 @@ function specificInterfaceManager.Initialize()
     -- The screen fades to white when teleporting.
     coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.TeleportationStateUpdated").OnClientInvoke = function(isTeleporting, animationLength)
         if specificInterfaceManager.LastTweenObject then specificInterfaceManager.LastTweenObject:Cancel() end
-        userInterfaceManager.EnableInterface(specificInterfaceManager.Interface.ScreenGui.Name, true)
+        userInterfaceManager.EnableInterface(specificInterfaceManager.Interface.ScreenGui.Name, {DisableOtherInterfaces = true})
         clientAnimationsLibrary.PlayAnimation("TeleportationOverlay", specificInterfaceManager.Interface.Overlay, animationLength, isTeleporting)
 
         -- Do we hide the interface?
