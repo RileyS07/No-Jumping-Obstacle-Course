@@ -12,10 +12,20 @@ function specificClientAnimation.Play(backgroundImage)
 
     -- It's gonna fade between each of these images.
     local loadingScreenBackgroundImages = coreModule.Shared.GetObject("//Assets.Interfaces.LoadingScreenBackgroundImages"):GetChildren()
+    table.sort(loadingScreenBackgroundImages, function(imageA, imageB) return imageA.Name < imageB.Name end)
     specificClientAnimation.IsPlaying = true
 
     if #loadingScreenBackgroundImages > 1 and specificClientAnimation.IsPlaying then
         coroutine.wrap(function()
+            backgroundImage.ImageColor3 = Color3.new()
+            
+            for _ = 1, 3 do
+                for index = 1, #loadingScreenBackgroundImages do
+                    backgroundImage.Image = loadingScreenBackgroundImages[index].Image
+                    coreModule.Services.RunService.RenderStepped:Wait()
+                end
+            end
+
             while specificClientAnimation.IsPlaying do
                 for index = 1, #loadingScreenBackgroundImages do
                     if not specificClientAnimation.IsPlaying then return end
@@ -23,7 +33,7 @@ function specificClientAnimation.Play(backgroundImage)
                     -- This is where the magic happens.
                     coreModule.Services.ContentProvider:PreloadAsync({loadingScreenBackgroundImages[index]})
                     clientAnimationsLibrary.PlayAnimation("LoadingScreenImageSwitch", backgroundImage, loadingScreenBackgroundImages[index])
-                    wait(script:GetAttribute("TimeBetweenImages") or 10)
+                    wait(script:GetAttribute("TimeBetweenImages") or 6)
                 end
             end
         end)()

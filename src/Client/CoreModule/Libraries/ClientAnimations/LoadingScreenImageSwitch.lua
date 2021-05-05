@@ -11,9 +11,9 @@ function specificClientAnimation.Play(backgroundImage, referenceImage)
     local fadeToBlackTweenObject = coreModule.Services.TweenService:Create(backgroundImage, TweenInfo.new(1, Enum.EasingStyle.Linear), {ImageColor3 = Color3.new()})
     fadeToBlackTweenObject:Play()
     fadeToBlackTweenObject.Completed:Wait()
-
+    
     backgroundImage.Image = referenceImage.Image
-
+    
     local fadeToColorTweenObject = coreModule.Services.TweenService:Create(backgroundImage, TweenInfo.new(1, Enum.EasingStyle.Linear), {ImageColor3 = referenceImage.ImageColor3})
     fadeToColorTweenObject:Play()
     fadeToColorTweenObject.Completed:Wait()

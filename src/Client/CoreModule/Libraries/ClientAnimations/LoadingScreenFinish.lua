@@ -12,6 +12,11 @@ function specificClientAnimation.Play(informationContainer, backgroundImage, con
     if typeof(contentContainer) ~= "Instance" or not contentContainer:IsA("GuiObject") then return end
     if typeof(backgroundImage) ~= "Instance" or not backgroundImage:IsA("ImageLabel") then return end
 
+    -- Fade to white now and also stop all the other animations.
+    clientAnimationsLibrary.StopAnimation("LoadingScreenBackgroundImage")
+    clientAnimationsLibrary.StopAnimation("LoadingText...")
+    clientAnimationsLibrary.StopAnimation("LoadingScreenLoadAssets")
+
     informationContainer:WaitForChild("Title").MaxVisibleGraphemes = informationContainer:WaitForChild("Title").Text:len()
     informationContainer:WaitForChild("Game").MaxVisibleGraphemes = informationContainer:WaitForChild("Game").Text:len()
     informationContainer:WaitForChild("Description").MaxVisibleGraphemes = informationContainer:WaitForChild("Description").Text:len()
@@ -23,11 +28,6 @@ function specificClientAnimation.Play(informationContainer, backgroundImage, con
     local downwardsTweenObject = coreModule.Services.TweenService:Create(contentContainer, TweenInfo.new(1, Enum.EasingStyle.Linear), {Position = UDim2.fromScale(0, 1.2)})
     downwardsTweenObject:Play()
     downwardsTweenObject.Completed:Wait()
-
-    -- Fade to white now and also stop all the other animations.
-    clientAnimationsLibrary.StopAnimation("LoadingScreenBackgroundImage")
-    clientAnimationsLibrary.StopAnimation("LoadingText...")
-    clientAnimationsLibrary.StopAnimation("LoadingScreenLoadAssets")
 
     coreModule.Services.TweenService:Create(backgroundImage:WaitForChild("Gradient"), TweenInfo.new(1, Enum.EasingStyle.Linear), {ImageTransparency = 1}):Play()
 
