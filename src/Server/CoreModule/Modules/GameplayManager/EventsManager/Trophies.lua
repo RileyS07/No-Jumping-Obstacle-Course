@@ -57,7 +57,7 @@ end
 function specificEventManager.ValidateEventData(player)
 	
 	-- Guard clauses to make sure the player is valid, their data exists, and is in a format we can use.
-	if not utilitiesLibrary.IsValidPlayer(player) then return end
+	if not utilitiesLibrary.IsPlayerValid(player) then return end
 	if not userDataManager.GetData(player) then return end
 	if not userDataManager.GetData(player).UserEventInformation.Trophy_Event then return end
 	
