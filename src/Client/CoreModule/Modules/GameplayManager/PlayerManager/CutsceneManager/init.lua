@@ -30,7 +30,7 @@ function cutsceneManager.StartDialogTextAnimation(finalDialogText, callbackFunct
 	if not finalDialogText or typeof(finalDialogText) ~= "string" or finalDialogText == "" then return end
 
 	-- Setup the interface and values
-	userInterfaceManager.EnableInterface("DialogInterface", true)
+	userInterfaceManager.EnableInterface("DialogInterface", {DisableOtherInterfaces = true})
 	cutsceneManager.UpdatePlayerBeingShownDialog(true)
 	
 	-- Animation; I have animationCompletionEvent so that when you call this function we have the ability to yield if you want to.
