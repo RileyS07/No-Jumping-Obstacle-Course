@@ -7,10 +7,10 @@ local clientAnimationsLibrary = require(coreModule.GetObject("/Parent"))
 local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
 
 -- Methods
-function specificClientAnimation.Play(informationContainer, backgroundImage, contentContainer)
+function specificClientAnimation.Play(informationContainer, backgroundImages, contentContainer)
     if typeof(informationContainer) ~= "Instance" or not informationContainer:IsA("GuiObject") then return end
     if typeof(contentContainer) ~= "Instance" or not contentContainer:IsA("GuiObject") then return end
-    if typeof(backgroundImage) ~= "Instance" or not backgroundImage:IsA("ImageLabel") then return end
+    if typeof(backgroundImages) ~= "Instance" then return end
 
     -- Fade to white now and also stop all the other animations.
     clientAnimationsLibrary.StopAnimation("LoadingScreenBackgroundImage")
@@ -29,15 +29,19 @@ function specificClientAnimation.Play(informationContainer, backgroundImage, con
     downwardsTweenObject:Play()
     downwardsTweenObject.Completed:Wait()
 
-    coreModule.Services.TweenService:Create(backgroundImage:WaitForChild("Gradient"), TweenInfo.new(1, Enum.EasingStyle.Linear), {ImageTransparency = 1}):Play()
+    for _, backgroundImage in next, backgroundImages:GetChildren() do
+        if backgroundImage.Visible then
+            local backgroundImageFadeTweenObject = coreModule.Services.TweenService:Create(backgroundImage, TweenInfo.new(1, Enum.EasingStyle.Linear), {ImageTransparency = 1})
+            backgroundImageFadeTweenObject:Play()
+            backgroundImageFadeTweenObject.Completed:Wait()
 
-    local backgroundImageFadeTweenObject = coreModule.Services.TweenService:Create(backgroundImage, TweenInfo.new(1, Enum.EasingStyle.Linear), {ImageTransparency = 1})
-    backgroundImageFadeTweenObject:Play()
-    backgroundImageFadeTweenObject.Completed:Wait()
-
-    local backgroundTransparencyFadeTweenObject = coreModule.Services.TweenService:Create(backgroundImage, TweenInfo.new(1, Enum.EasingStyle.Linear), {Transparency = 1})
-    backgroundTransparencyFadeTweenObject:Play()
-    backgroundTransparencyFadeTweenObject.Completed:Wait()
+            coreModule.Services.TweenService:Create(backgroundImages.Parent:WaitForChild("Gradient"), TweenInfo.new(1, Enum.EasingStyle.Linear), {ImageTransparency = 1}):Play()
+            local backgroundTransparencyFadeTweenObject = coreModule.Services.TweenService:Create(backgroundImages.Parent, TweenInfo.new(1, Enum.EasingStyle.Linear), {BackgroundTransparency = 1})
+            backgroundTransparencyFadeTweenObject:Play()
+            backgroundTransparencyFadeTweenObject.Completed:Wait()
+            break
+        end
+    end
 
     userInterfaceManager.DisableInterface("LoadingScreen")
     gameplayMusicManager.UpdateMusic(coreModule.Shared.GetObject("//Remotes.Data.GetUserData"):InvokeServer())
