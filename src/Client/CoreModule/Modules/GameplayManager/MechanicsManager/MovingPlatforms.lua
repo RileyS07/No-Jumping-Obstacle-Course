@@ -10,81 +10,26 @@ function gameplayMechanicManager.Initialize()
     gameplayMechanicManager.MechanicContainer = mechanicsManager.GetPlatformerMechanics():WaitForChild("MovingPlatforms")
 
     -- Setting up the MovingPlatforms to be functional.
-    for _, movingPlatformContainer in next, gameplayMechanicManager.MechanicContainer:GetChildren() do
-        for _, movingPlatform in next, movingPlatformContainer:GetChildren() do
-
-            -- The PrimaryPart is the platform that will be moving and the nodes are what it will move between.
-            if movingPlatform:IsA("Model") and movingPlatform.PrimaryPart and movingPlatform:FindFirstChild("Nodes") and #movingPlatform.Nodes:GetChildren() > 0 then
+    for _, platformContainer in next, gameplayMechanicManager.MechanicContainer:GetChildren() do
+        for _, platformObject in next, platformContainer:GetChildren() do
+            if platformObject:IsA("Model") and platformObject.PrimaryPart and platformObject:FindFirstChild("Nodes") and #platformObject.Nodes:GetChildren() > 0 then
                 
-                -- We put each MovingPlatform into it's own coroutine so they all run separate from eachother.
                 coroutine.wrap(function()
-                    local weldOffsetValues = gameplayMechanicManager.GetWeldOffsetValues(movingPlatform)
-                    local platformConfig = setmetatable(movingPlatform:FindFirstChild("Config") and require(movingPlatform.Config) or {}, {__index = {
-                        [1] = { 
-                            -- How many seconds it takes to get to the next node.
-                            Speed = 5,
-                            -- How many seconds it waits till moving to the next node.
-                            Delay = 1
-                        }
-                    }})
+                    local weldOffsetValues = gameplayMechanicManager.GetWeldOffsetValues(platformObject)
+                    local validNodesArray = gameplayMechanicManager.GetPlatformNodesArray(
+                        platformObject:FindFirstChild("Config") and require(platformObject.Config), 
+                        #platformObject.Nodes:GetChildren()
+                    )
 
-                    -- This is where the magic happens; All of the logic for moving the platforms will be in here.
+                    -- This is where the magic happens.
                     while true do
-                        
-                        -- I didn't check this in the initial check because I wanted a more unique warning.
-                        if #movingPlatform.Nodes:GetChildren() > 0 then
-
-                            -- Moving from node to node.
-                            for index = 1, #movingPlatform.Nodes:GetChildren() do
-
-                                -- We can only accept integer-named nodes.
-                                if not movingPlatform.Nodes:FindFirstChild(index) then 
-                                    coreModule.Debug("MovingPlatform: "..movingPlatform:GetFullName()..", has "..tostring(#movingPlatform.Nodes:GetChildren()).." children but is missing node: "..tostring(index)..".", coreModule.Shared.Enums.DebugLevel.Exception, warn) 
-                                    break 
-                                end
-
-                                -- Now that we have our bases covered we can actually move forward.
-                                local nodeTweenInfo = TweenInfo.new(
-                                    gameplayMechanicManager.GetPlatformSpeed(platformConfig, index),
-                                    Enum.EasingStyle.Linear,
-                                    Enum.EasingDirection.Out,
-                                    0,
-                                    false,
-                                    gameplayMechanicManager.GetPlatformDelay(platformConfig, index)
-                                )
-
-                                -- Tweening the welded objects; This really isn't ideal because in some circumstances the path the welded objects isn't the same as the path the platform takes and it can look really bad.
-                                if weldOffsetValues then
-                                    for weldConstraint, objectSpaceCFrame in next, weldOffsetValues do
-                                        coreModule.Services.TweenService:Create(
-                                            weldConstraint.Part1,
-                                            nodeTweenInfo,
-                                            {CFrame = movingPlatform.Nodes[index].CFrame:ToWorldSpace(objectSpaceCFrame)}
-                                        ):Play()
-                                    end
-                                end
-
-                                -- Now we can finally move the actual platform.
-                                local platformMovementTweenObject = coreModule.Services.TweenService:Create(
-                                    movingPlatform.PrimaryPart, nodeTweenInfo, {CFrame = movingPlatform.Nodes[index].CFrame}
-                                )
-                                platformMovementTweenObject:Play()
-                                platformMovementTweenObject.Completed:Wait()
-                            end
-
-                            coreModule.Services.RunService.RenderStepped:Wait()
-                        else
-                            coreModule.Debug(
-                                ("MovingPlatform: %s, has 0 nodes to move between."):format(movingPlatform:GetFullName()), 
-                                coreModule.Shared.Enums.DebugLevel.Exception, 
-                                warn
-                            )
-                        end
+                        gameplayMechanicManager.SimulatePlatform(platformObject, validNodesArray, weldOffsetValues)
+                        coreModule.Services.RunService.RenderStepped:Wait()
                     end
                 end)()
-            elseif movingPlatform:IsA("Model") then
+            elseif platformObject:IsA("Model") then
                 coreModule.Debug(
-                    ("MovingPlatform: %s, has PrimaryPart: %s, has Nodes: %s"):format(movingPlatform:GetFullName(), tostring(movingPlatform.PrimaryPart ~= nil), tostring(movingPlatform:FindFirstChild("Nodes") ~= nil)), 
+                    ("MovingPlatform: %s, has PrimaryPart: %s, has Nodes: %s, # of Nodes: %s"):format(platformObject:GetFullName(), tostring(platformObject.PrimaryPart ~= nil), tostring(platformObject:FindFirstChild("Nodes") ~= nil), tostring(platformObject:FindFirstChild("Nodes") and #platformObject.Nodes:GetChildren() or 0)), 
                     coreModule.Shared.Enums.DebugLevel.Exception,	
                     warn
                 )
@@ -94,20 +39,58 @@ function gameplayMechanicManager.Initialize()
 end
 
 
+-- Methods
+function gameplayMechanicManager.SimulatePlatform(platformObject, validNodesArray, weldOffsetValues)
+    if typeof(platformObject) ~= "Instance" or not platformObject:IsA("Model") or not platformObject.PrimaryPart then return end
+    if not platformObject:FindFirstChild("Nodes") or #platformObject.Nodes:GetChildren() == 0 then return end
+    if typeof(validNodesArray) ~= "table" or #validNodesArray == 0 then return end
+    
+    for index = 1, #platformObject.Nodes:GetChildren() do
+        if not platformObject.Nodes:FindFirstChild(index) then 
+            coreModule.Debug("MovingPlatform: "..platformObject:GetFullName()..", has "..tostring(#platformObject.Nodes:GetChildren()).." children but is missing node: "..tostring(index)..".", coreModule.Shared.Enums.DebugLevel.Exception, warn) 
+            break 
+        end
+
+        -- Common tween information.
+        local nodeTweenInfo = TweenInfo.new(
+            gameplayMechanicManager.GetPlatformSpeed(validNodesArray, index),
+            Enum.EasingStyle.Linear, Enum.EasingDirection.Out, 0, false,
+            gameplayMechanicManager.GetPlatformDelay(validNodesArray, index)
+        )
+
+        -- Tweening the welded objects.
+        -- This really isn't ideal because in some circumstances the path the welded objects isn't the same as the path the platform takes and it can look really bad.
+        if weldOffsetValues then
+            for weldConstraint, objectSpaceCFrame in next, weldOffsetValues do
+                coreModule.Services.TweenService:Create(
+                    weldConstraint.Part1,
+                    nodeTweenInfo,
+                    {CFrame = platformObject.Nodes[index].CFrame:ToWorldSpace(objectSpaceCFrame)}
+                ):Play()
+            end
+        end
+
+        -- Now we can finally move the actual platform.
+        local platformMovementTweenObject = coreModule.Services.TweenService:Create(platformObject.PrimaryPart, nodeTweenInfo, {CFrame = platformObject.Nodes[index].CFrame})
+        platformMovementTweenObject:Play()
+        platformMovementTweenObject.Completed:Wait()
+    end
+end
+
+
 -- Private Methods
--- This method exists so we can support things being welded to the platforms moving with them.
-function gameplayMechanicManager.GetWeldOffsetValues(movingPlatform)
-    if not movingPlatform or not typeof(movingPlatform) == "Instance" then return end
-    if not movingPlatform:IsA("Model") or not movingPlatform.PrimaryPart then return end
+function gameplayMechanicManager.GetWeldOffsetValues(platformObject)
+    if not platformObject or not typeof(platformObject) == "Instance" then return end
+    if not platformObject:IsA("Model") or not platformObject.PrimaryPart then return end
 
     -- Do an initial check before doing any needless computation.
-    if movingPlatform.PrimaryPart:FindFirstChildOfClass("WeldConstraint") then
+    if platformObject.PrimaryPart:FindFirstChildOfClass("WeldConstraint") then
         local weldOffsetValues = {}
 
         -- We need to collect all of the WeldConstraints' information.
-        for _, weldConstraint in next, movingPlatform.PrimaryPart:GetChildren() do
+        for _, weldConstraint in next, platformObject.PrimaryPart:GetChildren() do
             if weldConstraint:IsA("WeldConstraint") and weldConstraint.Part1 then
-                weldOffsetValues[weldConstraint] = movingPlatform:GetPrimaryPartCFrame():ToObjectSpace(weldConstraint.Part1.CFrame)
+                weldOffsetValues[weldConstraint] = platformObject:GetPrimaryPartCFrame():ToObjectSpace(weldConstraint.Part1.CFrame)
             end
         end
 
@@ -116,7 +99,31 @@ function gameplayMechanicManager.GetWeldOffsetValues(movingPlatform)
 end 
 
 
--- This has to exist because I offer a lot of flexibility for how we can define speed.
+function gameplayMechanicManager.GetPlatformNodesArray(possibleNodesArray, minimumNumberOfSequencesNeeded)
+    minimumNumberOfSequencesNeeded = typeof(minimumNumberOfSequencesNeeded) and minimumNumberOfSequencesNeeded or 1
+    local validNodesArray = {}
+
+    -- Is the possibleNodesArray valid? If so let's try to salvage it.
+    if typeof(possibleNodesArray) == "table" and #possibleNodesArray > 0 then
+        for index = 1, #possibleNodesArray do
+            table.insert(validNodesArray, {
+                Speed = tonumber(possibleNodesArray[index].Speed) or 5,
+                Delay = tonumber(possibleNodesArray[index].Delay) or 1
+            })
+        end
+    end
+
+    -- Fill in the gaps?
+    if #validNodesArray < minimumNumberOfSequencesNeeded then
+        while #validNodesArray < minimumNumberOfSequencesNeeded do
+            table.insert(validNodesArray, {Speed = 5, Delay = 1})
+        end
+    end
+
+    return validNodesArray
+end
+
+
 function gameplayMechanicManager.GetPlatformSpeed(platformConfig, index)
     local targetNodeValues = platformConfig[math.min(index, 1)]
     targetNodeValues.Speed = targetNodeValues.Speed or 5
@@ -132,7 +139,6 @@ function gameplayMechanicManager.GetPlatformSpeed(platformConfig, index)
 end
 
 
--- This has to exist because I offer a lot of flexibility for how we can define delay.
 function gameplayMechanicManager.GetPlatformDelay(platformConfig, index)
     local targetNodeValues = platformConfig[math.min(index, 1)]
     targetNodeValues.Delay = targetNodeValues.Delay or 1
