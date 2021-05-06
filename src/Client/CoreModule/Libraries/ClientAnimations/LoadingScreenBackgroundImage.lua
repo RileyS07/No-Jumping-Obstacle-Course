@@ -16,13 +16,20 @@ function specificClientAnimation.Play(backgroundImages)
     
     if #backgroundImages > 1 and specificClientAnimation.IsPlaying then
         coroutine.wrap(function()
+
+            -- The preset one.
+            for _, backgroundImage in next, backgroundImages do
+                backgroundImage.Visible = false
+            end
+
+            -- The main animation logic.
             while specificClientAnimation.IsPlaying do
-                for index = 1, #backgroundImages do
+                for index, backgroundImage in next, backgroundImages do
                     if not specificClientAnimation.IsPlaying then return end
                     
                     -- This is where the magic happens.
-                    coreModule.Services.ContentProvider:PreloadAsync({backgroundImages[index]})
-                    clientAnimationsLibrary.PlayAnimation("LoadingScreenImageSwitch", backgroundImages[math.max(index - 1, 1)], backgroundImages[index])
+                    coreModule.Services.ContentProvider:PreloadAsync({backgroundImage})
+                    clientAnimationsLibrary.PlayAnimation("LoadingScreenImageSwitch", backgroundImages[math.max(index - 1, 1)], backgroundImage)
                     wait(script:GetAttribute("TimeBetweenImages") or 6)
                 end
             end

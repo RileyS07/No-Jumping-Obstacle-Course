@@ -34,8 +34,10 @@ function specificClientAnimation.Play(informationContainer, backgroundImages, co
             local backgroundImageFadeTweenObject = coreModule.Services.TweenService:Create(backgroundImage, TweenInfo.new(1, Enum.EasingStyle.Linear), {ImageTransparency = 1})
             backgroundImageFadeTweenObject:Play()
             backgroundImageFadeTweenObject.Completed:Wait()
+            backgroundImage.Visible = false
 
             coreModule.Services.TweenService:Create(backgroundImages.Parent:WaitForChild("Gradient"), TweenInfo.new(1, Enum.EasingStyle.Linear), {ImageTransparency = 1}):Play()
+            
             local backgroundTransparencyFadeTweenObject = coreModule.Services.TweenService:Create(backgroundImages.Parent, TweenInfo.new(1, Enum.EasingStyle.Linear), {BackgroundTransparency = 1})
             backgroundTransparencyFadeTweenObject:Play()
             backgroundTransparencyFadeTweenObject.Completed:Wait()

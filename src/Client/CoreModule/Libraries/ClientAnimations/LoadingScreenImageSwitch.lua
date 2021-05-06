@@ -7,6 +7,9 @@ function specificClientAnimation.Play(backgroundImage, referenceImage)
     if typeof(backgroundImage) ~= "Instance" or not backgroundImage:IsA("ImageLabel") then return end
     if typeof(referenceImage) ~= "Instance" or not referenceImage:IsA("ImageLabel") then return end
 
+    -- Preload.
+    coreModule.Services.ContentProvider:PreloadAsync({backgroundImage, referenceImage})
+    
     -- It's gonna fade between each of these images.
     local originalImageColor3 = referenceImage.ImageColor3
     local fadeToBlackTweenObject = coreModule.Services.TweenService:Create(backgroundImage, TweenInfo.new(1, Enum.EasingStyle.Linear), {ImageColor3 = Color3.new()})
