@@ -1,7 +1,6 @@
 -- Variables
 local specificClientAnimation = {}
 local coreModule = require(script:FindFirstAncestor("CoreModule"))
-local buttonMechanicManager = require(coreModule.GetObject("Modules.GameplayManager.MechanicsManager.Buttons"))
 local clientAnimationsLibrary = require(coreModule.GetObject("/Parent"))
 
 -- Methods
@@ -30,9 +29,6 @@ function specificClientAnimation.Play(platformObject, simulationLength)
     transformButtonTransformationModel()
 	wait(simulationLength)
 	transformButtonTransformationModel()
-    wait(0.5)
-	
-	buttonMechanicManager.UpdatePlatformBeingSimulated(platformObject, nil)
 end
 
 

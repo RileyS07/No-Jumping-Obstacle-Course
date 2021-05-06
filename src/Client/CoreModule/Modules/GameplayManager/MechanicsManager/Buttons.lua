@@ -70,7 +70,12 @@ function gameplayMechanicManager.SimulatePlatform(platformObject, functionParame
 	-- Setting up all of the animations behind the platforms.
 	coroutine.wrap(clientAnimationsLibrary.PlayAnimation)("ButtonMovement", platformObject, simulationLength)
 	coroutine.wrap(clientAnimationsLibrary.PlayAnimation)("ButtonTimer", platformObject, simulationLength, functionParameters.ShowTimerCountdown)
-	coroutine.wrap(clientAnimationsLibrary.PlayAnimation)("ButtonTransformation", platformObject, simulationLength)
+	coroutine.wrap(function()
+		clientAnimationsLibrary.PlayAnimation("ButtonTransformation", platformObject, simulationLength)
+		wait(0.5)
+		
+		gameplayMechanicManager.UpdatePlatformBeingSimulated(platformObject, nil)
+	end)()
 	
 	-- Returns true so we know that the simulation was ran
 	return true
