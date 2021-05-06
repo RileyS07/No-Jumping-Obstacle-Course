@@ -16,20 +16,20 @@ function gameplayMechanicManager.Initialize()
         
         -- Backtrack and get rid of old rendered parts.
         if not accessableParts or (accessableParts and #gameplayMechanicManager.CurrentRenderedParts > 0) then
-            gameplayMechanicManager.SimulateRadarRendering(false)
+            gameplayMechanicManager.SimulateMechanic(false)
         end
 
         -- Render new parts.
         if typeof(accessableParts) == "table" and #accessableParts > 0 then
             gameplayMechanicManager.CurrentRenderedParts = accessableParts
-            gameplayMechanicManager.SimulateRadarRendering(true)
+            gameplayMechanicManager.SimulateMechanic(true)
         end
     end)
 end
 
 
 -- Methods
-function gameplayMechanicManager.SimulateRadarRendering(renderStatus)
+function gameplayMechanicManager.SimulateMechanic(renderStatus)
     for _, renderObject in next, gameplayMechanicManager.CurrentRenderedParts do
         if renderObject:IsA("BasePart") or (renderObject:IsA("ObjectValue") and renderObject.Value and renderObject.Value:IsA("BasePart")) then
             local basePart = renderObject:IsA("ObjectValue") and renderObject.Value or renderObject
