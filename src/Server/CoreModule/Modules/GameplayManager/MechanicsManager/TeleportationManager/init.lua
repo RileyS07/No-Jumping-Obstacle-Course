@@ -202,23 +202,23 @@ function teleportationManager.TeleportPlayerListPostTranslationToPlaceId(players
 	if typeof(players) ~= "table" then return end
 	if not goalPlaceId or not tonumber(goalPlaceId) or tonumber(goalPlaceId) <= 0 then return end
 	if typeof(teleportOptions) ~= "table" and typeof(teleportOptions) ~= "nil" then return end
-	print("It gets past the guard clauses")
 
 	-- Setting up TeleportOptions.
 	local validTeleportOptions = Instance.new("TeleportOptions")
 	validTeleportOptions.ReservedServerAccessCode = teleportOptions and teleportOptions.ReservedServerAccessCode or ""
 	validTeleportOptions.ShouldReserveServer = teleportOptions and teleportOptions.ShouldReserveServer or false
 
-	print(players, #players)
 	-- We can start the effect.
 	for _, player in next, players do
-		print(utilitiesLibrary.IsPlayerValid(player))
 		if utilitiesLibrary.IsPlayerValid(player) and not teleportationManager.IsPlayerBeingTeleported(player) then
 
 			-- We can start the effect.
 			teleportationManager.PlayersBeingTeleported[player] = true
-			teleportationManager.Remotes.TeleportationStateUpdated:InvokeClient(player, true)
-			print(pcall(coreModule.Services.TeleportService.TeleportAsync, coreModule.Services.TeleportService, goalPlaceId, {player}, validTeleportOptions))
+			if teleportationManager.Remotes.TeleportationStateUpdated then
+				teleportationManager.Remotes.TeleportationStateUpdated:InvokeClient(player, true)
+			end
+
+			pcall(coreModule.Services.TeleportService.TeleportAsync, coreModule.Services.TeleportService, goalPlaceId, {player}, validTeleportOptions)
 		end
 	end
 end

@@ -31,7 +31,9 @@ function gameplayMechanicManager.Initialize()
         
         if not raycastResult then return end
         if not utilitiesLibrary.IsPlayerAlive(clientEssentialsLibrary.GetPlayer()) then return end
-        if raycastResult.Instance:GetAttribute("MaxDistance") and clientEssentialsLibrary.GetPlayer():DistanceFromCharacter(raycastResult.Position) > raycastResult.Instance:GetAttribute("MaxDistance") then return end
+        if raycastResult.Instance:GetAttribute("MaxDistance") and typeof(raycastResult.Instance:GetAttribute("MaxDistance")) == "number" then
+            if clientEssentialsLibrary.GetPlayer():DistanceFromCharacter(raycastResult.Position) > raycastResult.Instance:GetAttribute("MaxDistance") then return end
+        end
         if gameplayMechanicManager.IsSwitchBeingSimulated(raycastResult.Instance) then return end
 
         gameplayMechanicManager.SimulateSwitchActivation(raycastResult.Instance)
@@ -93,7 +95,9 @@ function gameplayMechanicManager.SimulateSwitchActivation(switchPlatform)
 
     if not switchPlatform or typeof(switchPlatform) ~= "Instance" or not switchPlatform:IsA("BasePart") then return end
     if not utilitiesLibrary.IsPlayerAlive(clientEssentialsLibrary.GetPlayer()) then return end
-    if switchPlatform:GetAttribute("MaxDistance") and clientEssentialsLibrary.GetPlayer():DistanceFromCharacter(switchPlatform.Position) > switchPlatform:GetAttribute("MaxDistance") then return end
+    if switchPlatform:GetAttribute("MaxDistance") and typeof(switchPlatform:GetAttribute("MaxDistance")) == "number" then
+        if clientEssentialsLibrary.GetPlayer():DistanceFromCharacter(raycastResult.Position) > switchPlatform:GetAttribute("MaxDistance") then return end
+    end
     if gameplayMechanicManager.IsSwitchBeingSimulated(switchPlatform) then return end
     gameplayMechanicManager.SwitchesBeingSimulated[switchPlatform] = true
 
