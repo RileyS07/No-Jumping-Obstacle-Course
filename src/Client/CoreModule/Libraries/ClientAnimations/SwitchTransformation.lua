@@ -15,7 +15,7 @@ function specificClientAnimation.Play(platformObject)
                 -- Invisible
                 or (platformObject:GetAttribute("InvisibleTransparency") or script:GetAttribute("DefaultInvisibleTransparency") or 0.5)
 
-    clientAnimationsLibrary.PlayAnimation("GeneralAppearanceChanged", platformObject)
+    clientAnimationsLibrary.PlayAnimation("GeneralAppearanceChanged", platformObject, 2)
 end
 
 

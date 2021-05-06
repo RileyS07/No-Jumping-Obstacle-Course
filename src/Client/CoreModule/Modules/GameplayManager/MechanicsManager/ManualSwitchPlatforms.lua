@@ -29,7 +29,7 @@ function gameplayMechanicManager.Initialize()
         if gameplayMechanicManager.IsPlatformBeingSimulated(raycastResult.Instance) then return end
         if clientEssentialsLibrary.GetPlayer():DistanceFromCharacter(raycastResult.Position) > (raycastResult.Instance:GetAttribute("MaxDistance") or script:GetAttribute("DefaultMaxDistance") or 50) then return end
 
-        gameplayMechanicManager.SimulateSwitchActivation(raycastResult.Instance)
+        gameplayMechanicManager.SimulatePlatform(raycastResult.Instance)
     end)
 
     -- Better mobile support.
@@ -38,8 +38,8 @@ end
 
 
 -- Methods
-function gameplayMechanicManager.SimulateSwitchActivation(platformObject)
-    if not platformObject or typeof(platformObject) ~= "Instance" or not platformObject:IsA("BasePart") then return end
+function gameplayMechanicManager.SimulatePlatform(platformObject)
+    if typeof(platformObject) ~= "Instance" or not platformObject:IsA("BasePart") then return end
     if not utilitiesLibrary.IsPlayerAlive(clientEssentialsLibrary.GetPlayer()) then return end
     if gameplayMechanicManager.IsPlatformBeingSimulated(platformObject) then return end
     if clientEssentialsLibrary.GetPlayer():DistanceFromCharacter(platformObject.Position) > (platformObject:GetAttribute("MaxDistance") or script:GetAttribute("DefaultMaxDistance") or 50) then return end
@@ -81,7 +81,7 @@ function gameplayMechanicManager.SetupKeybindFunctionality()
         if userInputState ~= Enum.UserInputState.Begin then return end
         
         for _, platformObject in next, gameplayMechanicManager.MechanicContainer:GetDescendants() do
-            gameplayMechanicManager.SimulateSwitchActivation(platformObject)
+            gameplayMechanicManager.SimulatePlatform(platformObject)
         end
     end
 

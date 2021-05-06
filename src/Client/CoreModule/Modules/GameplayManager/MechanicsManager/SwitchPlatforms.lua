@@ -2,12 +2,14 @@
 local gameplayMechanicManager = {}
 gameplayMechanicManager.MechanicContainer = nil
 gameplayMechanicManager.CommonRaycastParameters = nil
-gameplayMechanicManager.SwitchesBeingSimulated = {}
+gameplayMechanicManager.PlatformsBeingSimulated = {}
 
 local coreModule = require(script:FindFirstAncestor("CoreModule"))
 local mechanicsManager = require(coreModule.GetObject("/Parent"))
+local soundEffectsManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.SoundEffects"))
 local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
 local playerMouseLibrary = require(coreModule.GetObject("Libraries.UserInput.Mouse"))
+local clientAnimationsLibrary = require(coreModule.GetObject("Libraries.ClientAnimations"))
 local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
 
 -- Initialize
@@ -17,63 +19,53 @@ function gameplayMechanicManager.Initialize()
 	gameplayMechanicManager.CommonRaycastParameters.FilterType = Enum.RaycastFilterType.Whitelist
 	gameplayMechanicManager.CommonRaycastParameters.FilterDescendantsInstances = gameplayMechanicManager.MechanicContainer:GetDescendants()
     
-    -- Setting up the SwitchPlatforms to be functional.
+    -- Setting up the platform to be functional.
     playerMouseLibrary.SetInputListener({Enum.UserInputType.Touch, Enum.UserInputType.MouseButton1, Enum.KeyCode.ButtonX}, Enum.UserInputState.Begin):Connect(function()
         local raycastResult = playerMouseLibrary.Raycast(gameplayMechanicManager.CommonRaycastParameters)
-        
-        --[[
-            These guard clauses check the following:
-            1) Check if the rasycastResult is valid.
-            2) Check if the player is alive.
-            3) If MaxDistance exists we check to see if the distance is within the acceptable threshold.
-            4) Check if the switchPlatformContainer is already being simulated.
-        ]]         
-        
+              
+        -- Guard clauses.
         if not raycastResult then return end
         if not utilitiesLibrary.IsPlayerAlive(clientEssentialsLibrary.GetPlayer()) then return end
-        if raycastResult.Instance:GetAttribute("MaxDistance") and clientEssentialsLibrary.GetPlayer():DistanceFromCharacter(raycastResult.Position) > raycastResult.Instance:GetAttribute("MaxDistance") then return end
-        if gameplayMechanicManager.IsSwitchBeingSimulated(raycastResult.Instance.Parent.Parent) then return end
+        if gameplayMechanicManager.IsPlatformBeingSimulated(raycastResult.Instance.Parent.Parent) then return end
+        if clientEssentialsLibrary.GetPlayer():DistanceFromCharacter(raycastResult.Position) > (raycastResult.Instance:GetAttribute("MaxDistance") or script:GetAttribute("DefaultMaxDistance") or 50) then return end
 
-        gameplayMechanicManager.SimulateSwitchActivation(raycastResult.Instance.Parent.Parent, raycastResult.Instance)
+        gameplayMechanicManager.SimulatePlatform(raycastResult.Instance.Parent.Parent, raycastResult.Instance)
     end)
 end
 
 
 -- Methods
-function gameplayMechanicManager.SimulateSwitchActivation(switchPlatformContainer, specificSwitchPlatform)
-
-    --[[
-        These guard clauses check the following:
-        1) Check if the switchPlatformContainer is in a format we can work with.
-        2) Check if the player is alive.
-        3) If MaxDistance exists we check to see if the distance is within the acceptable threshold.
-        4) Check if the switchPlatformContainer is already being simulated.
-    ]] 
-
-    if not switchPlatformContainer or typeof(switchPlatformContainer) ~= "Instance" then return end
+function gameplayMechanicManager.SimulatePlatform(platformContainer, platformObject)
+    if typeof(platformObject) ~= "Instance" or not platformObject:IsA("BasePart") then return end
     if not utilitiesLibrary.IsPlayerAlive(clientEssentialsLibrary.GetPlayer()) then return end
-    if switchPlatformContainer:GetAttribute("MaxDistance") and clientEssentialsLibrary.GetPlayer():DistanceFromCharacter(specificSwitchPlatform.Position) > switchPlatformContainer:GetAttribute("MaxDistance") then return end
-    if gameplayMechanicManager.IsSwitchBeingSimulated(switchPlatformContainer) then return end
-    gameplayMechanicManager.SwitchesBeingSimulated[switchPlatformContainer] = true
+    if gameplayMechanicManager.IsPlatformBeingSimulated(platformContainer) then return end
+    if clientEssentialsLibrary.GetPlayer():DistanceFromCharacter(platformObject.Position) > (platformObject:GetAttribute("MaxDistance") or script:GetAttribute("DefaultMaxDistance") or 50) then return end
+
+    gameplayMechanicManager.UpdatePlatformBeingSimulated(platformContainer, true)
 
     -- The magic function where the transformation happens.
-    local function transformSwitchPlatform()
-        for _, switchPlatform in next, switchPlatformContainer:GetDescendants() do
-            if switchPlatform:IsA("BasePart") and switchPlatform.CanCollide ~= (switchPlatform.Name == specificSwitchPlatform.Name) then
-                switchPlatform.CanCollide = switchPlatform.Name == specificSwitchPlatform.Name
-                switchPlatform.Transparency = switchPlatform.CanCollide and (switchPlatform:GetAttribute("VisibleTransparency") or script:GetAttribute("DefaultVisibleTransparency") or 0) or (switchPlatform:GetAttribute("InvisibleTransparency") or script:GetAttribute("DefaultInvisibleTransparency") or 0.5)
-                mechanicsManager.PlayAppearanceChangedEffect(switchPlatform, 2)
-            end
+    gameplayMechanicManager.UpdatePlatformBeingSimulated(platformObject, true)
+
+    for _, nestedPlatformObject in next, platformContainer:GetDescendants() do
+        if nestedPlatformObject:IsA("BasePart") and nestedPlatformObject.CanCollide ~= (nestedPlatformObject.Name == platformObject.Name) then
+            clientAnimationsLibrary.PlayAnimation("SwitchTransformation", nestedPlatformObject)
+            soundEffectsManager.PlaySoundEffect("SwitchClicked", {Parent = nestedPlatformObject})
         end
     end
-
-    transformSwitchPlatform()
-    gameplayMechanicManager.SwitchesBeingSimulated[switchPlatformContainer] = nil
+   
+    gameplayMechanicManager.UpdatePlatformBeingSimulated(platformContainer, nil)
 end
 
 
-function gameplayMechanicManager.IsSwitchBeingSimulated(switchPlatform)
-    return gameplayMechanicManager.SwitchesBeingSimulated[switchPlatform]
+function gameplayMechanicManager.IsPlatformBeingSimulated(platformObject)
+	if not platformObject then return end
+	return gameplayMechanicManager.PlatformsBeingSimulated[platformObject]
+end
+
+
+function gameplayMechanicManager.UpdatePlatformBeingSimulated(platformObject, newValue)
+	if not platformObject then return end
+	gameplayMechanicManager.PlatformsBeingSimulated[platformObject] = newValue
 end
 
 
