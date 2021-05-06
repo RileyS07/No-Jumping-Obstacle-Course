@@ -6,6 +6,7 @@ gameplayMechanicManager.PlatformsBeingSimulated = {}
 
 local coreModule = require(script:FindFirstAncestor("CoreModule"))
 local mechanicsManager = require(coreModule.GetObject("/Parent"))
+local soundEffectsManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.SoundEffects"))
 local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
 local playerMouseLibrary = require(coreModule.GetObject("Libraries.UserInput.Mouse"))
 local clientAnimationsLibrary = require(coreModule.GetObject("Libraries.ClientAnimations"))
@@ -48,6 +49,7 @@ function gameplayMechanicManager.SimulateSwitchActivation(platformObject)
     gameplayMechanicManager.UpdatePlatformBeingSimulated(platformObject, true)
 
     clientAnimationsLibrary.PlayAnimation("SwitchTransformation", platformObject)
+    soundEffectsManager.PlaySoundEffect("SwitchClicked", {Parent = platformObject})
     wait(platformObject:GetAttribute("Duration") or script:GetAttribute("DefaultDuration") or 10)
     clientAnimationsLibrary.PlayAnimation("SwitchTransformation", platformObject)
 
