@@ -7,6 +7,7 @@ function playerManager.Initialize()
 	coreModule.LoadModule("/UserInterfaceManager")
 	coreModule.LoadModule("/GameplayLighting")
 	coreModule.LoadModule("/GameplayMusic")
+	coreModule.LoadModule("/ForceShiftLock")
 	coreModule.LoadModule("/SoundEffects")
 	coreModule.LoadModule("/CutsceneManager")
 end

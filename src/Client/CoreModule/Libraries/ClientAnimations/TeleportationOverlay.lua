@@ -6,11 +6,14 @@ local coreModule = require(script:FindFirstAncestor("CoreModule"))
 function specificClientAnimation.Play(overlayObject, animationLength, isTeleporting)
     if not overlayObject or typeof(overlayObject) ~= "Instance" or not overlayObject:IsA("GuiObject") then return end
     
-    coreModule.Services.TweenService:Create(
+    local overlayTweenObject = coreModule.Services.TweenService:Create(
         overlayObject,
         TweenInfo.new(animationLength, Enum.EasingStyle.Linear),
         {BackgroundTransparency = isTeleporting and 0 or 1}
-    ):Play()
+    )
+
+    overlayTweenObject:Play()
+    return overlayTweenObject
 end
 
 

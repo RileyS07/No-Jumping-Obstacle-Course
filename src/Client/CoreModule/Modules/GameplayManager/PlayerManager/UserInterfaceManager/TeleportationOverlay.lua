@@ -16,16 +16,20 @@ function specificInterfaceManager.Initialize()
     coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.TeleportationStateUpdated").OnClientInvoke = function(isTeleporting, animationLength)
         if specificInterfaceManager.LastTweenObject then specificInterfaceManager.LastTweenObject:Cancel() end
         userInterfaceManager.EnableInterface(specificInterfaceManager.Interface.ScreenGui.Name, {DisableOtherInterfaces = true})
-        clientAnimationsLibrary.PlayAnimation("TeleportationOverlay", specificInterfaceManager.Interface.Overlay, animationLength, isTeleporting)
+
+        local tweenObject = clientAnimationsLibrary.PlayAnimation(
+            "TeleportationOverlay", specificInterfaceManager.Interface.Overlay, animationLength, isTeleporting
+        )
 
         -- Do we hide the interface?
         if not isTeleporting then
             coroutine.wrap(function()
-                wait(animationLength)
-
-                if math.round(specificInterfaceManager.Interface.Overlay.BackgroundTransparency) == 1 then
-                    userInterfaceManager.DisableInterface(specificInterfaceManager.Interface.ScreenGui.Name)
+                if tweenObject.PlaybackState ~= Enum.PlaybackState.Completed then
+                    tweenObject.Completed:Wait()
                 end
+
+                userInterfaceManager.DisableInterface(specificInterfaceManager.Interface.ScreenGui.Name)
+                userInterfaceManager.EnableInterface("MainInterface")
             end)()
         end
 
