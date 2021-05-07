@@ -65,7 +65,7 @@ function gameplayMechanicManager.SimulatePlatform(platformObject, validBeatMap)
 		-- There's actually a final animation that happens before they switch.
 		for _, basePart in next, platformObject:GetDescendants() do
 			if basePart:IsA("BasePart") and tonumber(basePart.Parent.Name) then
-				clientAnimationsLibrary.PlayAnimation("GeneralAppearanceChanged", platformObject, 2)
+				clientAnimationsLibrary.PlayAnimation("GeneralAppearanceChanged", basePart, 2)
 			end
 		end
 	end

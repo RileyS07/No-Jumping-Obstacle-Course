@@ -1,6 +1,7 @@
 -- Variables
 local specificClientAnimation = {}
 local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local soundEffectsManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.SoundEffects"))
 local clientAnimationsLibrary = require(coreModule.GetObject("/Parent"))
 
 -- Methods
@@ -24,6 +25,7 @@ function specificClientAnimation.Play(platformObject, beatMapIndex, numberOfBlin
             -- The blinking animation plays only for baseparts about to switch; This one plays for all of them that are valid.
             if basePart:IsA("BasePart") and tonumber(basePart.Parent.Name) then
                 clientAnimationsLibrary.PlayAnimation("GeneralAppearanceChanged", platformObject, 2)
+                soundEffectsManager.PlaySoundEffect("Beep", {Parent = basePart})
             end
         end
 
