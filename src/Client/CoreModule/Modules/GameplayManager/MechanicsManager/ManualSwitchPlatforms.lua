@@ -6,6 +6,7 @@ gameplayMechanicManager.PlatformsBeingSimulated = {}
 
 local coreModule = require(script:FindFirstAncestor("CoreModule"))
 local mechanicsManager = require(coreModule.GetObject("/Parent"))
+local userInterfaceManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.UserInterfaceManager"))
 local soundEffectsManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.SoundEffects"))
 local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
 local playerMouseLibrary = require(coreModule.GetObject("Libraries.UserInput.Mouse"))
@@ -88,7 +89,7 @@ function gameplayMechanicManager.SetupKeybindFunctionality()
     -- The functionality will only be avaliable if the player is within x studs of the platform.
     coroutine.wrap(function()
         while true do
-            if utilitiesLibrary.IsPlayerAlive(clientEssentialsLibrary.GetPlayer()) then
+            if utilitiesLibrary.IsPlayerAlive(clientEssentialsLibrary.GetPlayer()) and not userInterfaceManager.GetPriorityInterface() then
                 local isPlayerNearAnySwitchPlatforms = false
 
                 for _, platformObject in next, gameplayMechanicManager.MechanicContainer:GetDescendants() do
@@ -106,6 +107,8 @@ function gameplayMechanicManager.SetupKeybindFunctionality()
                 else  
                     coreModule.Services.ContextActionService:UnbindAction(keybindActionName)
                 end
+            else
+                coreModule.Services.ContextActionService:UnbindAction(keybindActionName)
             end
 
             wait(0.5)
