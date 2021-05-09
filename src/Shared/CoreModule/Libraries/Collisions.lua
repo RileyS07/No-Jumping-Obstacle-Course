@@ -21,6 +21,7 @@ end
 
 
 function collisionsLibrary.SetPartCollisionGroup(basePart, collisionGroupName)
+	if not collisionsLibrary.GetCollisionGroup(collisionGroupName) then return end
 	coreModule.Services.PhysicsService:SetPartCollisionGroup(basePart, collisionsLibrary.GetCollisionGroup(collisionGroupName))
 end
 
@@ -35,6 +36,7 @@ end
 
 
 function collisionsLibrary.CollisionGroupContainsPart(collisionGroupName, basePart)
+	if not collisionsLibrary.GetCollisionGroup(collisionGroupName) then return end
 	return coreModule.Services.PhysicsService:CollisionGroupContainsPart(collisionsLibrary.GetCollisionGroup(collisionGroupName), basePart)
 end
 

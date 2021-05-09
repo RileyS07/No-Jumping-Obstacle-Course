@@ -40,7 +40,7 @@ end
 function powerupsManager.SetupPowerups()
     local teleportationManager = require(coreModule.GetObject("Modules.GameplayManager.MechanicsManager.TeleportationManager"))
     powerupsManager.Remotes.PlaySoundEffect = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.PlaySoundEffect")
-    powerupsManager.Remotes.PowerupInformationUpdated = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.PowerupInformationUpdated")
+    powerupsManager.Remotes.TimerInformationUpdated = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.TimerInformationUpdated")
 
     -- Let's start this long process of making them functional.
     for _, powerupContainer in next, workspace.Map.Gameplay.PlatformerMechanics.Powerups:GetChildren() do
@@ -68,11 +68,11 @@ function powerupsManager.SetupPowerups()
                                 Start = os.clock(),
                                 Duration = powerupPlatform:GetAttribute("Duration") or script:GetAttribute("DefaultDuration") or 30,
                                 IsFresh = powerupsManager.GetPowerupInformation(player, powerupContainer.Name) == nil,
-                                PlatformName = powerupPlatform.Name
+                                Color = powerupPlatform:GetAttribute("Color")
                             }
 
                             coreModule.Services.CollectionService:AddTag(player.Character, powerupContainer.Name)
-                            powerupsManager.Remotes.PowerupInformationUpdated:FireClient(player, powerupContainer.Name, powerupsManager.GetPowerupInformation(player))
+                            powerupsManager.Remotes.TimerInformationUpdated:FireClient(player, powerupsManager.GetPowerupInformation(player))
                             powerupsManager.Remotes.PlaySoundEffect:FireClient(player, powerupContainer.Name.."Powerup")
                             powerupsManager.ApplyPowerup(player, powerupContainer.Name, powerupPlatform)
                             
@@ -125,15 +125,15 @@ function powerupsManager.RemovePowerup(player, powerupName)
 
     -- Time to start the removal process.
     if utilitiesLibrary.IsPlayerAlive(player) then coreModule.Services.CollectionService:RemoveTag(player.Character, powerupName) end
-    if powerupsManager.PowerupInformation[player] then powerupsManager.PowerupInformation[player][powerupName] = nil end
-    powerupsManager.Remotes.PowerupInformationUpdated:FireClient(player, powerupName, powerupsManager.PowerupInformation[player])
+    if powerupsManager.GetPowerupInformation(player) then powerupsManager.GetPowerupInformation(player)[powerupName] = nil end
+    powerupsManager.Remotes.TimerInformationUpdated:FireClient(player, powerupsManager.GetPowerupInformation(player))
     powerupsManager.Remotes.PlaySoundEffect:FireClient(player, powerupName.."PowerupRemoved")
 end
 
 
 function powerupsManager.RemoveAllPowerups(player)
     powerupsManager.PowerupInformation[player] = nil
-    powerupsManager.Remotes.PowerupInformationUpdated:FireClient(player, nil, powerupsManager.PowerupInformation[player])
+    powerupsManager.Remotes.TimerInformationUpdated:FireClient(player, powerupsManager.GetPowerupInformation(player))
 end
 
 

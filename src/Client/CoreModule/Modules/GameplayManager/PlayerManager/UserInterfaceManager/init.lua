@@ -10,13 +10,12 @@ local clientAnimationsLibrary = require(coreModule.GetObject("Libraries.ClientAn
 
 -- Initialize
 function userInterfaceManager.Initialize()
-	
-	-- Loading modules.
 	coreModule.LoadModule("/LoadingScreen")
-	coreModule.LoadModule("/DoorInterface")
+	coreModule.LoadModule("/VersionUpdates")
 	coreModule.LoadModule("/TeleportationConsent")
 	coreModule.LoadModule("/TeleportationOverlay")
-	coreModule.LoadModule("/VersionUpdates")
+	coreModule.LoadModule("/DoorInterface")
+	coreModule.LoadModule("/EffectTimers")
 
 	-- Escape to exit.
 	coreModule.Services.GuiService.MenuOpened:Connect(function()
