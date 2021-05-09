@@ -16,5 +16,11 @@ function clientEssentialsLibrary.SetCoreGuiEnabled(coreGuiType, isEnabled)
 end
 
 
+function clientEssentialsLibrary.SetCore(...)
+	repeat coreModule.Services.RunService.Stepped:Wait()
+	until pcall(coreModule.Services.StarterGui.SetCore, coreModule.Services.StarterGui, ...)
+end
+
+
 --
 return clientEssentialsLibrary

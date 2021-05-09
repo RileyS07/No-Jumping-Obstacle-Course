@@ -45,6 +45,7 @@ function checkpointsManager.Initialize()
 	-- Setting up remotes + assets.
 	checkpointsManager.Remotes.CheckpointInformationUpdated = coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.CheckpointInformationUpdated")
 	checkpointsManager.Remotes.PlaySoundEffect = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.PlaySoundEffect")
+	checkpointsManager.Remotes.MakeSystemMessage = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.MakeSystemMessage")
 end
 
 
@@ -91,8 +92,12 @@ function checkpointsManager.UpdateCurrentCheckpoint(player, checkpointNumber)
 		
 		-- Backwards compatibility for award trial badges.
 		if checkpointNumber > 1 and checkpointNumber%10 == 1 then
-			badgeLibrary.AwardBadge(player, badgeStorageLibrary.GetBadgeList("Trials")[math.floor(checkpointNumber/10)])
+			if badgeStorageLibrary.GetBadgeList("Trials") then
+				badgeLibrary.AwardBadge(player, badgeStorageLibrary.GetBadgeList("Trials")[math.floor(checkpointNumber/10)])
+			end
+			
 			checkpointsManager.Remotes.PlaySoundEffect:FireClient(player, "Clapping")
+			checkpointsManager.Remotes.MakeSystemMessage:FireAllClients(player.Name.." has completed Trial "..tostring(math.floor(checkpointNumber/10)).."!")
 		end
 		
 		checkpointsManager.Remotes.CheckpointInformationUpdated:FireClient(player, userData)

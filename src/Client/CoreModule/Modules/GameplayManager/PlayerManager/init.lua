@@ -1,6 +1,7 @@
 -- Variables
 local playerManager = {}
 local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
 
 -- Initialize
 function playerManager.Initialize()
@@ -10,6 +11,17 @@ function playerManager.Initialize()
 	coreModule.LoadModule("/ForceShiftLock")
 	coreModule.LoadModule("/SoundEffects")
 	coreModule.LoadModule("/CutsceneManager")
+
+	-- Miscellaneous setup.
+	coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.MakeSystemMessage").OnClientEvent:Connect(function(messageText, messageColor)
+		if typeof(messageText) ~= "string" then return end
+
+		-- [Server]: Hello!
+		clientEssentialsLibrary.SetCore(
+			"ChatMakeSystemMessage",
+			{Text = "[System]: "..messageText, Color = messageColor or Color3.fromRGB(228, 74, 70)}
+		)
+	end)
 end
 
 --

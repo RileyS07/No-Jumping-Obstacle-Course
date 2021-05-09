@@ -18,6 +18,7 @@ function bonusStagesManager.Initialize()
 	bonusStagesManager.Assets.BonusStageTeleporterInterface = coreModule.Shared.GetObject("//Assets.Interfaces.BonusStageTeleporterInterface")
 	bonusStagesManager.Remotes.CheckpointInformationUpdated = coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.CheckpointInformationUpdated")
 	bonusStagesManager.Remotes.PlaySoundEffect = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.PlaySoundEffect")
+	bonusStagesManager.Remotes.MakeSystemMessage = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.MakeSystemMessage")
 
 	-- Setting up the teleporters.
 	for _, teleporterObject in next, teleporterObjectsManager.GetTeleportersContainer().BonusStages:GetChildren() do
@@ -97,6 +98,7 @@ function bonusStagesManager.Initialize()
 							-- Do we award any badges?
 							if badgeStorageLibrary.GetBadgeList("BonusStages") and badgeStorageLibrary.GetBadgeList("BonusStages")[bonusStageLevelReference.Name] then
 								badgeLibrary.AwardBadge(player, badgeStorageLibrary.GetBadgeList("BonusStages")[bonusStageLevelReference.Name])
+								bonusStagesManager.Remotes.MakeSystemMessage:FireAllClients(player.Name.." has completed "..bonusStageLevelReference.Name.."!")
 							end
 
 							-- Send them back.
