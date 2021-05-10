@@ -12,7 +12,7 @@ local badgeStorageLibrary = require(coreModule.Shared.GetObject("Libraries.Badge
 -- Initialize
 function checkpointsManager.Initialize()
 	if not workspace.Map.Gameplay.LevelStorage:FindFirstChild("Checkpoints") then return end
-	
+
 	-- Setting up the checkpoints to be functional.
 	for _, checkpointPlatform in next, workspace.Map.Gameplay.LevelStorage.Checkpoints:GetChildren() do
 

@@ -53,6 +53,7 @@ function cutsceneManager.StartDialogTextAnimation(finalDialogText, callbackFunct
 		-- Finished; Update the values and fire the event.
 		cutsceneManager.UpdatePlayerBeingShownDialog(false)
 		animationCompletionEvent:Fire()
+		animationCompletionEvent:Destroy()
 	end)()
 	
 	return animationCompletionEvent.Event
