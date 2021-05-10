@@ -17,11 +17,20 @@ function forceShiftLockManager.Initialize()
     -- The actual shift lock logic.
     coreModule.Services.RunService:BindToRenderStep("MobileShiftlock", Enum.RenderPriority.Camera.Value + 1, function()
         if not cameraEssentialsLibrary.IsCurrentCameraReadyForManipulation()  then return end
+        if not utilitiesLibrary.IsPlayerValid() then coreModule.Services.RunService:UnbindFromRenderStep("MobileShiftlock") end
 
+        -- Reset the values.
         if not forceShiftLockManager.IsShiftLockActive or userInterfaceManager.GetPriorityInterface() or next(userInterfaceManager.ActiveContainers) then 
-            UserSettings():GetService("UserGameSettings").RotationType = Enum.RotationType.MovementRelative
-            coreModule.Services.UserInputService.MouseBehavior = Enum.MouseBehavior.Default
             coreModule.Services.UserInputService.MouseIconEnabled = true
+
+            if utilitiesLibrary.IsPlayerAlive() and clientEssentialsLibrary.GetPlayer().Character.PrimaryPart.LocalTransparencyModifier >= 0.8 then
+                UserSettings():GetService("UserGameSettings").RotationType = Enum.RotationType.CameraRelative
+                coreModule.Services.UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
+            elseif coreModule.Services.UserInputService.MouseBehavior ~= Enum.MouseBehavior.Default then
+                UserSettings():GetService("UserGameSettings").RotationType = Enum.RotationType.MovementRelative
+                coreModule.Services.UserInputService.MouseBehavior = Enum.MouseBehavior.Default
+            end
+
             return 
         end
 
