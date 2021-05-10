@@ -84,6 +84,7 @@ function checkpointsManager.UpdateCurrentCheckpoint(player, checkpointNumber)
 	if originalCurrentCheckpoint ~= userData.UserInformation.CurrentCheckpoint then
 		checkpointsManager.CurrentCheckpointUpdated:Fire(player, originalCurrentCheckpoint, userData.UserInformation.CurrentCheckpoint)
 		checkpointsManager.Remotes.PlaySoundEffect:FireClient(player, "CheckpointTouched", {Parent = workspace.Map.Gameplay.LevelStorage.Checkpoints[checkpointNumber]})
+		checkpointsManager.Remotes.PlaySoundEffect:FireClient(player, "Stage"..tostring(checkpointNumber))
 
 		-- Backwards compatability for CompletedStages.
 		if not table.find(userData.UserInformation.CompletedStages, checkpointNumber) then
