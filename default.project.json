@@ -41,12 +41,16 @@
       }
     },
 
-    "ReplicatedFirst": {
-      "$className": "ReplicatedFirst",
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
 
-      "Bootstrap": {
-        "$className": "Folder",
-        "$path": "src/ClientBootstrap"
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+
+        "Bootstrap": {
+          "$className": "Folder",
+          "$path": "src/ClientBootstrap"
+        }
       }
     }
   }
