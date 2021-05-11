@@ -20,7 +20,9 @@ function versionUpdatesManager.Initialize()
     end
 
     -- Server shutdown.
-    game:BindToClose(versionUpdatesManager.ShutdownServer)
+    if not coreModule.Services.RunService:IsStudio() then
+        game:BindToClose(versionUpdatesManager.ShutdownServer)
+    end
 end
 
 
