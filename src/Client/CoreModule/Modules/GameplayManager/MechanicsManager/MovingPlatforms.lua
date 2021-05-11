@@ -4,6 +4,7 @@ gameplayMechanicManager.MechanicContainer = nil
 
 local coreModule = require(script:FindFirstAncestor("CoreModule"))
 local mechanicsManager = require(coreModule.GetObject("/Parent"))
+local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
 
 -- Initialize
 function gameplayMechanicManager.Initialize()
@@ -23,6 +24,8 @@ function gameplayMechanicManager.Initialize()
 
                     -- This is where the magic happens.
                     while true do
+                        if not utilitiesLibrary.IsPlayerValid() then return end
+
                         gameplayMechanicManager.SimulatePlatform(platformObject, validNodesArray, weldOffsetValues)
                         coreModule.Services.RunService.RenderStepped:Wait()
                     end

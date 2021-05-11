@@ -43,6 +43,7 @@ function gameplayMechanicManager.SimulatePlatform(platformObject)
 
 	coroutine.wrap(function()
 		while true do
+			if not utilitiesLibrary.IsPlayerValid() then return end
 			local deltaTime = coreModule.Services.RunService.RenderStepped:Wait()
 
 			-- This resets the position to the ideal center position.

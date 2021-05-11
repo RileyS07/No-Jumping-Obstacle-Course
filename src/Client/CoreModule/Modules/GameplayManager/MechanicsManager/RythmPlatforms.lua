@@ -24,6 +24,8 @@ function gameplayMechanicManager.Initialize()
 					)
 
 					while true do
+						if not utilitiesLibrary.IsPlayerValid() then return end
+
 						if utilitiesLibrary.IsPlayerAlive() and clientEssentialsLibrary.GetPlayer():DistanceFromCharacter(platformObject:GetBoundingBox().Position) <= 100 then
 							gameplayMechanicManager.SimulatePlatform(platformObject, validBeatMap)
 						end

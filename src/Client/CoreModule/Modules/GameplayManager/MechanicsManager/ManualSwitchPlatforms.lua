@@ -89,6 +89,8 @@ function gameplayMechanicManager.SetupKeybindFunctionality()
     -- The functionality will only be avaliable if the player is within x studs of the platform.
     coroutine.wrap(function()
         while true do
+            if not utilitiesLibrary.IsPlayerValid() then return end
+
             if utilitiesLibrary.IsPlayerAlive(clientEssentialsLibrary.GetPlayer()) and not userInterfaceManager.GetPriorityInterface() then
                 local isPlayerNearAnySwitchPlatforms = false
 
