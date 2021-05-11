@@ -8,7 +8,7 @@ local userInterfaceManager = require(coreModule.GetObject("/Parent"))
 
 -- Initialize
 function specificInterfaceManager.Initialize()
-    specificInterfaceManager.Interface.Container = userInterfaceManager.GetInterface("MainInterface"):WaitForChild("TeleportationConsent")
+    specificInterfaceManager.Interface.Container = userInterfaceManager.GetInterface("MainInterface"):WaitForChild("Containers"):WaitForChild("TeleportationConsent")
     specificInterfaceManager.Interface.Content = specificInterfaceManager.Interface.Container:WaitForChild("Content")
 	specificInterfaceManager.Interface.Buttons = specificInterfaceManager.Interface.Content:WaitForChild("Buttons")
 
@@ -19,6 +19,9 @@ function specificInterfaceManager.Initialize()
 		specificInterfaceManager.Interface.Container:WaitForChild("BackgroundImage"):WaitForChild("ImageLabel").Image = imageContent or "rbxassetid://5632265938"
 		specificInterfaceManager.Interface.Content:WaitForChild("Title").Text = title or "???"
 		specificInterfaceManager.Interface.Content:WaitForChild("Description").Text = description or "???"
+
+		-- We don't want overlapping.
+		if userInterfaceManager.IsActiveContainer(specificInterfaceManager.Interface.Container) then return end
         userInterfaceManager.UpdateActiveContainer(specificInterfaceManager.Interface.Container)
 
 		-- Setup the timeout.

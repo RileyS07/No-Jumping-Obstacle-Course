@@ -11,7 +11,7 @@ local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilitie
 
 -- Initialize
 function specificInterfaceManager.Initialize()
-	specificInterfaceManager.Interface.Container = userInterfaceManager.GetInterface("MainInterface"):WaitForChild("CodeInterface")
+	specificInterfaceManager.Interface.Container = userInterfaceManager.GetInterface("MainInterface"):WaitForChild("Containers"):WaitForChild("CodeInterface")
 	specificInterfaceManager.Interface.Content = specificInterfaceManager.Interface.Container:WaitForChild("Content")
 	specificInterfaceManager.Interface.Buttons = specificInterfaceManager.Interface.Content:WaitForChild("Buttons")
 	specificInterfaceManager.Interface.CodeOutputText = specificInterfaceManager.Interface.Content:WaitForChild("CodeOutput"):WaitForChild("OutputText")
