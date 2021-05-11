@@ -12,7 +12,8 @@ local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilitie
 
 -- Initialize
 function forceShiftLockManager.Initialize()
-    forceShiftLockManager.Interface.Button = userInterfaceManager.GetInterface("MainInterface"):WaitForChild("Shiftlock")
+    forceShiftLockManager.Interface.Button = userInterfaceManager.GetInterface("MainInterface"):WaitForChild("Keybinds"):WaitForChild("Shiftlock")
+    forceShiftLockManager.Interface.Icon = forceShiftLockManager.Interface.Button:WaitForChild("Icon")
 
     -- The actual shift lock logic.
     coreModule.Services.RunService:BindToRenderStep("MobileShiftlock", Enum.RenderPriority.Camera.Value + 1, function()
@@ -45,20 +46,20 @@ function forceShiftLockManager.Initialize()
         if inputObject.KeyCode ~= Enum.KeyCode.LeftShift and inputObject.KeyCode ~= Enum.KeyCode.ButtonR2 then return end
 
         forceShiftLockManager.UpdateShiftLockActive(not forceShiftLockManager.GetShiftLockActive())
-        clientAnimationsLibrary.PlayAnimation("UpdateShiftLockIcon", forceShiftLockManager.Interface.Button, forceShiftLockManager.GetShiftLockActive())
+        clientAnimationsLibrary.PlayAnimation("UpdateShiftLockIcon", forceShiftLockManager.Interface.Icon, forceShiftLockManager.GetShiftLockActive())
     end)
 
     forceShiftLockManager.Interface.Button.Activated:Connect(function()
         forceShiftLockManager.UpdateShiftLockActive(not forceShiftLockManager.GetShiftLockActive()) 
-        clientAnimationsLibrary.PlayAnimation("UpdateShiftLockIcon", forceShiftLockManager.Interface.Button, forceShiftLockManager.GetShiftLockActive())
+        clientAnimationsLibrary.PlayAnimation("UpdateShiftLockIcon", forceShiftLockManager.Interface.Icon, forceShiftLockManager.GetShiftLockActive())
     end)
 
     coreModule.Services.UserInputService.LastInputTypeChanged:Connect(function()
-        clientAnimationsLibrary.PlayAnimation("UpdateShiftLockIcon", forceShiftLockManager.Interface.Button, forceShiftLockManager.GetShiftLockActive())
+        clientAnimationsLibrary.PlayAnimation("UpdateShiftLockIcon", forceShiftLockManager.Interface.Icon, forceShiftLockManager.GetShiftLockActive())
     end)
 
     -- Setup.
-    clientAnimationsLibrary.PlayAnimation("UpdateShiftLockIcon", forceShiftLockManager.Interface.Button, forceShiftLockManager.GetShiftLockActive())
+    clientAnimationsLibrary.PlayAnimation("UpdateShiftLockIcon", forceShiftLockManager.Interface.Icon, forceShiftLockManager.GetShiftLockActive())
 end
 
 
