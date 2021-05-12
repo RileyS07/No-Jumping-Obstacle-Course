@@ -56,6 +56,14 @@ end
 -- Settings compatibility
 function soundEffectsManager.UpdateSetting(newValue)
 	soundEffectsManager.VolumeModifier = newValue
+	
+	if soundEffectsManager.SoundGroup then
+		for _, soundEffect in next, soundEffectsManager.SoundGroup:GetChildren() do
+			if soundEffect:IsA("Sound") then
+				soundEffect.Volume = (soundEffectsManager.CachedSoundObjects[soundEffect.Name] and soundEffectsManager.CachedSoundObjects[soundEffect.Name].Volume or 1)*newValue
+			end
+		end
+	end
 end
 
 
