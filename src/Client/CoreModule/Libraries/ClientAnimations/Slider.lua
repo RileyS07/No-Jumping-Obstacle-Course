@@ -27,15 +27,11 @@ function specificClientAnimation.Play(sliderContainer, startingValue, callbackFu
     specificClientAnimation.Sliders[sliderContainer].CallbackFunction(startingValue)
 
     -- Mouse support.
-    specificClientAnimation.UpdateSliderWithMouse(sliderContainer, specificClientAnimation.Sliders[sliderContainer].Interface.Button.InputBegan)
-    specificClientAnimation.UpdateSliderWithMouse(sliderContainer, specificClientAnimation.Sliders[sliderContainer].Interface.Fill.InputBegan)
-    specificClientAnimation.UpdateSliderWithMouse(sliderContainer, specificClientAnimation.Sliders[sliderContainer].Interface.Empty.InputBegan)
+    specificClientAnimation.UpdateSlider(sliderContainer, specificClientAnimation.Sliders[sliderContainer].Interface.Button.InputBegan)
+    specificClientAnimation.UpdateSlider(sliderContainer, specificClientAnimation.Sliders[sliderContainer].Interface.Fill.InputBegan)
+    specificClientAnimation.UpdateSlider(sliderContainer, specificClientAnimation.Sliders[sliderContainer].Interface.Empty.InputBegan)
 
     -- Mobile support.
-    specificClientAnimation.UpdateSliderWithTouch(sliderContainer, specificClientAnimation.Sliders[sliderContainer].Interface.Button.InputBegan)
-    specificClientAnimation.UpdateSliderWithTouch(sliderContainer, specificClientAnimation.Sliders[sliderContainer].Interface.Fill.InputBegan)
-    specificClientAnimation.UpdateSliderWithTouch(sliderContainer, specificClientAnimation.Sliders[sliderContainer].Interface.Empty.InputBegan)
-
     if not specificClientAnimation.TouchMovedListener then
         specificClientAnimation.TouchMovedListener = coreModule.Services.UserInputService.TouchMoved:Connect(function()
             for _, sliderInformation in next, specificClientAnimation.Sliders do
@@ -59,37 +55,24 @@ end
 
 
 -- Private Methods
-function specificClientAnimation.UpdateSliderWithMouse(sliderContainer, inputEventSignal)
+function specificClientAnimation.UpdateSlider(sliderContainer, inputEventSignal)
     if typeof(sliderContainer) ~= "Instance" or not specificClientAnimation.Sliders[sliderContainer] then return end
     if typeof(inputEventSignal) ~= "RBXScriptSignal" then return end
 
     -- Connect the event.
     inputEventSignal:Connect(function(inputObject)
-        if inputObject.UserInputType ~= Enum.UserInputType.MouseButton1 then return end
-
-        -- Keeps moving it till you let go of your mouse.
-        while coreModule.Services.UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
-            local sliderPercentage = clientAnimationsLibrary.PlayAnimation("UpdateSliderSize", specificClientAnimation.Sliders[sliderContainer].Interface.Slider)
-            
-            -- Update the callbackFunction.
-            specificClientAnimation.Sliders[sliderContainer].CallbackFunction(sliderPercentage)
-            coreModule.Services.RunService.RenderStepped:Wait()
+        if inputObject.UserInputType == Enum.UserInputType.MouseButton1 then
+            -- Keeps moving it till you let go of your mouse.
+            while coreModule.Services.UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
+                local sliderPercentage = clientAnimationsLibrary.PlayAnimation("UpdateSliderSize", specificClientAnimation.Sliders[sliderContainer].Interface.Slider)
+                
+                -- Update the callbackFunction.
+                specificClientAnimation.Sliders[sliderContainer].CallbackFunction(sliderPercentage)
+                coreModule.Services.RunService.RenderStepped:Wait()
+            end
+        elseif inputObject.UserInputType == Enum.UserInputType.Touch then
+            specificClientAnimation.Sliders[sliderContainer].IsBeingTouched = true
         end
-    end)
-end
-
-
-function specificClientAnimation.UpdateSliderWithTouch(sliderContainer, inputEventSignal)
-    if typeof(sliderContainer) ~= "Instance" or not specificClientAnimation.Sliders[sliderContainer] then return end
-    if typeof(inputEventSignal) ~= "RBXScriptSignal" then return end
-
-    -- Connect the event.
-    inputEventSignal:Connect(function(inputObject)
-        if inputObject.UserInputType ~= Enum.UserInputType.Touch then return end
-        specificClientAnimation.Sliders[sliderContainer].IsBeingTouched = true
-
-        local sliderPercentage = clientAnimationsLibrary.PlayAnimation("UpdateSliderSize", specificClientAnimation.Sliders[sliderContainer].Interface.Slider)
-        specificClientAnimation.Sliders[sliderContainer].CallbackFunction(sliderPercentage)
     end)
 end
 
