@@ -14,6 +14,7 @@ function userInterfaceManager.Initialize()
 	coreModule.LoadModule("/VersionUpdates")
 	coreModule.LoadModule("/TeleportationConsent")
 	coreModule.LoadModule("/TeleportationOverlay")
+	coreModule.LoadModule("/TopbarManager")
 	coreModule.LoadModule("/DoorInterface")
 	coreModule.LoadModule("/EffectTimers")
 

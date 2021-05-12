@@ -3,7 +3,7 @@ local soundEffectsManager = {}
 soundEffectsManager.SoundGroup = nil
 soundEffectsManager.SoundEffectsFolder = nil
 soundEffectsManager.CachedSoundObjects = {}
-soundEffectsManager.LocalSoundVolumeModifier = 1
+soundEffectsManager.VolumeModifier = 1
 
 local coreModule = require(script:FindFirstAncestor("CoreModule"))
 local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
@@ -42,7 +42,7 @@ function soundEffectsManager.PlaySoundEffect(soundEffectName, functionParameters
 	local soundObject = soundEffectsManager.CachedSoundObjects[soundEffectName]:Clone()
 	soundObject.Name = soundEffectName 
 	soundObject.SoundGroup = soundEffectsManager.SoundGroup
-	soundObject.Volume *= soundEffectsManager.LocalSoundVolumeModifier
+	soundObject.Volume *= soundEffectsManager.VolumeModifier
 	soundObject.Parent = functionParameters.Parent
 	soundObject:Play()
 
@@ -54,8 +54,8 @@ function soundEffectsManager.PlaySoundEffect(soundEffectName, functionParameters
 end
 
 -- Settings compatibility
-function soundEffectsManager.Update(settingValue)
-	soundEffectsManager.LocalSoundVolumeModifier = settingValue and 1 or 0
+function soundEffectsManager.UpdateSetting(newValue)
+	soundEffectsManager.VolumeModifier = newValue
 end
 
 

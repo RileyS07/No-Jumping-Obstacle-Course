@@ -1,5 +1,6 @@
 -- Variables
 local gameplayMusicManager = {}
+gameplayMusicManager.VolumeModifier = 1
 gameplayMusicManager.PrimarySoundObject = nil
 gameplayMusicManager.SecondarySoundObject = nil
 gameplayMusicManager.MusicState = nil
@@ -113,6 +114,12 @@ function gameplayMusicManager.UpdateMusic(userData)
             return gameplayMusicManager.UpdateMusicPostTranslation(soundContainer)
 		end
 	end
+end
+
+
+function gameplayMusicManager.UpdateSetting(newValue)
+	if typeof(newValue) ~= "number" then return end
+	gameplayMusicManager.PrimarySoundObject.Volume = 0.5*newValue
 end
 
 
