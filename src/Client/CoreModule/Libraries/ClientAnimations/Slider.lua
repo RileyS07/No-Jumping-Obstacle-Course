@@ -62,6 +62,7 @@ function specificClientAnimation.UpdateSlider(sliderContainer, inputEventSignal)
     -- Connect the event.
     inputEventSignal:Connect(function(inputObject)
         if inputObject.UserInputType == Enum.UserInputType.MouseButton1 then
+            
             -- Keeps moving it till you let go of your mouse.
             while coreModule.Services.UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
                 local sliderPercentage = clientAnimationsLibrary.PlayAnimation("UpdateSliderSize", specificClientAnimation.Sliders[sliderContainer].Interface.Slider)
