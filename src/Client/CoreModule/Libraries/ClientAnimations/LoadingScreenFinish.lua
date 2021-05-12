@@ -46,9 +46,9 @@ function specificClientAnimation.Play(informationContainer, backgroundImages, co
     end
 
     userInterfaceManager.DisableInterface("LoadingScreen")
+    userInterfaceManager.EnableInterface("MainInterface")
     gameplayMusicManager.UpdateMusic(coreModule.Shared.GetObject("//Remotes.Data.GetUserData"):InvokeServer())
     clientEssentialsLibrary.SetCoreGuiEnabled(Enum.CoreGuiType.All, true)
-    userInterfaceManager.EnableInterface("MainInterface")
 end
 
 

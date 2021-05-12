@@ -17,7 +17,7 @@ function specificClientAnimation.Play(textLabel)
     textLabel.Text = "Welcome, "..clientEssentialsLibrary.GetPlayer().Name
     textLabel.MaxVisibleGraphemes = textLabel.Text:len()
 
-    wait(5)
+    wait(3)
     clientAnimationsLibrary.PlayAnimation("TweenMaxVisibleGraphemes", textLabel, 0):Wait()
     wait(1)
 
@@ -31,7 +31,6 @@ function specificClientAnimation.Play(textLabel)
             textLabel.Text = "Loading asset "..index.."/"..#assetsArray
             textLabel.MaxVisibleGraphemes = textLabel.Text:len()
             coreModule.Services.ContentProvider:PreloadAsync({assetsArray[index]})
-            wait(1/20)
         end
 
         wait(1)
