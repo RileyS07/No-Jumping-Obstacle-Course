@@ -22,6 +22,9 @@ function userDataManager.Initialize()
 	coreModule.Shared.GetObject("//Remotes.Data.GetUserData").OnServerInvoke = function(player, optionalOtherPlayer)
 		return userDataManager.GetData(optionalOtherPlayer or player)
 	end
+
+	-- Loading modules.
+	coreModule.LoadModule("/Settings")
 end
 
 

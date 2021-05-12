@@ -1,6 +1,7 @@
 -- Variables
 local specificClientAnimation = {}
-specificClientAnimation.SlidersInitialized = {}
+specificClientAnimation.Sliders = {}
+specificClientAnimation.TouchMovedListener = nil
 
 local coreModule = require(script:FindFirstAncestor("CoreModule"))
 local clientAnimationsLibrary = require(coreModule.GetObject("/Parent"))
@@ -10,43 +11,85 @@ function specificClientAnimation.Play(sliderContainer, startingValue, callbackFu
     if typeof(sliderContainer) ~= "Instance" or not sliderContainer:IsA("GuiObject") then return end
     if typeof(startingValue) ~= "number" then return end
     if typeof(callbackFunction) ~= "function" and typeof(callbackFunction) ~= "nil" then return end
-    if specificClientAnimation.SlidersInitialized[sliderContainer] then return end
-    specificClientAnimation.SlidersInitialized[sliderContainer] = true
+    if specificClientAnimation.Sliders[sliderContainer] then return end
+    specificClientAnimation.Sliders[sliderContainer] = {}
 
     -- Setup.
-    local fillContainer = sliderContainer:WaitForChild("Fill")
-    local emptyContainer = sliderContainer:WaitForChild("Empty")
-    fillContainer.Size = UDim2.fromScale(startingValue, 1)
-    if callbackFunction then callbackFunction(startingValue) end
+    specificClientAnimation.Sliders[sliderContainer].CallbackFunction = callbackFunction or (function() end)
+    specificClientAnimation.Sliders[sliderContainer].IsBeingTouched = false
+
+    specificClientAnimation.Sliders[sliderContainer].Interface = {}
+    specificClientAnimation.Sliders[sliderContainer].Interface.Slider = sliderContainer
+    specificClientAnimation.Sliders[sliderContainer].Interface.Fill = specificClientAnimation.Sliders[sliderContainer].Interface.Slider:WaitForChild("Fill")
+    specificClientAnimation.Sliders[sliderContainer].Interface.Button = specificClientAnimation.Sliders[sliderContainer].Interface.Fill:WaitForChild("Button")
+    specificClientAnimation.Sliders[sliderContainer].Interface.Empty = specificClientAnimation.Sliders[sliderContainer].Interface.Slider:WaitForChild("Empty")
+    specificClientAnimation.Sliders[sliderContainer].Interface.Fill.Size = UDim2.fromScale(startingValue, 1)
+    specificClientAnimation.Sliders[sliderContainer].CallbackFunction(startingValue)
 
     -- Mouse support.
-    fillContainer:WaitForChild("Button").InputBegan:Connect(function(inputObject, gameProcessedEvent)
-        if gameProcessedEvent then return end
+    specificClientAnimation.UpdateSliderWithMouse(sliderContainer, specificClientAnimation.Sliders[sliderContainer].Interface.Button.InputBegan)
+    specificClientAnimation.UpdateSliderWithMouse(sliderContainer, specificClientAnimation.Sliders[sliderContainer].Interface.Fill.InputBegan)
+    specificClientAnimation.UpdateSliderWithMouse(sliderContainer, specificClientAnimation.Sliders[sliderContainer].Interface.Empty.InputBegan)
+
+    -- Mobile support.
+    specificClientAnimation.UpdateSliderWithTouch(sliderContainer, specificClientAnimation.Sliders[sliderContainer].Interface.Button.InputBegan)
+    specificClientAnimation.UpdateSliderWithTouch(sliderContainer, specificClientAnimation.Sliders[sliderContainer].Interface.Fill.InputBegan)
+    specificClientAnimation.UpdateSliderWithTouch(sliderContainer, specificClientAnimation.Sliders[sliderContainer].Interface.Empty.InputBegan)
+
+    if not specificClientAnimation.TouchMovedListener then
+        specificClientAnimation.TouchMovedListener = coreModule.Services.UserInputService.TouchMoved:Connect(function()
+            for _, sliderInformation in next, specificClientAnimation.Sliders do
+                if sliderInformation.IsBeingTouched then
+                    local sliderPercentage = clientAnimationsLibrary.PlayAnimation("UpdateSliderSize", sliderInformation.Interface.Slider)
+                    
+                    -- Update the callbackFunction.
+                    sliderInformation.CallbackFunction(sliderPercentage)
+                end
+            end
+        end)
+
+        -- TouchEnded.
+        coreModule.Services.UserInputService.TouchEnded:Connect(function()
+            for _, sliderInformation in next, specificClientAnimation.Sliders do
+                sliderInformation.IsBeingTouched = false
+            end
+        end)
+    end
+end
+
+
+-- Private Methods
+function specificClientAnimation.UpdateSliderWithMouse(sliderContainer, inputEventSignal)
+    if typeof(sliderContainer) ~= "Instance" or not specificClientAnimation.Sliders[sliderContainer] then return end
+    if typeof(inputEventSignal) ~= "RBXScriptSignal" then return end
+
+    -- Connect the event.
+    inputEventSignal:Connect(function(inputObject)
         if inputObject.UserInputType ~= Enum.UserInputType.MouseButton1 then return end
 
+        -- Keeps moving it till you let go of your mouse.
         while coreModule.Services.UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
-            local sliderPercentage = clientAnimationsLibrary.PlayAnimation("UpdateSliderSize", sliderContainer)
+            local sliderPercentage = clientAnimationsLibrary.PlayAnimation("UpdateSliderSize", specificClientAnimation.Sliders[sliderContainer].Interface.Slider)
             
             -- Update the callbackFunction.
-            if callbackFunction then callbackFunction(sliderPercentage) end
+            specificClientAnimation.Sliders[sliderContainer].CallbackFunction(sliderPercentage)
             coreModule.Services.RunService.RenderStepped:Wait()
         end
     end)
+end
 
-    fillContainer.InputBegan:Connect(function(inputObject, gameProcessedEvent)
-        if gameProcessedEvent then return end
-        if inputObject.UserInputType ~= Enum.UserInputType.MouseButton1 then return end
 
-        local sliderPercentage = clientAnimationsLibrary.PlayAnimation("UpdateSliderSize", sliderContainer)
-        if callbackFunction then callbackFunction(sliderPercentage) end
-    end)
+function specificClientAnimation.UpdateSliderWithTouch(sliderContainer, inputEventSignal)
+    if typeof(sliderContainer) ~= "Instance" or not specificClientAnimation.Sliders[sliderContainer] then return end
+    if typeof(inputEventSignal) ~= "RBXScriptSignal" then return end
 
-    emptyContainer.InputBegan:Connect(function(inputObject, gameProcessedEvent)
-        if gameProcessedEvent then return end
-        if inputObject.UserInputType ~= Enum.UserInputType.MouseButton1 then return end
+    -- Connect the event.
+    inputEventSignal:Connect(function(inputObject)
+        if inputObject.UserInputType ~= Enum.UserInputType.Touch then return end
+        specificClientAnimation.Sliders[sliderContainer].IsBeingTouched = true
 
-        local sliderPercentage = clientAnimationsLibrary.PlayAnimation("UpdateSliderSize", sliderContainer)
-        if callbackFunction then callbackFunction(sliderPercentage) end
+        local sliderPercentage = clientAnimationsLibrary.PlayAnimation("UpdateSliderSize", specificClientAnimation.Sliders[sliderContainer].Interface.Slider)
+        specificClientAnimation.Sliders[sliderContainer].CallbackFunction(sliderPercentage)
     end)
 end
 
