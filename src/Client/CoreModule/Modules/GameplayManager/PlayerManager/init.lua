@@ -10,7 +10,8 @@ function playerManager.Initialize()
 	coreModule.LoadModule("/GameplayMusic")
 	coreModule.LoadModule("/ForceShiftLock")
 	coreModule.LoadModule("/SoundEffects")
-	coreModule.LoadModule("/CutsceneManager")
+	coreModule.LoadModule("/AmbientSounds")
+	--coreModule.LoadModule("/CutsceneManager")
 
 	-- Miscellaneous setup.
 	coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.MakeSystemMessage").OnClientEvent:Connect(function(messageText, messageColor)
