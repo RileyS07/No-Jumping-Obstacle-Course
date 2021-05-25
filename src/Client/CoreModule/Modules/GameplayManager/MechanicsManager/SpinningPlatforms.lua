@@ -42,6 +42,8 @@ function gameplayMechanicManager.SimulatePlatform(platformObject)
 	local storedRotationInDegrees = 0
 
 	coroutine.wrap(function()
+		gameplayMechanicManager.SetupTrippingFunctionality(platformObject)
+		
 		while true do
 			if not utilitiesLibrary.IsPlayerValid() then return end
 			local deltaTime = coreModule.Services.RunService.RenderStepped:Wait()
