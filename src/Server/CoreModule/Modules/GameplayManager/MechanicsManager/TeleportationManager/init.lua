@@ -129,7 +129,9 @@ function teleportationManager.RestorePlayerConditions(player)
 
 	player.Character.Humanoid.Health = player.Character.Humanoid.MaxHealth
 	player.Character.PrimaryPart.Velocity = Vector3.new()
-	
+	player.Character.Humanoid.Sit = false
+	player.Character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.GettingUp, true)
+
 	teleportationManager.Remotes.RestoreDefaultPlayerConditions:FireClient(player, userData)
 
 	-- Remove tags.

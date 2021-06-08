@@ -141,12 +141,12 @@ function gameplayMechanicManager.SetupTrippingFunctionality(platformObject)
 		humanoidObject:SetStateEnabled(Enum.HumanoidStateType.Jumping, false)
 		humanoidObject.Sit = true
 
-		wait(platformObject:GetAttribute("Length") or script:GetAttribute("DefaultLength") or 3)
+		wait(script:GetAttribute("TripLength") or 3)
 
 		-- They might've died so we need to check just incase.
 		if utilitiesLibrary.IsPlayerAlive(player) then
 			humanoidObject.Sit = false
-			humanoidObject:SetStateEnabled(Enum.HumanoidStateType.Jumping, true)
+			humanoidObject:SetStateEnabled(Enum.HumanoidStateType.GettingUp, true)
 		end
 
 		gameplayMechanicManager.UpdatePlatformBeingSimulated(platformObject, nil)
