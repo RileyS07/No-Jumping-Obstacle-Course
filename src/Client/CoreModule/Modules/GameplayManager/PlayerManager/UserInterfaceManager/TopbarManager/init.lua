@@ -6,6 +6,7 @@ local userInterfaceManager = require(coreModule.GetObject("/Parent"))
 -- Initialize
 function topbarManager.Initialize()
     coreModule.LoadModule("/Settings")
+    coreModule.LoadModule("/StageSelection")
 end
 
 

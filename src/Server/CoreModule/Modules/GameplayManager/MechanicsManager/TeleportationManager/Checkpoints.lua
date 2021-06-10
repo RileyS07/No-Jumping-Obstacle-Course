@@ -5,6 +5,7 @@ checkpointsManager.CurrentCheckpointUpdated = Instance.new("BindableEvent")
 
 local coreModule = require(script:FindFirstAncestor("CoreModule"))
 local userDataManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.UserDataManager"))
+local teleportationManager = require(coreModule.GetObject("/Parent"))
 local badgeLibrary = require(coreModule.GetObject("Libraries.BadgeLibrary"))
 local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
 local badgeStorageLibrary = require(coreModule.Shared.GetObject("Libraries.BadgeStorage"))
@@ -31,15 +32,16 @@ function checkpointsManager.Initialize()
 
 	-- The client wants to teleport to a specific stage.
 	coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.TeleportToStage").OnServerEvent:Connect(function(player, checkpointNumber)
-		if not typeof(checkpointNumber) ~= "number" then return end
+		if typeof(checkpointNumber) ~= "number" then return end
 		if not workspace.Map.Gameplay.LevelStorage.Checkpoints:FindFirstChild(checkpointNumber) then return end
 		if not utilitiesLibrary.IsPlayerAlive(player) then return end
 		if not userDataManager.GetData(player) then return end
 		if userDataManager.GetData(player).UserInformation.FarthestCheckpoint < checkpointNumber then return end
-
+		
 		-- Update their Farthest and Current checkpoints.
 		checkpointsManager.UpdateFarthestCheckpoint(player, checkpointNumber)
 		checkpointsManager.UpdateCurrentCheckpoint(player, checkpointNumber)
+		teleportationManager.TeleportPlayer(player)
 	end)
 
 	-- Setting up remotes + assets.
