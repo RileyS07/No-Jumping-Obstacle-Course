@@ -62,6 +62,7 @@ function specificInterfaceManager.UpdateContent()
     for _, button in next, specificInterfaceManager.Interface.Content:GetChildren() do
         if tonumber(button.Name) then
             button.TextLabel.Text = (specificInterfaceManager.CurrentZone - 1)*10 + tonumber(button.Name)
+            button.TextLabel.TextColor3 = (tonumber(button.Name) == (specificInterfaceManager.UserData.UserInformation.CurrentCheckpoint - (specificInterfaceManager.CurrentZone - 1)*10)) and Color3.fromRGB(30, 198, 227) or Color3.fromRGB(55, 71, 79)
             button.Visible = tonumber(button.Name) <= (specificInterfaceManager.UserData.UserInformation.FarthestCheckpoint - (specificInterfaceManager.CurrentZone - 1)*10)
         end
     end
