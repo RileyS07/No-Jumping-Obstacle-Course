@@ -155,7 +155,7 @@ function gameplayMusicManager.UpdateMusicPostTranslation(soundContainer)
 
 		coroutine.wrap(function()
 			while gameplayMusicManager.PrimarySoundObject.Name == soundContainer.Name do
-				for index = 1, #soundContainer:GetChildren() do
+				for index, soundObject in next, soundContainer:GetChildren() do
 					if gameplayMusicManager.PrimarySoundObject.Name ~= soundContainer.Name then return end
 
 					-- From here it's literally copy and paste...
@@ -163,18 +163,20 @@ function gameplayMusicManager.UpdateMusicPostTranslation(soundContainer)
 
 						-- If it's in the process of fading between songs we just update and let it do it's thing.
 						if gameplayMusicManager.MusicState == coreModule.Enums.MusicState.Fading then
-							gameplayMusicManager.SecondarySoundObject.SoundId = soundContainer.SoundId
+							gameplayMusicManager.SecondarySoundObject.SoundId = soundObject.SoundId
 							return
 						end
 			
 						-- So this means we need to switch sources so we can fade properly.
 						gameplayMusicManager.MusicState = coreModule.Enums.MusicState.Fading
-						gameplayMusicManager.SwitchSoundObjects(soundContainer)
+						gameplayMusicManager.SwitchSoundObjects(soundObject)
 						gameplayMusicManager.MusicState = coreModule.Enums.MusicState.Playing
 					else
 						gameplayMusicManager.MusicState = coreModule.Enums.MusicState.Playing
-						gameplayMusicManager.PrimarySoundObject.SoundId = soundContainer.SoundId
+						gameplayMusicManager.PrimarySoundObject.SoundId = soundObject.SoundId
 					end
+
+					gameplayMusicManager.PrimarySoundObject.DidLoop:Wait()
 				end
 			end
 		end)()

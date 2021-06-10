@@ -118,6 +118,13 @@ function gameplayLightingManager.UpdateLightingPostTranslation(lightingInformati
 		defaultLightingInformation:FindFirstChildOfClass("Atmosphere"):Clone().Parent = coreModule.Services.Lighting
 	end
 
+	-- Update the ColorCorrection.
+	if lightingInformation:FindFirstChildOfClass("ColorCorrectionEffect") then
+		coreModule.Services.Lighting.ColorCorrection.Saturation = lightingInformation:FindFirstChildOfClass("ColorCorrectionEffect").Saturation
+	else
+		coreModule.Services.Lighting.ColorCorrection.Saturation = 0
+	end
+
     -- Updating the properties; We synchronize so we can fill in any gaps created.
     local propertiesDictionary = tableUtilitiesLibrary.SynchronizeTables(
         lightingInformation:FindFirstChild("Properties") and require(lightingInformation.Properties) or {}, 
@@ -133,82 +140,3 @@ end
 
 --
 return gameplayLightingManager
---[[
-    -- Variables
-local lightingManager = {}
-lightingManager.UserData = nil
-
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
-local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
-local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
-local config = require(script.Config)
-
--- Initialize
-function lightingManager.Initialize()
-	lightingManager.UserData = coreModule.Shared.GetObject("//Remotes.GetUserData"):InvokeServer()
-	
-	--
-	lightingManager.UpdateLighting()
-	coreModule.Shared.GetObject("//Remotes.StageInformationUpdated").OnClientEvent:Connect(function(userData)
-		lightingManager.UserData = userData
-		lightingManager.UpdateLighting()
-	end)
-end
-
--- Methods
-function lightingManager.UpdateLighting()
-	if not coreModule.Shared.GetObject("//Assets.Lighting"):FindFirstChild("Default") then return end
-	if not lightingManager.GetLightingInformationFromData() then return end
-	
-	--
-	local defaultLightingInformation = coreModule.Shared.GetObject("//Assets.Lighting.Default")
-	local newLightingInformation = lightingManager.GetLightingInformationFromData()
-	
-	-- Replacing the Sky
-	if newLightingInformation:FindFirstChildOfClass("Sky") then
-		utilitiesLibrary.Destroy(coreModule.Services.Lighting:FindFirstChildOfClass("Sky"))
-		newLightingInformation:FindFirstChildOfClass("Sky"):Clone().Parent = coreModule.Services.Lighting
-	elseif defaultLightingInformation:FindFirstChildOfClass("Sky") then
-		utilitiesLibrary.Destroy(coreModule.Services.Lighting:FindFirstChildOfClass("Sky"))
-		defaultLightingInformation:FindFirstChildOfClass("Sky"):Clone().Parent = coreModule.Services.Lighting
-	end
-
-	-- Replacing the Atmosphere
-	if newLightingInformation:FindFirstChildOfClass("Atmosphere") then
-		utilitiesLibrary.Destroy(coreModule.Services.Lighting:FindFirstChildOfClass("Atmosphere"))
-		newLightingInformation:FindFirstChildOfClass("Atmosphere"):Clone().Parent = coreModule.Services.Lighting
-	elseif defaultLightingInformation:FindFirstChildOfClass("Atmosphere") then
-		utilitiesLibrary.Destroy(coreModule.Services.Lighting:FindFirstChildOfClass("Atmosphere"))
-		defaultLightingInformation:FindFirstChildOfClass("Atmosphere"):Clone().Parent = coreModule.Services.Lighting
-	end
-
-	-- Updating the properties
-	if newLightingInformation:FindFirstChild("Properties") then
-		for propertyName, propertyValue in next, require(newLightingInformation.Properties) do
-			coreModule.Services.Lighting[propertyName] = propertyValue
-		end
-	end
-end
-
-function lightingManager.GetLightingInformationFromData()
-	if not lightingManager.UserData then return end
-	
-	--
-	if lightingManager.UserData.CurrentStats.IsInTherapy and coreModule.Shared.GetObject("//Assets.Lighting"):FindFirstChild(config.TherapyMusicName) then
-		return coreModule.Shared.GetObject("//Assets.Lighting."..config.TherapyMusicName)
-	elseif lightingManager.UserData.CurrentStats.IsInVictory and coreModule.Shared.GetObject("//Assets.Lighting"):FindFirstChild(config.VictoryMusicName) then
-		return coreModule.Shared.GetObject("//Assets.Lighting."..config.VictoryMusicName)
-	elseif lightingManager.UserData.CurrentStats.BonusLevelName ~= "" and coreModule.Shared.GetObject("//Assets.Lighting"):FindFirstChild(config.BonusLevelNameFormat:format(lightingManager.UserData.CurrentStats.BonusLevelName)) then
-		return coreModule.Shared.GetObject("//Assets.Lighting."..config.BonusLevelNameFormat:format(lightingManager.UserData.CurrentStats.BonusLevelName))
-	elseif coreModule.Shared.GetObject("//Assets.Lighting"):FindFirstChild(config.StageNameFormat:format(lightingManager.UserData.CurrentStats.CurrentUsingCheckpoint)) then
-		return coreModule.Shared.GetObject("//Assets.Lighting."..config.StageNameFormat:format(lightingManager.UserData.CurrentStats.CurrentUsingCheckpoint))
-	elseif coreModule.Shared.GetObject("//Assets.Lighting"):FindFirstChild(config.ZoneNameFormat:format(math.ceil(lightingManager.UserData.CurrentStats.CurrentUsingCheckpoint/10))) then
-		return coreModule.Shared.GetObject("//Assets.Lighting."..config.ZoneNameFormat:format(math.ceil(lightingManager.UserData.CurrentStats.CurrentUsingCheckpoint/10)))
-	else
-		return coreModule.Shared.GetObject("//Assets.Lighting.Default")
-	end
-end
-
---
-return lightingManager
-]]
