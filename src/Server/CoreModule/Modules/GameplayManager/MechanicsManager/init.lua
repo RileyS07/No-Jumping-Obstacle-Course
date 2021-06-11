@@ -12,7 +12,7 @@ function mechanicsManager.Initialize()
 	coreModule.LoadModule("/DamagePlatforms")
 	coreModule.LoadModule("/HealingPlatforms")
 	coreModule.LoadModule("/JumpPlatforms")
-	coreModule.LoadModule("/StageInformationManager")
+	coreModule.LoadModule("/TimedStages")
 end
 
 
