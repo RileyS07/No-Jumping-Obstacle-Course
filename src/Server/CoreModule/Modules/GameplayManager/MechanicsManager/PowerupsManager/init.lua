@@ -63,16 +63,14 @@ function powerupsManager.SetupPowerups()
 
                         -- Do we want to reset this powerup?
                         if not powerupPlatform:GetAttribute("Reset") then
-                            powerupsManager.PowerupInformation[player] = powerupsManager.PowerupInformation[player] or {}
-                            powerupsManager.PowerupInformation[player][powerupContainer.Name] = {
+                            powerupsManager.UpdatePowerup(player, powerupContainer.Name, {
                                 Start = os.clock(),
                                 Duration = powerupPlatform:GetAttribute("Duration") or script:GetAttribute("DefaultDuration") or 30,
                                 IsFresh = powerupsManager.GetPowerupInformation(player, powerupContainer.Name) == nil,
                                 Color = powerupPlatform:GetAttribute("Color")
-                            }
+                            })
 
                             coreModule.Services.CollectionService:AddTag(player.Character, powerupContainer.Name)
-                            powerupsManager.Remotes.TimerInformationUpdated:FireClient(player, powerupsManager.GetPowerupInformation(player))
                             powerupsManager.Remotes.PlaySoundEffect:FireClient(player, powerupContainer.Name.."Powerup")
                             powerupsManager.ApplyPowerup(player, powerupContainer.Name, powerupPlatform)
                             
@@ -85,6 +83,13 @@ function powerupsManager.SetupPowerups()
             end
         end
     end
+end
+
+
+function powerupsManager.UpdatePowerup(player, powerupName, powerupInformation)
+    powerupsManager.PowerupInformation[player] = powerupsManager.PowerupInformation[player] or {}
+    powerupsManager.PowerupInformation[player][powerupName] = powerupInformation
+    powerupsManager.Remotes.TimerInformationUpdated:FireClient(player, powerupsManager.GetPowerupInformation(player))
 end
 
 
