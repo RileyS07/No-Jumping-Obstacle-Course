@@ -120,11 +120,10 @@ function gameplayLightingManager.UpdateLightingPostTranslation(lightingInformati
 
 	-- Update the ColorCorrection.
 	if lightingInformation:FindFirstChildOfClass("ColorCorrectionEffect") then
-		coreModule.Services.Lighting.ColorCorrection.Saturation = lightingInformation:FindFirstChildOfClass("ColorCorrectionEffect").Saturation
-        coreModule.Services.Lighting.ColorCorrection.Contrast = lightingInformation:FindFirstChildOfClass("ColorCorrectionEffect").Contrast
-        coreModule.Services.Lighting.ColorCorrection.Brightness = lightingInformation:FindFirstChildOfClass("ColorCorrectionEffect").Brightness
+        utilitiesLibrary.Destroy(coreModule.Services.Lighting:FindFirstChildOfClass("ColorCorrectionEffect"))
+        lightingInformation:FindFirstChildOfClass("ColorCorrectionEffect").Parent = coreModule.Services.Lighting
 	else
-		coreModule.Services.Lighting.ColorCorrection.Saturation, coreModule.Services.Lighting.ColorCorrection.Contrast, coreModule.Services.Lighting.ColorCorrection.Brightness = 0, 0, 0
+        utilitiesLibrary.Destroy(coreModule.Services.Lighting:FindFirstChildOfClass("ColorCorrectionEffect"))
 	end
 
     -- Updating the properties; We synchronize so we can fill in any gaps created.
