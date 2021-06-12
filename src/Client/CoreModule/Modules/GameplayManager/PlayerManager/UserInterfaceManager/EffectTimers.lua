@@ -16,7 +16,7 @@ function specificInterfaceManager.Initialize()
     coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.TimerInformationUpdated").OnClientEvent:Connect(function(effectInformationArray)
 
         -- Attempt to merge/update/delete the effect information.
-        if typeof(effectInformationArray) == "table" then
+        if typeof(effectInformationArray) == "table" and next(effectInformationArray) ~= nil then
             for effectName, effectInformation in next, effectInformationArray do
                 if typeof(effectName) == "string" and typeof(effectInformation) == "table" then
                     specificInterfaceManager.TimerInformation[effectName] = {

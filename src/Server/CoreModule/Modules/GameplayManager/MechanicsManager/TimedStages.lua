@@ -67,7 +67,6 @@ function timedStagesManager.StartTimer(player)
         coroutine.wrap(function()
             while timedStagesManager.TimerInformation[player] ~= nil do
                 local timeDifference = timedStagesManager.TimerInformation[player].Duration - (os.clock() - timedStagesManager.TimerInformation[player].Start)
-                print(math.ceil(timeDifference))
 
                 if timeDifference <= 0 then
                     timedStagesManager.TimerInformation[player].IsActive = false
@@ -81,7 +80,6 @@ function timedStagesManager.StartTimer(player)
     else
         timedStagesManager.TimerInformation[player] = nil
         powerupsManager.RemovePowerup(player, "Timer")
-        print("They're not at a timed level")
     end
 end
 
