@@ -1,57 +1,58 @@
 {
-  "name": "NJOC: Rework",
+  "name": "No Jumping Obstacle Course",
   "tree": {
-    "$className": "DataModel",
-    "$ignoreUnknownInstances": true,
-    
-    "ServerStorage": {
-      "$className": "ServerStorage",
+      "$className": "DataModel",
       "$ignoreUnknownInstances": true,
 
-      "Server": {
-        "$className": "Folder",
-        "$path": "src/Server",
-        "$ignoreUnknownInstances": true
-      }
-    },
+      "ReplicatedStorage": {
+          "$className": "ReplicatedStorage",
+          "$ignoreUnknownInstances": true,
 
-    "ReplicatedStorage": {
-      "$className": "ReplicatedStorage",
-      "$ignoreUnknownInstances": true,
+          "Client": {
+              "$className": "Folder",
+              "$ignoreUnknownInstances": true,
+              "$path": "src/Client"
+          },
 
-      "Client": {
-        "$className": "Folder",
-        "$path": "src/Client",
-        "$ignoreUnknownInstances": true
+          "Shared": {
+              "$className": "Folder",
+              "$ignoreUnknownInstances": true,
+              "$path": "src/Shared"
+          }
       },
 
-      "Shared": {
-        "$className": "Folder",
-        "$path": "src/Shared",
-        "$ignoreUnknownInstances": true
+      "ServerStorage": {
+          "$className": "ServerStorage",
+          "$ignoreUnknownInstances": true,
+
+          "Server": {
+              "$className": "Folder",
+              "$ignoreUnknownInstances": true,
+              "$path": "src/Server"
+          }
+      },
+
+      "ServerScriptService": {
+          "$className": "ServerScriptService",
+          "$ignoreUnknownInstances": true,
+
+          "Bootstrap": {
+              "$path": "src/Bootstrap_Server"
+          }
+      },
+
+      "StarterPlayer": {
+          "$className": "StarterPlayer",
+          "$ignoreUnknownInstances": true,
+
+          "StarterPlayerScripts": {
+              "$className": "StarterPlayerScripts",
+              "$ignoreUnknownInstances": true,
+        
+              "Bootstrap": {
+                  "$path": "src/Bootstrap_Client"
+              }
+          }
       }
-    },
-
-    "ServerScriptService": {
-      "$className": "ServerScriptService",
-
-      "Bootstrap": {
-        "$className": "Folder",
-        "$path": "src/ServerBootstrap"
-      }
-    },
-
-    "StarterPlayer": {
-      "$className": "StarterPlayer",
-
-      "StarterPlayerScripts": {
-        "$className": "StarterPlayerScripts",
-
-        "Bootstrap": {
-          "$className": "Folder",
-          "$path": "src/ClientBootstrap"
-        }
-      }
-    }
   }
 }
