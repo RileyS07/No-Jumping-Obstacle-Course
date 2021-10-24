@@ -45,7 +45,7 @@ function cutsceneManager.StartDialogTextAnimation(finalDialogText, callbackFunct
 			
 			cutsceneManager.Interface.TextContent.MaxVisibleGraphemes = index
 			soundEffectsManager.PlaySoundEffect("DialogTyping")
-			wait(script:GetAttribute("DialogGraphemeDelay") or 1/30)
+			wait(script:GetAttribute("DialogGraphemeDelay") or (1 / 30))
 			
 			if callbackFunction then callbackFunction(finalDialogText:sub(1, index), coreModule.Enums.CutsceneTextAnimationCallbackState.After) end
 		end
