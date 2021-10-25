@@ -1,3 +1,1 @@
-coroutine.wrap(function()
-    require(game:GetService("ReplicatedStorage"):WaitForChild("Client"):WaitForChild("CoreModule")).Initialize()
-end)()
+require(game:GetService("ReplicatedStorage"):WaitForChild("Client"):WaitForChild("Core")).Initialize()

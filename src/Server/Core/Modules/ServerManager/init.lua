@@ -7,6 +7,5 @@ function serverManager.Initialize()
     coreModule.LoadModule("/VersionUpdates")
 end
 
-
 --
 return serverManager
