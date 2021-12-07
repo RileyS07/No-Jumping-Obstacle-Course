@@ -1,6 +1,6 @@
 -- Variables
 local cameraEssentialsLibrary = {}
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local coreModule = require(script:FindFirstAncestor("Core"))
 
 -- Methods
 function cameraEssentialsLibrary.IsCurrentCameraReadyForManipulation()

@@ -1,6 +1,6 @@
 -- Variables
 local gameplayManager = {}
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local coreModule = require(script:FindFirstAncestor("Core"))
 
 -- Initialize
 function gameplayManager.Initialize()

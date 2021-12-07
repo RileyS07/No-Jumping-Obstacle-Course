@@ -3,8 +3,8 @@ local specificSettingManager = {}
 specificSettingManager.Interface = {}
 specificSettingManager.CurrentSettingValue = nil
 
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
-local settingsManager = require(coreModule.GetObject("/Parent"))
+local coreModule = require(script:FindFirstAncestor("Core"))
+local settingsManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.UserInterfaceManager.TopbarManager.Settings"))
 local gameplayMusicManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.GameplayMusic"))
 local userInterfaceManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.UserInterfaceManager"))
 local clientAnimationsLibrary = require(coreModule.GetObject("Libraries.ClientAnimations"))

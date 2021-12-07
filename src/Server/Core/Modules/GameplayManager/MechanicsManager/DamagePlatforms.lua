@@ -5,7 +5,7 @@ gameplayMechanicManager.Remotes = {}
 gameplayMechanicManager.PlatformsBeingSimulated = {}
 gameplayMechanicManager.ValidDamageTypes = { Poison = true, Instant = true }
 
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local coreModule = require(script:FindFirstAncestor("Core"))
 local teleportationManager = require(coreModule.GetObject("Modules.GameplayManager.MechanicsManager.TeleportationManager"))
 local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
 
@@ -24,7 +24,7 @@ function gameplayMechanicManager.Initialize()
                     -- The platform itself is what the players will touch to be damaged.
                     if damagePlatform:IsA("BasePart") then
                         damagePlatform.Touched:Connect(function(hit)
-                            local player = coreModule.Services.Players:GetPlayerFromCharacter(hit.Parent)
+                            local player = game:GetService("Players"):GetPlayerFromCharacter(hit.Parent)
                             if not utilitiesLibrary.IsPlayerAlive(player) then return end
                             if gameplayMechanicManager.IsPlatformBeingSimulated(player, damagePlatform) then return end
                             
@@ -46,21 +46,21 @@ function gameplayMechanicManager.SimulateDamagePlatform(player, damagePlatform)
     if typeof(damagePlatform) ~= "Instance" then return end
     if gameplayMechanicManager.IsPlatformBeingSimulated(player, damagePlatform) then return end
     if not gameplayMechanicManager.ValidDamageTypes[damagePlatform.Parent.Parent.Name] then return end
-    if coreModule.Services.CollectionService:HasTag(player.Character, "Forcefield") then return end
-    if damagePlatform.Parent.Name == "Poison" and coreModule.Services.CollectionService:HasTag(player.Character, "Poisoned") then return end
+    if game:GetService("CollectionService"):HasTag(player.Character, "Forcefield") then return end
+    if damagePlatform.Parent.Name == "Poison" and game:GetService("CollectionService"):HasTag(player.Character, "Poisoned") then return end
     
     gameplayMechanicManager.PlatformsBeingSimulated[damagePlatform] = gameplayMechanicManager.PlatformsBeingSimulated[damagePlatform] or {}
     gameplayMechanicManager.PlatformsBeingSimulated[damagePlatform][player] = true
     
     -- How do we apply the damage?
     if damagePlatform.Parent.Parent.Name == "Poison" then
-        coreModule.Services.CollectionService:AddTag(player.Character, "Poisoned")
+        game:GetService("CollectionService"):AddTag(player.Character, "Poisoned")
         gameplayMechanicManager.Assets.Poison:Clone().Parent = player.Character.Head
         gameplayMechanicManager.Assets.PoisonGlow:Clone().Parent = player.Character.HumanoidRootPart
 
         for index = 1, (damagePlatform:GetAttribute("Duration") or script:GetAttribute("DefaultDuration") or 1)*(damagePlatform:GetAttribute("Speed") or script:GetAttribute("DefaultSpeed") or 1) do
             if not utilitiesLibrary.IsPlayerAlive(player) then break end
-            if not coreModule.Services.CollectionService:HasTag(player.Character, "Poisoned") then break end
+            if not game:GetService("CollectionService"):HasTag(player.Character, "Poisoned") then break end
             gameplayMechanicManager.Remotes.PlaySoundEffect:FireClient(player, damagePlatform.Parent.Name.."Damage", {Parent = damagePlatform})
 
             -- Can they survive this?
@@ -77,7 +77,7 @@ function gameplayMechanicManager.SimulateDamagePlatform(player, damagePlatform)
 
         -- Clean up.
         if utilitiesLibrary.IsPlayerAlive(player) then
-            coreModule.Services.CollectionService:RemoveTag(player.Character, "Poisoned")
+            game:GetService("CollectionService"):RemoveTag(player.Character, "Poisoned")
 
             -- Get rid of the effects.
             if player.Character.Head:FindFirstChild(gameplayMechanicManager.Assets.Poison.Name) then
@@ -93,7 +93,7 @@ function gameplayMechanicManager.SimulateDamagePlatform(player, damagePlatform)
     elseif damagePlatform.Parent.Parent.Name == "Instant" then
         while true do
             if not utilitiesLibrary.IsPlayerAlive(player) then break end
-		    if coreModule.Services.CollectionService:HasTag(player.Character, "Forcefield") then break end
+		    if game:GetService("CollectionService"):HasTag(player.Character, "Forcefield") then break end
             if not gameplayMechanicManager.IsInstancesDescendantsInArray(player.Character, damagePlatform:GetTouchingParts()) then break end
             gameplayMechanicManager.Remotes.PlaySoundEffect:FireClient(player, damagePlatform.Parent.Name.."Damage", {Parent = damagePlatform})
 

@@ -2,7 +2,7 @@
 local specificClientAnimation = {}
 specificClientAnimation.IsPlaying = false
 
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local coreModule = require(script:FindFirstAncestor("Core"))
 
 -- Methods
 function specificClientAnimation.Play(textLabel)

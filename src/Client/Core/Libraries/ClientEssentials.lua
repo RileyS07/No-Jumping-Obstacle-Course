@@ -1,24 +1,24 @@
 -- Variables
 local clientEssentialsLibrary = {}
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local coreModule = require(script:FindFirstAncestor("Core"))
 
 -- Methods
 function clientEssentialsLibrary.GetPlayer()
-	return coreModule.Services.Players.LocalPlayer
+	return game:GetService("Players").LocalPlayer
 end
 
 
 function clientEssentialsLibrary.SetCoreGuiEnabled(coreGuiType, isEnabled)
 	repeat
-		coreModule.Services.RunService.RenderStepped:Wait()
-		coreModule.Services.StarterGui:SetCoreGuiEnabled(coreGuiType, isEnabled)
-	until coreModule.Services.StarterGui:GetCoreGuiEnabled(coreGuiType) == isEnabled
+		game:GetService("RunService").RenderStepped:Wait()
+		game:GetService("StarterGui"):SetCoreGuiEnabled(coreGuiType, isEnabled)
+	until game:GetService("StarterGui"):GetCoreGuiEnabled(coreGuiType) == isEnabled
 end
 
 
 function clientEssentialsLibrary.SetCore(...)
-	repeat coreModule.Services.RunService.Stepped:Wait()
-	until pcall(coreModule.Services.StarterGui.SetCore, coreModule.Services.StarterGui, ...)
+	repeat game:GetService("RunService").Stepped:Wait()
+	until pcall(game:GetService("StarterGui").SetCore, game:GetService("StarterGui"), ...)
 end
 
 

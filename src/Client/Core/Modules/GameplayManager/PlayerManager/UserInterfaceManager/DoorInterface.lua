@@ -3,8 +3,8 @@ local specificInterfaceManager = {}
 specificInterfaceManager.Interface = {}
 specificInterfaceManager.CurrentPlatformObject = nil
 
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
-local userInterfaceManager = require(coreModule.GetObject("/Parent"))
+local coreModule = require(script:FindFirstAncestor("Core"))
+local userInterfaceManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.UserInterfaceManager"))
 local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
 local soundEffectsManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.SoundEffects"))
 local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
@@ -82,7 +82,7 @@ function specificInterfaceManager.OpenInterface(platformObject)
 					userInterfaceManager.UpdateActiveContainer(specificInterfaceManager.Interface.Container)
 				end
 
-				coreModule.Services.RunService.Stepped:Wait()
+				game:GetService("RunService").Stepped:Wait()
 			end
 		end)()
 	end

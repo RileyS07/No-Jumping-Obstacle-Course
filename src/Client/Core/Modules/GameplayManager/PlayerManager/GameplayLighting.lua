@@ -2,7 +2,7 @@
 local gameplayLightingManager = {}
 gameplayLightingManager.Assets = {}
 
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local coreModule = require(script:FindFirstAncestor("Core"))
 local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
 local tableUtilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.TableUtilities"))
 
@@ -67,11 +67,11 @@ function gameplayLightingManager.UpdateLighting(userData)
 	if stageSpecificLightingContainer then
 		return gameplayLightingManager.UpdateLightingPostTranslation(stageSpecificLightingContainer)
 	else
-		coreModule.Debug(
+		--[[coreModule.Debug(
 			("GameplayLighting: %s does not exist."):format("Stage "..tostring(userData.UserInformation.CurrentCheckpoint)),
 			coreModule.Shared.Enums.DebugLevel.Standard,
 			warn
-		)
+		)]]
 	end
 
 	-- Is there any for this zone?
@@ -100,30 +100,30 @@ function gameplayLightingManager.UpdateLightingPostTranslation(lightingInformati
 
     -- Replace the Sky.
     if lightingInformation:FindFirstChildOfClass("Sky") then
-        utilitiesLibrary.Destroy(coreModule.Services.Lighting:FindFirstChildOfClass("Sky"))
-        lightingInformation:FindFirstChildOfClass("Sky"):Clone().Parent = coreModule.Services.Lighting
+        utilitiesLibrary.Destroy(game:GetService("Lighting"):FindFirstChildOfClass("Sky"))
+        lightingInformation:FindFirstChildOfClass("Sky"):Clone().Parent = game:GetService("Lighting")
 
     elseif defaultLightingInformation:FindFirstChildOfClass("Sky") then
-        utilitiesLibrary.Destroy(coreModule.Services.Lighting:FindFirstChildOfClass("Sky"))
-        defaultLightingInformation:FindFirstChildOfClass("Sky"):Clone().Parent = coreModule.Services.Lighting
+        utilitiesLibrary.Destroy(game:GetService("Lighting"):FindFirstChildOfClass("Sky"))
+        defaultLightingInformation:FindFirstChildOfClass("Sky"):Clone().Parent = game:GetService("Lighting")
     end
 
     -- Replace the Atmosphere.
 	if lightingInformation:FindFirstChildOfClass("Atmosphere") then
-		utilitiesLibrary.Destroy(coreModule.Services.Lighting:FindFirstChildOfClass("Atmosphere"))
-		lightingInformation:FindFirstChildOfClass("Atmosphere"):Clone().Parent = coreModule.Services.Lighting
+		utilitiesLibrary.Destroy(game:GetService("Lighting"):FindFirstChildOfClass("Atmosphere"))
+		lightingInformation:FindFirstChildOfClass("Atmosphere"):Clone().Parent = game:GetService("Lighting")
 
 	elseif defaultLightingInformation:FindFirstChildOfClass("Atmosphere") then
-		utilitiesLibrary.Destroy(coreModule.Services.Lighting:FindFirstChildOfClass("Atmosphere"))
-		defaultLightingInformation:FindFirstChildOfClass("Atmosphere"):Clone().Parent = coreModule.Services.Lighting
+		utilitiesLibrary.Destroy(game:GetService("Lighting"):FindFirstChildOfClass("Atmosphere"))
+		defaultLightingInformation:FindFirstChildOfClass("Atmosphere"):Clone().Parent = game:GetService("Lighting")
 	end
 
 	-- Update the ColorCorrection.
 	if lightingInformation:FindFirstChildOfClass("ColorCorrectionEffect") then
-        utilitiesLibrary.Destroy(coreModule.Services.Lighting:FindFirstChildOfClass("ColorCorrectionEffect"))
-        lightingInformation:FindFirstChildOfClass("ColorCorrectionEffect").Parent = coreModule.Services.Lighting
+        utilitiesLibrary.Destroy(game:GetService("Lighting"):FindFirstChildOfClass("ColorCorrectionEffect"))
+        lightingInformation:FindFirstChildOfClass("ColorCorrectionEffect").Parent = game:GetService("Lighting")
 	else
-        utilitiesLibrary.Destroy(coreModule.Services.Lighting:FindFirstChildOfClass("ColorCorrectionEffect"))
+        utilitiesLibrary.Destroy(game:GetService("Lighting"):FindFirstChildOfClass("ColorCorrectionEffect"))
 	end
 
     -- Updating the properties; We synchronize so we can fill in any gaps created.
@@ -134,7 +134,7 @@ function gameplayLightingManager.UpdateLightingPostTranslation(lightingInformati
 
     for propertyName, propertyValue in next, propertiesDictionary do
         pcall(function()
-            coreModule.Services.Lighting[propertyName] = propertyValue
+            game:GetService("Lighting")[propertyName] = propertyValue
         end)
     end
 end

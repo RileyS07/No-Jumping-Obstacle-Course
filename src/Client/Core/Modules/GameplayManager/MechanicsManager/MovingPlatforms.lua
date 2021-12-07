@@ -2,8 +2,8 @@
 local gameplayMechanicManager = {}
 gameplayMechanicManager.MechanicContainer = nil
 
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
-local mechanicsManager = require(coreModule.GetObject("/Parent"))
+local coreModule = require(script:FindFirstAncestor("Core"))
+local mechanicsManager = require(coreModule.GetObject("Modules.GameplayManager.MechanicsManager"))
 local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
 
 -- Initialize
@@ -27,7 +27,7 @@ function gameplayMechanicManager.Initialize()
                         if not utilitiesLibrary.IsPlayerValid() then return end
 
                         gameplayMechanicManager.SimulatePlatform(platformObject, validNodesArray, weldOffsetValues)
-                        coreModule.Services.RunService.RenderStepped:Wait()
+                        game:GetService("RunService").RenderStepped:Wait()
                     end
                 end)()
             elseif platformObject:IsA("Model") then
@@ -65,7 +65,7 @@ function gameplayMechanicManager.SimulatePlatform(platformObject, validNodesArra
         -- This really isn't ideal because in some circumstances the path the welded objects isn't the same as the path the platform takes and it can look really bad.
         if weldOffsetValues then
             for weldConstraint, objectSpaceCFrame in next, weldOffsetValues do
-                coreModule.Services.TweenService:Create(
+                game:GetService("TweenService"):Create(
                     weldConstraint.Part1,
                     nodeTweenInfo,
                     {CFrame = platformObject.Nodes[index].CFrame:ToWorldSpace(objectSpaceCFrame)}
@@ -74,7 +74,7 @@ function gameplayMechanicManager.SimulatePlatform(platformObject, validNodesArra
         end
 
         -- Now we can finally move the actual platform.
-        local platformMovementTweenObject = coreModule.Services.TweenService:Create(platformObject.PrimaryPart, nodeTweenInfo, {CFrame = platformObject.Nodes[index].CFrame})
+        local platformMovementTweenObject = game:GetService("TweenService"):Create(platformObject.PrimaryPart, nodeTweenInfo, {CFrame = platformObject.Nodes[index].CFrame})
         platformMovementTweenObject:Play()
         platformMovementTweenObject.Completed:Wait()
     end

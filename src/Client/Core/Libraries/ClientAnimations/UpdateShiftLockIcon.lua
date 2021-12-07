@@ -7,7 +7,7 @@ specificClientAnimation.DefaultKeybinds = {
     [Enum.UserInputType.Gamepad1] = "R2"
 }
 
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local coreModule = require(script:FindFirstAncestor("Core"))
 
 -- Methods
 function specificClientAnimation.Play(isShiftLockActive, shiftLockIcon, keybindNameText)
@@ -18,8 +18,8 @@ function specificClientAnimation.Play(isShiftLockActive, shiftLockIcon, keybindN
     shiftLockIcon.Image = isShiftLockActive and "rbxasset://textures/ui/mouseLock_on@2x.png" or "rbxasset://textures/ui/mouseLock_off@2x.png"
 
     -- Update the keybindNameText.
-    if specificClientAnimation.DefaultKeybinds[coreModule.Services.UserInputService:GetLastInputType()] then
-        keybindNameText.Text = specificClientAnimation.DefaultKeybinds[coreModule.Services.UserInputService:GetLastInputType()]
+    if specificClientAnimation.DefaultKeybinds[game:GetService("UserInputService"):GetLastInputType()] then
+        keybindNameText.Text = specificClientAnimation.DefaultKeybinds[game:GetService("UserInputService"):GetLastInputType()]
     end
 end
 

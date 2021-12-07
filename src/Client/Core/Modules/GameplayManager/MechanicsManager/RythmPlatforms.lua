@@ -2,8 +2,8 @@
 local gameplayMechanicManager = {}
 gameplayMechanicManager.MechanicContainer = nil
 
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
-local mechanicsManager = require(coreModule.GetObject("/Parent"))
+local coreModule = require(script:FindFirstAncestor("Core"))
+local mechanicsManager = require(coreModule.GetObject("Modules.GameplayManager.MechanicsManager"))
 local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
 local clientAnimationsLibrary = require(coreModule.GetObject("Libraries.ClientAnimations"))
 local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
@@ -30,7 +30,7 @@ function gameplayMechanicManager.Initialize()
 							gameplayMechanicManager.SimulatePlatform(platformObject, validBeatMap)
 						end
 
-						coreModule.Services.RunService.RenderStepped:Wait()
+						game:GetService("RunService").RenderStepped:Wait()
 					end
 				end)()
 			end

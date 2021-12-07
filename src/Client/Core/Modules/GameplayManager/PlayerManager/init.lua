@@ -1,6 +1,6 @@
 -- Variables
 local playerManager = {}
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local coreModule = require(script:FindFirstAncestor("Core"))
 local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
 
 -- Initialize

@@ -2,8 +2,8 @@
 local respawnPlatformsManager = {}
 respawnPlatformsManager.MechanicContainer = nil
 
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
-local teleportationManager = require(coreModule.GetObject("/Parent"))
+local coreModule = require(script:FindFirstAncestor("Core"))
+local teleportationManager = require(coreModule.GetObject("Modules.GameplayManager.MechanicsManager.TeleportationManager"))
 local userDataManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.UserDataManager"))
 local badgeLibrary = require(coreModule.GetObject("Libraries.BadgeLibrary"))
 local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
@@ -21,9 +21,9 @@ function respawnPlatformsManager.Initialize()
 			respawnPlatform.Touched:Connect(function(hit)
 				
 				-- Guard clauses to make sure the player is alive and doesn't have an exception tag.
-				local player = coreModule.Services.Players:GetPlayerFromCharacter(hit.Parent)
+				local player = game:GetService("Players"):GetPlayerFromCharacter(hit.Parent)
 				if not utilitiesLibrary.IsPlayerAlive(player) then return end
-				if coreModule.Services.CollectionService:HasTag(player.Character, "Forcefield") then return end
+				if game:GetService("CollectionService"):HasTag(player.Character, "Forcefield") then return end
 
 				--[[
 					This is where the fun stuff happens.

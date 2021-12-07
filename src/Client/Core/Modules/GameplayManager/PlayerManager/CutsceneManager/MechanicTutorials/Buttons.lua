@@ -2,7 +2,7 @@
 local tutorialManager = {}
 tutorialManager.Stage = 4
 
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local coreModule = require(script:FindFirstAncestor("Core"))
 local cutsceneManager = require(coreModule.GetObject("/Parent.Parent"))
 local buttonMechanicManager = require(coreModule.GetObject("Modules.GameplayManager.MechanicsManager.Buttons"))
 
@@ -57,7 +57,7 @@ function tutorialManager.PlayTutorial()
 	
 	-- Finished + Clean up
 	cutsceneManager.StartDialogTextAnimation("Go give it a try yourself now!"):Wait()
-	repeat coreModule.Services.RunService.RenderStepped:Wait() until not buttonMechanicManager.IsPlatformBeingSimulated(buttonObject)
+	repeat game:GetService("RunService").RenderStepped:Wait() until not buttonMechanicManager.IsPlatformBeingSimulated(buttonObject)
 	currentCamera.CameraType = Enum.CameraType.Track
 end
 

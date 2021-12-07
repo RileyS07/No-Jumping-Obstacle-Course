@@ -1,6 +1,6 @@
 -- Variables
 local specificClientAnimation = {}
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local coreModule = require(script:FindFirstAncestor("Core"))
 
 -- Methods
 function specificClientAnimation.Play(platformObject)
@@ -9,7 +9,7 @@ function specificClientAnimation.Play(platformObject)
     platformObject.PrimaryPart.CanCollide = false
 
     -- Tween the transparency.
-    local tweenObject = coreModule.Services.TweenService:Create(
+    local tweenObject = game:GetService("TweenService"):Create(
         platformObject.PrimaryPart,
         TweenInfo.new(script:GetAttribute("Length") or 2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, 0, true),
         {Transparency = script:GetAttribute("GoalTransparency") or 0.7}

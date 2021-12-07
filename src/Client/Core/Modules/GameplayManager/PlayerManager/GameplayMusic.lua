@@ -6,12 +6,17 @@ gameplayMusicManager.SecondarySoundObject = nil
 gameplayMusicManager.MusicState = nil
 gameplayMusicManager.Assets = {}
 
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
+gameplayMusicManager.Enums = {
+	MusicState = {
+		None = 1, Fading = 2, Playing = 3
+	}
+}
+local coreModule = require(script:FindFirstAncestor("Core"))
 local userInterfaceManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.UserInterfaceManager"))
 
 -- Initialize
 function gameplayMusicManager.Initialize()
-    gameplayMusicManager.MusicState = coreModule.Enums.MusicState.None
+    gameplayMusicManager.MusicState = gameplayMusicManager.Enums.MusicState.None
     gameplayMusicManager.Assets.MusicContainer = coreModule.Shared.GetObject("//Assets.Sounds.Music")
 
 	gameplayMusicManager.PrimarySoundObject = Instance.new("Sound")
@@ -133,20 +138,20 @@ function gameplayMusicManager.UpdateMusicPostTranslation(soundContainer)
 
 	-- Sounds vs SoundGroups act differently.
 	if soundContainer:IsA("Sound") then
-		if gameplayMusicManager.MusicState ~= coreModule.Enums.MusicState.None then
+		if gameplayMusicManager.MusicState ~= gameplayMusicManager.Enums.MusicState.None then
 
 			-- If it's in the process of fading between songs we just update and let it do it's thing.
-			if gameplayMusicManager.MusicState == coreModule.Enums.MusicState.Fading then
+			if gameplayMusicManager.MusicState == gameplayMusicManager.Enums.MusicState.Fading then
 				gameplayMusicManager.SecondarySoundObject.SoundId = soundContainer.SoundId
 				return
 			end
 
 			-- So this means we need to switch sources so we can fade properly.
-			gameplayMusicManager.MusicState = coreModule.Enums.MusicState.Fading
+			gameplayMusicManager.MusicState = gameplayMusicManager.Enums.MusicState.Fading
 			gameplayMusicManager.SwitchSoundObjects(soundContainer)
-			gameplayMusicManager.MusicState = coreModule.Enums.MusicState.Playing
+			gameplayMusicManager.MusicState = gameplayMusicManager.Enums.MusicState.Playing
 		else
-			gameplayMusicManager.MusicState = coreModule.Enums.MusicState.Playing
+			gameplayMusicManager.MusicState = gameplayMusicManager.Enums.MusicState.Playing
 			gameplayMusicManager.PrimarySoundObject.SoundId = soundContainer.SoundId
 		end
 
@@ -159,20 +164,20 @@ function gameplayMusicManager.UpdateMusicPostTranslation(soundContainer)
 					if gameplayMusicManager.PrimarySoundObject.Name ~= soundContainer.Name then return end
 
 					-- From here it's literally copy and paste...
-					if gameplayMusicManager.MusicState ~= coreModule.Enums.MusicState.None then
+					if gameplayMusicManager.MusicState ~= gameplayMusicManager.Enums.MusicState.None then
 
 						-- If it's in the process of fading between songs we just update and let it do it's thing.
-						if gameplayMusicManager.MusicState == coreModule.Enums.MusicState.Fading then
+						if gameplayMusicManager.MusicState == gameplayMusicManager.Enums.MusicState.Fading then
 							gameplayMusicManager.SecondarySoundObject.SoundId = soundObject.SoundId
 							return
 						end
 			
 						-- So this means we need to switch sources so we can fade properly.
-						gameplayMusicManager.MusicState = coreModule.Enums.MusicState.Fading
+						gameplayMusicManager.MusicState = gameplayMusicManager.Enums.MusicState.Fading
 						gameplayMusicManager.SwitchSoundObjects(soundObject)
-						gameplayMusicManager.MusicState = coreModule.Enums.MusicState.Playing
+						gameplayMusicManager.MusicState = gameplayMusicManager.Enums.MusicState.Playing
 					else
-						gameplayMusicManager.MusicState = coreModule.Enums.MusicState.Playing
+						gameplayMusicManager.MusicState = gameplayMusicManager.Enums.MusicState.Playing
 						gameplayMusicManager.PrimarySoundObject.SoundId = soundObject.SoundId
 					end
 
@@ -201,7 +206,7 @@ end
 
 
 function gameplayMusicManager.FadeBetweenSounds()
-	local currentSoundObjectFadeTween = coreModule.Services.TweenService:Create(
+	local currentSoundObjectFadeTween = game:GetService("TweenService"):Create(
 		gameplayMusicManager.PrimarySoundObject,
 		TweenInfo.new(1, Enum.EasingStyle.Linear),
 		{Volume = 0}
@@ -210,7 +215,7 @@ function gameplayMusicManager.FadeBetweenSounds()
 	currentSoundObjectFadeTween:Play()
 	currentSoundObjectFadeTween.Completed:Wait()
 
-	local nextSoundObjectFadeTween = coreModule.Services.TweenService:Create(
+	local nextSoundObjectFadeTween = game:GetService("TweenService"):Create(
 		gameplayMusicManager.SecondarySoundObject,
 		TweenInfo.new(1, Enum.EasingStyle.Linear),
 		{Volume = 0.25}

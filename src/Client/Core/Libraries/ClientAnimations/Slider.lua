@@ -3,8 +3,8 @@ local specificClientAnimation = {}
 specificClientAnimation.Sliders = {}
 specificClientAnimation.TouchMovedListener = nil
 
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
-local clientAnimationsLibrary = require(coreModule.GetObject("/Parent"))
+local coreModule = require(script:FindFirstAncestor("Core"))
+local clientAnimationsLibrary = require(coreModule.GetObject("Libraries.ClientAnimations"))
 
 -- Methods
 function specificClientAnimation.Play(sliderContainer, startingValue, callbackFunction)
@@ -33,7 +33,7 @@ function specificClientAnimation.Play(sliderContainer, startingValue, callbackFu
 
     -- Mobile support.
     if not specificClientAnimation.TouchMovedListener then
-        specificClientAnimation.TouchMovedListener = coreModule.Services.UserInputService.TouchMoved:Connect(function()
+        specificClientAnimation.TouchMovedListener = game:GetService("UserInputService").TouchMoved:Connect(function()
             for _, sliderInformation in next, specificClientAnimation.Sliders do
                 if sliderInformation.IsBeingTouched then
                     local sliderPercentage = clientAnimationsLibrary.PlayAnimation("UpdateSliderSize", sliderInformation.Interface.Slider)
@@ -43,7 +43,7 @@ function specificClientAnimation.Play(sliderContainer, startingValue, callbackFu
         end)
 
         -- TouchEnded.
-        coreModule.Services.UserInputService.TouchEnded:Connect(function()
+        game:GetService("UserInputService").TouchEnded:Connect(function()
             for _, sliderInformation in next, specificClientAnimation.Sliders do
                 sliderInformation.IsBeingTouched = false
             end
@@ -62,12 +62,12 @@ function specificClientAnimation.UpdateSlider(sliderContainer, inputEventSignal)
         if inputObject.UserInputType == Enum.UserInputType.MouseButton1 then
 
             -- Keeps moving it till you let go of your mouse.
-            while coreModule.Services.UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
+            while game:GetService("UserInputService"):IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
                 local sliderPercentage = clientAnimationsLibrary.PlayAnimation("UpdateSliderSize", specificClientAnimation.Sliders[sliderContainer].Interface.Slider)
                 
                 -- Update the callbackFunction.
                 specificClientAnimation.Sliders[sliderContainer].CallbackFunction(sliderPercentage)
-                coreModule.Services.RunService.RenderStepped:Wait()
+                game:GetService("RunService").RenderStepped:Wait()
             end
         elseif inputObject.UserInputType == Enum.UserInputType.Touch then
             specificClientAnimation.Sliders[sliderContainer].IsBeingTouched = true

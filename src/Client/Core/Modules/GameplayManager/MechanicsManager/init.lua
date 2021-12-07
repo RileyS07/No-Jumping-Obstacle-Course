@@ -1,6 +1,6 @@
 -- Variables
 local mechanicsManager = {}
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local coreModule = require(script:FindFirstAncestor("Core"))
 local soundEffectsManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.SoundEffects"))
 local playerMouseLibrary = require(coreModule.GetObject("Libraries.UserInput.Mouse"))
 

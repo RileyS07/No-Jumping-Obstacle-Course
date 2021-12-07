@@ -4,7 +4,7 @@ teleportationManager.PlayersBeingTeleported = {}
 teleportationManager.Remotes = {}
 teleportationManager.PlayerTeleported = Instance.new("BindableEvent")
 
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local coreModule = require(script:FindFirstAncestor("Core"))
 local userDataManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.UserDataManager"))
 local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
 
@@ -135,8 +135,8 @@ function teleportationManager.RestorePlayerConditions(player)
 	teleportationManager.Remotes.RestoreDefaultPlayerConditions:FireClient(player, userData)
 
 	-- Remove tags.
-	for _, collectionServiceTagName in next, coreModule.Services.CollectionService:GetTags(player.Character) do
-		coreModule.Services.CollectionService:RemoveTag(player.Character, collectionServiceTagName)
+	for _, collectionServiceTagName in next, game:GetService("CollectionService"):GetTags(player.Character) do
+		game:GetService("CollectionService"):RemoveTag(player.Character, collectionServiceTagName)
 	end
 
 	-- Should we allow them to keep jumping?
@@ -181,7 +181,7 @@ end
 
 
 function teleportationManager.TeleportPlayerPostTranslationToPlaceId(player, goalPlaceId, teleportOptions)
-	if coreModule.Services.RunService:IsStudio() then return end
+	if game:GetService("RunService"):IsStudio() then return end
 	if not utilitiesLibrary.IsPlayerValid(player) then return end
 	if not goalPlaceId or not tonumber(goalPlaceId) or tonumber(goalPlaceId) <= 0 then return end
 	if teleportationManager.IsPlayerBeingTeleported(player) then return end
@@ -200,7 +200,7 @@ end
 
 -- This is less secure than TeleportPlayerPostTranslationToPlaceId.
 function teleportationManager.TeleportPlayerListPostTranslationToPlaceId(players, goalPlaceId, teleportOptions)
-	if coreModule.Services.RunService:IsStudio() then return end
+	if game:GetService("RunService"):IsStudio() then return end
 	if typeof(players) ~= "table" then return end
 	if not goalPlaceId or not tonumber(goalPlaceId) or tonumber(goalPlaceId) <= 0 then return end
 	if typeof(teleportOptions) ~= "table" and typeof(teleportOptions) ~= "nil" then return end

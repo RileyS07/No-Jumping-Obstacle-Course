@@ -2,9 +2,9 @@
 local specificInterfaceManager = {}
 specificInterfaceManager.Interface = {}
 
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
-local topbarManager = require(coreModule.GetObject("/Parent"))
-local userInterfaceManager = require(coreModule.GetObject("/Parent.Parent"))
+local coreModule = require(script:FindFirstAncestor("Core"))
+local topbarManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.UserInterfaceManager.TopbarManager"))
+local userInterfaceManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.UserInterfaceManager"))
 
 -- Initialize
 function specificInterfaceManager.Initialize()

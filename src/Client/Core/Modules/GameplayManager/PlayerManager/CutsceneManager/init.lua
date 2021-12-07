@@ -4,7 +4,7 @@ cutsceneManager.Interface = {}
 cutsceneManager.IsPlayingBeingShownDialogValue = false
 cutsceneManager.IsPlayerBeingShownCutsceneValue = false
 
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local coreModule = require(script:FindFirstAncestor("Core"))
 local userInterfaceManager = require(coreModule.GetObject("/Parent.UserInterfaceManager"))
 local soundEffectsManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.SoundEffects"))
 local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
@@ -110,7 +110,7 @@ end
 -- A consistent way of tweening the camera for cinematic effects.
 function cutsceneManager.TweenCurrentCameraCFrame(goalCFrame, optionalTweenInformation)
 	if not workspace.CurrentCamera then return end
-	return coreModule.Services.TweenService:Create(
+	return game:GetService("TweenService"):Create(
 		workspace.CurrentCamera, 
 		optionalTweenInformation or TweenInfo.new(1), 
 		{CFrame = goalCFrame}

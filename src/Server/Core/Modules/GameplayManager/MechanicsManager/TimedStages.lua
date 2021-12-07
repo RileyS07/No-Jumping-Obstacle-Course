@@ -2,7 +2,7 @@
 local timedStagesManager = {}
 timedStagesManager.TimerInformation = {}
 
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local coreModule = require(script:FindFirstAncestor("Core"))
 local userDataManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.UserDataManager"))
 local teleportationManager = require(coreModule.GetObject("Modules.GameplayManager.MechanicsManager.TeleportationManager"))
 local checkpointsManager = require(coreModule.GetObject("Modules.GameplayManager.MechanicsManager.TeleportationManager.Checkpoints"))

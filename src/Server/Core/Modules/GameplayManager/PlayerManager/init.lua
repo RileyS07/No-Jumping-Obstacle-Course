@@ -1,6 +1,6 @@
 -- Variables
 local playerManager = {}
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local coreModule = require(script:FindFirstAncestor("Core"))
 local userDataManager = require(coreModule.GetObject("/UserDataManager"))
 local collisionsLibrary = require(coreModule.Shared.GetObject("Libraries.Collisions"))
 
@@ -21,19 +21,16 @@ function playerManager.SetupJoiningConnections()
 	local function onPlayerAdded(player)
 		playerManager.SetupCharacterConnections(player)
 		userDataManager.LoadData(player)
-
-		-- Loading submodules
-		coreModule.LoadModule("/Admin", player)
 	end
-	
+
 	-- It's possible that a player could already be registered into the game before this code is ever loaded so we must do this.
-	for _, player in next, coreModule.Services.Players:GetPlayers() do onPlayerAdded(player) end 
-	coreModule.Services.Players.PlayerAdded:Connect(onPlayerAdded)
+	for _, player in next, game:GetService("Players"):GetPlayers() do onPlayerAdded(player) end 
+	game:GetService("Players").PlayerAdded:Connect(onPlayerAdded)
 end
 
 
 function playerManager.SetupLeavingConnections()
-	coreModule.Services.Players.PlayerRemoving:Connect(function(player)
+	game:GetService("Players").PlayerRemoving:Connect(function(player)
 		userDataManager.SaveData(player, true)
 	end)
 end

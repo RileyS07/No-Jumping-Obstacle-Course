@@ -3,8 +3,8 @@ local gameplayMechanicManager = {}
 gameplayMechanicManager.MechanicContainer = nil
 gameplayMechanicManager.CurrentRenderedParts = {}
 
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
-local mechanicsManager = require(coreModule.GetObject("/Parent"))
+local coreModule = require(script:FindFirstAncestor("Core"))
+local mechanicsManager = require(coreModule.GetObject("Modules.GameplayManager.MechanicsManager"))
 
 -- Initialize
 function gameplayMechanicManager.Initialize()

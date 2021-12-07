@@ -1,8 +1,8 @@
 -- Variables
 local specificClientAnimation = {}
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local coreModule = require(script:FindFirstAncestor("Core"))
 local soundEffectsManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.SoundEffects"))
-local clientAnimationsLibrary = require(coreModule.GetObject("/Parent"))
+local clientAnimationsLibrary = require(coreModule.GetObject("Libraries.ClientAnimations"))
 
 -- Methods
 function specificClientAnimation.Play(platformObject, beatMapIndex, numberOfBlinks, blinkLength)
@@ -15,7 +15,7 @@ function specificClientAnimation.Play(platformObject, beatMapIndex, numberOfBlin
     for blinkIndex = 1, numberOfBlinks do
         for _, basePart in next, platformObject:GetDescendants() do
             if basePart:IsA("BasePart") and tonumber(basePart.Parent.Name) == beatMapIndex then
-                coreModule.Services.TweenService:Create(
+                game:GetService("TweenService"):Create(
                     basePart, 
                     TweenInfo.new(blinkLength/2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, 0, true), 
                     {Transparency = script:GetAttribute("GoalTransparency") or 0.5, Color = script:GetAttribute("GoalColor") or Color3.new(1, 1, 1)}

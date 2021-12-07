@@ -3,9 +3,9 @@ local checkpointsManager = {}
 checkpointsManager.Remotes = {}
 checkpointsManager.CurrentCheckpointUpdated = Instance.new("BindableEvent")
 
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local coreModule = require(script:FindFirstAncestor("Core"))
 local userDataManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.UserDataManager"))
-local teleportationManager = require(coreModule.GetObject("/Parent"))
+local teleportationManager = require(coreModule.GetObject("Modules.GameplayManager.MechanicsManager.TeleportationManager"))
 local badgeLibrary = require(coreModule.GetObject("Libraries.BadgeLibrary"))
 local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
 local badgeStorageLibrary = require(coreModule.Shared.GetObject("Libraries.BadgeStorage"))
@@ -20,7 +20,7 @@ function checkpointsManager.Initialize()
 		-- Checkpoints have to be numbers or else they do not matter.
 		if checkpointPlatform:IsA("BasePart") and tonumber(checkpointPlatform.Name) then
 			checkpointPlatform.Touched:Connect(function(hit)
-				local player = coreModule.Services.Players:GetPlayerFromCharacter(hit.Parent)
+				local player = game:GetService("Players"):GetPlayerFromCharacter(hit.Parent)
 				if not utilitiesLibrary.IsPlayerAlive(player) then return end
 				
 				-- Update their Farthest and Current checkpoints.

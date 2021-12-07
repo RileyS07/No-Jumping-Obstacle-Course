@@ -4,21 +4,21 @@ badgeLibrary.BadgeOwnershipUpdated = Instance.new("BindableEvent")
 badgeLibrary.BadgeOwnershipCache = {}
 badgeLibrary.PlayerRemovingListener = nil
 
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local coreModule = require(script:FindFirstAncestor("Core"))
 local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
 
 -- Methods
 function badgeLibrary.AwardBadge(player, badgeId)
 
 	-- Guard clauses against very simple mistakes.
-	if coreModule.Services.RunService:IsStudio() then return end
+	if game:GetService("RunService"):IsStudio() then return end
 	if not utilitiesLibrary.IsPlayerValid(player) then return end
 	if not tonumber(badgeId) or badgeId <= 0 then return end
 	if badgeLibrary.UserOwnsBadge(player, badgeId) then return end
 	
 	-- Set PlayerRemovingListener; Just to help on server memory/memory leaks with the cache.
 	if not badgeLibrary.PlayerRemovingListener then
-		badgeLibrary.PlayerRemovingListener = coreModule.Services.Players.PlayerRemoving:Connect(function(player)
+		badgeLibrary.PlayerRemovingListener = game:GetService("Players").PlayerRemoving:Connect(function(player)
 			badgeLibrary.BadgeOwnershipCache[player] = nil
 		end)
 	end

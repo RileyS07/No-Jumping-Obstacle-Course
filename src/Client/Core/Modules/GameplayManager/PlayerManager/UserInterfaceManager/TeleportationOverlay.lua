@@ -3,8 +3,8 @@ local specificInterfaceManager = {}
 specificInterfaceManager.Interface = {}
 specificInterfaceManager.LastTweenObject = nil
 
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
-local userInterfaceManager = require(coreModule.GetObject("/Parent"))
+local coreModule = require(script:FindFirstAncestor("Core"))
+local userInterfaceManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.UserInterfaceManager"))
 local clientAnimationsLibrary = require(coreModule.GetObject("Libraries.ClientAnimations"))
 
 -- Initialize

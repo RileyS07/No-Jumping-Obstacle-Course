@@ -3,8 +3,8 @@ local specificInterfaceManager = {}
 specificInterfaceManager.Interface = {}
 specificInterfaceManager.TimerInformation = {}
 
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
-local userInterfaceManager = require(coreModule.GetObject("/Parent"))
+local coreModule = require(script:FindFirstAncestor("Core"))
+local userInterfaceManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.UserInterfaceManager"))
 local clientAnimationsLibrary = require(coreModule.GetObject("Libraries.ClientAnimations"))
 local numberUtilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.NumberUtilities"))
 
@@ -35,7 +35,7 @@ function specificInterfaceManager.Initialize()
     -- Update loop.
     coroutine.wrap(function()
         while true do
-            coreModule.Services.RunService.RenderStepped:Wait()
+            game:GetService("RunService").RenderStepped:Wait()
 
             -- Remove old effects.
             for _, effectInformationDisplay in next, specificInterfaceManager.Interface.Container:GetChildren() do
@@ -94,7 +94,7 @@ local powerupsInterface = {}
 powerupsInterface.Interface = {}
 powerupsInterface.PowerupInformation = {}
 
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local coreModule = require(script:FindFirstAncestor("Core"))
 local specificInterfaceManager = require(coreModule.GetObject("/Parent"))
 
 -- Initialize
@@ -138,7 +138,7 @@ function powerupsInterface.Initialize()
 			end
 			
 			--
-			coreModule.Services.RunService.RenderStepped:Wait()
+			game:GetService("RunService").RenderStepped:Wait()
 		end
 	end)()
 end

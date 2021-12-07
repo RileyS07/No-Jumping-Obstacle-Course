@@ -4,8 +4,8 @@ gameplayMechanicManager.Assets = {}
 gameplayMechanicManager.MechanicContainer = nil
 gameplayMechanicManager.PlatformsBeingSimulated = {}
 
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
-local mechanicsManager = require(coreModule.GetObject("/Parent"))
+local coreModule = require(script:FindFirstAncestor("Core"))
+local mechanicsManager = require(coreModule.GetObject("Modules.GameplayManager.MechanicsManager"))
 local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
 local clientAnimationsLibrary = require(coreModule.GetObject("Libraries.ClientAnimations"))
 local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
@@ -28,7 +28,7 @@ function gameplayMechanicManager.Initialize()
 
 				-- Player touched the platform.
 				platformObject.PrimaryPart.Touched:Connect(function(hit)
-					local player = coreModule.Services.Players:GetPlayerFromCharacter(hit.Parent)
+					local player = game:GetService("Players"):GetPlayerFromCharacter(hit.Parent)
 
 					if player ~= clientEssentialsLibrary.GetPlayer() or not utilitiesLibrary.IsPlayerAlive() then return end
 					if gameplayMechanicManager.IsPlatformBeingSimulated(platformObject) then return end

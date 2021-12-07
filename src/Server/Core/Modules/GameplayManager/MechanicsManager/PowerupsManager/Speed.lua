@@ -1,12 +1,12 @@
 -- Variables
 local specificPowerupManager = {}
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local coreModule = require(script:FindFirstAncestor("Core"))
 local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
 
 -- Initialize
 function specificPowerupManager.Initialize()
-    coreModule.Services.CollectionService:GetInstanceRemovedSignal(script.Name):Connect(function(character)
-        local player = coreModule.Services.Players:GetPlayerFromCharacter(character)
+    game:GetService("CollectionService"):GetInstanceRemovedSignal(script.Name):Connect(function(character)
+        local player = game:GetService("Players"):GetPlayerFromCharacter(character)
 		if not utilitiesLibrary.IsPlayerAlive(player) then return end
 
         player.Character.Humanoid.WalkSpeed = 16

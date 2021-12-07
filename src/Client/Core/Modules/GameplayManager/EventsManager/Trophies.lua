@@ -1,6 +1,6 @@
 -- Variables
 local specificEventManager = {}
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local coreModule = require(script:FindFirstAncestor("Core"))
 
 -- Initialize
 function specificEventManager.Initialize()
@@ -38,7 +38,7 @@ function specificEventManager.SetupTrophyVisualEffects(trophyObject)
 
 	-- Bobbing animation
 	trophyObject.Position = trophyObject.Position + Vector3.new(0, -(script:GetAttribute("BobbingDistance") or 1), 0)
-	coreModule.Services.TweenService:Create(
+	game:GetService("TweenService"):Create(
 		trophyObject, 
 		TweenInfo.new(script:GetAttribute("BobbingSpeed") or 1, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, math.huge, true),
 		{Position = trophyObject.Position + Vector3.new(0, 2*(script:GetAttribute("BobbingDistance") or 1), 0)}
@@ -47,7 +47,7 @@ function specificEventManager.SetupTrophyVisualEffects(trophyObject)
 	-- Spinning animation
 	coroutine.wrap(function()
 		while trophyObject do
-			local deltaTime = coreModule.Services.RunService.RenderStepped:Wait()
+			local deltaTime = game:GetService("RunService").RenderStepped:Wait()
 			trophyObject.Orientation = trophyObject.Orientation + Vector3.new(0, 360/(script:GetAttribute("SpinningSpeed") or 3)*deltaTime, 0)
 		end
 	end)()
@@ -59,11 +59,11 @@ function specificEventManager.HideTrophyObject(trophyObject)
 	local commonFadeTweenInfo = TweenInfo.new(script:GetAttribute("FadeDuration") or 1, Enum.EasingStyle.Linear)
 
 	-- The core tween object that makes the trophy invisible; We yield this one later on.
-	local transparencyTweenObject = coreModule.Services.TweenService:Create(trophyObject, commonFadeTweenInfo, {Transparency = 1})
+	local transparencyTweenObject = game:GetService("TweenService"):Create(trophyObject, commonFadeTweenInfo, {Transparency = 1})
 
 	-- Tween out the PointLight, Shine, and Sparkles if they exist.
 	if trophyObject:FindFirstChild("PointLight") then
-		coreModule.Services.TweenService:Create(trophyObject.PointLight, commonFadeTweenInfo, {Brightness = 0}):Play()
+		game:GetService("TweenService"):Create(trophyObject.PointLight, commonFadeTweenInfo, {Brightness = 0}):Play()
 	end
 
 	if trophyObject:FindFirstChild("Shine") then

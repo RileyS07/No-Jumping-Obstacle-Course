@@ -4,8 +4,8 @@ gameplayMechanicManager.Assets = {}
 gameplayMechanicManager.MechanicContainer = nil
 gameplayMechanicManager.PlatformsBeingSimulated = {}
 
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
-local mechanicsManager = require(coreModule.GetObject("/Parent"))
+local coreModule = require(script:FindFirstAncestor("Core"))
+local mechanicsManager = require(coreModule.GetObject("Modules.GameplayManager.MechanicsManager"))
 local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
 local clientAnimationsLibrary = require(coreModule.GetObject("Libraries.ClientAnimations"))
 local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
@@ -30,7 +30,7 @@ function gameplayMechanicManager.Initialize()
 
                 -- Does the ProximityPrompt exist?
                 if platformObject.PrimaryPart:FindFirstChild(gameplayMechanicManager.Assets.CodeDoorProximityPrompt.Name) then
-                    coreModule.Services.ProximityPromptService.PromptTriggered:Connect(function(proximityPrompt, player)
+                    game:GetService("ProximityPromptService").PromptTriggered:Connect(function(proximityPrompt, player)
                         if proximityPrompt ~= platformObject.PrimaryPart[gameplayMechanicManager.Assets.CodeDoorProximityPrompt.Name] then return end
                         if player ~= clientEssentialsLibrary.GetPlayer() then return end
                         if not utilitiesLibrary.IsPlayerAlive(player) then return end

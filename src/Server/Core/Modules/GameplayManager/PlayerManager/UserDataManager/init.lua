@@ -5,7 +5,7 @@ userDataManager.ProfilesBeingLoaded = {}
 userDataManager.ProfileServiceDataStore = nil
 userDataManager.UserDataLoaded = Instance.new("BindableEvent")
 
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local coreModule = require(script:FindFirstAncestor("Core"))
 local profileService = require(coreModule.GetObject("Libraries.ProfileService"))
 local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
 

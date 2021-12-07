@@ -2,8 +2,8 @@
 local specificInterfaceManager = {}
 specificInterfaceManager.Interface = {}
 
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
-local userInterfaceManager = require(coreModule.GetObject("/Parent"))
+local coreModule = require(script:FindFirstAncestor("Core"))
+local userInterfaceManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.UserInterfaceManager"))
 local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
 local clientAnimationsLibrary = require(coreModule.GetObject("Libraries.ClientAnimations"))
 
@@ -19,7 +19,7 @@ function specificInterfaceManager.Initialize()
     specificInterfaceManager.Interface.Skip = specificInterfaceManager.Interface.Content:WaitForChild("Right"):WaitForChild("Skip")
 
     userInterfaceManager.EnableInterface(specificInterfaceManager.Interface.ScreenGui.Name, {DisableOtherInterfaces = true, IsPriority = true})
-    coreModule.Services.ReplicatedFirst:RemoveDefaultLoadingScreen()
+    game:GetService("ReplicatedFirst"):RemoveDefaultLoadingScreen()
     clientEssentialsLibrary.SetCoreGuiEnabled(Enum.CoreGuiType.All, false)
 
     clientAnimationsLibrary.PlayAnimation("LoadingScreenBackgroundImage", specificInterfaceManager.Interface.BackgroundImages)

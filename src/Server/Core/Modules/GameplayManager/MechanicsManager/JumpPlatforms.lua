@@ -3,7 +3,7 @@ local gameplayMechanicManager = {}
 gameplayMechanicManager.Remotes = {}
 gameplayMechanicManager.PlatformsBeingSimulated = {}
 
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local coreModule = require(script:FindFirstAncestor("Core"))
 local teleportationManager = require(coreModule.GetObject("Modules.GameplayManager.MechanicsManager.TeleportationManager"))
 local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
 
@@ -18,7 +18,7 @@ function gameplayMechanicManager.Initialize()
             -- jumpPlatform should be a BasePart that they can touch.
             if jumpPlatform:IsA("BasePart") then
                 jumpPlatform.Touched:Connect(function(hit)
-                    local player = coreModule.Services.Players:GetPlayerFromCharacter(hit.Parent)
+                    local player = game:GetService("Players"):GetPlayerFromCharacter(hit.Parent)
                     if not utilitiesLibrary.IsPlayerAlive(player) then return end
                     if gameplayMechanicManager.IsPlatformBeingSimulated(player, jumpPlatform) then return end
                     

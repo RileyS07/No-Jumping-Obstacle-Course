@@ -3,7 +3,7 @@ local specificAmbientSoundManager = {}
 specificAmbientSoundManager.ApplicableRange = NumberRange.new(61, 70)
 specificAmbientSoundManager.IsRunning = false
 
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local coreModule = require(script:FindFirstAncestor("Core"))
 local soundEffectsManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.SoundEffects"))
 
 -- Methods

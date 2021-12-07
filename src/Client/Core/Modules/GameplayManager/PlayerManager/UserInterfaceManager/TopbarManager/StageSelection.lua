@@ -7,9 +7,9 @@ specificInterfaceManager.ZoneNames = {
     "The Legacy", "The Mist", "The Infectious", "The Glaciers", "The Platform", "The Abstract", "The Eerie", "The Valley", "The Time", "The Champions"
 }
 
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
-local topbarManager = require(coreModule.GetObject("/Parent"))
-local userInterfaceManager = require(coreModule.GetObject("/Parent.Parent"))
+local coreModule = require(script:FindFirstAncestor("Core"))
+local topbarManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.UserInterfaceManager.TopbarManager"))
+local userInterfaceManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.UserInterfaceManager"))
 
 -- Initialize
 function specificInterfaceManager.Initialize()

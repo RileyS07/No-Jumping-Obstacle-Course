@@ -1,7 +1,7 @@
 -- Variables
 local topbarManager = {}
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
-local userInterfaceManager = require(coreModule.GetObject("/Parent"))
+local coreModule = require(script:FindFirstAncestor("Core"))
+local userInterfaceManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.UserInterfaceManager"))
 
 -- Initialize
 function topbarManager.Initialize()

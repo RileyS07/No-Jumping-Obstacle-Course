@@ -1,12 +1,12 @@
 -- Variables
 local collisionsLibrary = {}
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local coreModule = require(script:FindFirstAncestor("Core"))
 
 -- Methods
 function collisionsLibrary.GetCollisionGroup(collisionGroupName)
-	local collisionGroupExists = pcall(coreModule.Services.PhysicsService.GetCollisionGroupId, coreModule.Services.PhysicsService, collisionGroupName)
+	local collisionGroupExists = pcall(game:GetService("PhysicsService").GetCollisionGroupId, game:GetService("PhysicsService"), collisionGroupName)
 	if not collisionGroupExists then
-		pcall(coreModule.Services.PhysicsService.CreateCollisionGroup, coreModule.Services.PhysicsService, collisionGroupName)
+		pcall(game:GetService("PhysicsService").CreateCollisionGroup, game:GetService("PhysicsService"), collisionGroupName)
 	end
 	
 	return collisionGroupName
@@ -16,13 +16,13 @@ end
 function collisionsLibrary.CollisionGroupSetCollidable(collisionGroupAName, collisionGroupBName, collidable)
 	local collisionGroupA = collisionsLibrary.GetCollisionGroup(collisionGroupAName)
 	local collisionGroupB = collisionsLibrary.GetCollisionGroup(collisionGroupBName)
-	coreModule.Services.PhysicsService:CollisionGroupSetCollidable(collisionGroupA, collisionGroupB, collidable)
+	game:GetService("PhysicsService"):CollisionGroupSetCollidable(collisionGroupA, collisionGroupB, collidable)
 end
 
 
 function collisionsLibrary.SetPartCollisionGroup(basePart, collisionGroupName)
 	if not collisionsLibrary.GetCollisionGroup(collisionGroupName) then return end
-	coreModule.Services.PhysicsService:SetPartCollisionGroup(basePart, collisionsLibrary.GetCollisionGroup(collisionGroupName))
+	game:GetService("PhysicsService"):SetPartCollisionGroup(basePart, collisionsLibrary.GetCollisionGroup(collisionGroupName))
 end
 
 
@@ -37,7 +37,7 @@ end
 
 function collisionsLibrary.CollisionGroupContainsPart(collisionGroupName, basePart)
 	if not collisionsLibrary.GetCollisionGroup(collisionGroupName) then return end
-	return coreModule.Services.PhysicsService:CollisionGroupContainsPart(collisionsLibrary.GetCollisionGroup(collisionGroupName), basePart)
+	return game:GetService("PhysicsService"):CollisionGroupContainsPart(collisionsLibrary.GetCollisionGroup(collisionGroupName), basePart)
 end
 
 

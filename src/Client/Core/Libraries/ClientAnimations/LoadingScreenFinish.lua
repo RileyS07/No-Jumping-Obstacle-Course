@@ -1,9 +1,9 @@
 -- Variables
 local specificClientAnimation = {}
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local coreModule = require(script:FindFirstAncestor("Core"))
 local userInterfaceManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.UserInterfaceManager"))
 local gameplayMusicManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.GameplayMusic"))
-local clientAnimationsLibrary = require(coreModule.GetObject("/Parent"))
+local clientAnimationsLibrary = require(coreModule.GetObject("Libraries.ClientAnimations"))
 local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
 
 -- Methods
@@ -25,20 +25,20 @@ function specificClientAnimation.Play(informationContainer, backgroundImages, co
     clientAnimationsLibrary.PlayAnimation("TweenMaxVisibleGraphemes", informationContainer:WaitForChild("Game"), 0)
     clientAnimationsLibrary.PlayAnimation("TweenMaxVisibleGraphemes", informationContainer:WaitForChild("Description"), 0):Wait()
 
-    local downwardsTweenObject = coreModule.Services.TweenService:Create(contentContainer, TweenInfo.new(1, Enum.EasingStyle.Linear), {Position = UDim2.fromScale(0, 1.2)})
+    local downwardsTweenObject = game:GetService("TweenService"):Create(contentContainer, TweenInfo.new(1, Enum.EasingStyle.Linear), {Position = UDim2.fromScale(0, 1.2)})
     downwardsTweenObject:Play()
     downwardsTweenObject.Completed:Wait()
 
     for _, backgroundImage in next, backgroundImages:GetChildren() do
         if backgroundImage.Visible then
-            local backgroundImageFadeTweenObject = coreModule.Services.TweenService:Create(backgroundImage, TweenInfo.new(1, Enum.EasingStyle.Linear), {ImageTransparency = 1})
+            local backgroundImageFadeTweenObject = game:GetService("TweenService"):Create(backgroundImage, TweenInfo.new(1, Enum.EasingStyle.Linear), {ImageTransparency = 1})
             backgroundImageFadeTweenObject:Play()
             backgroundImageFadeTweenObject.Completed:Wait()
             backgroundImage.Visible = false
 
-            coreModule.Services.TweenService:Create(backgroundImages.Parent:WaitForChild("Gradient"), TweenInfo.new(1, Enum.EasingStyle.Linear), {ImageTransparency = 1}):Play()
+            game:GetService("TweenService"):Create(backgroundImages.Parent:WaitForChild("Gradient"), TweenInfo.new(1, Enum.EasingStyle.Linear), {ImageTransparency = 1}):Play()
             
-            local backgroundTransparencyFadeTweenObject = coreModule.Services.TweenService:Create(backgroundImages.Parent, TweenInfo.new(1, Enum.EasingStyle.Linear), {BackgroundTransparency = 1})
+            local backgroundTransparencyFadeTweenObject = game:GetService("TweenService"):Create(backgroundImages.Parent, TweenInfo.new(1, Enum.EasingStyle.Linear), {BackgroundTransparency = 1})
             backgroundTransparencyFadeTweenObject:Play()
             backgroundTransparencyFadeTweenObject.Completed:Wait()
             break

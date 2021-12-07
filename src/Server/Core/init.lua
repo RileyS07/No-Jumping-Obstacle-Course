@@ -9,6 +9,8 @@ function coreModule.Initialize()
     coreModule.Shared.Initialize()
 
     -- Loading modules.
+    coreModule.LoadModule("Modules.ServerManager")
+    coreModule.LoadModule("Modules.GameplayManager")
 
     coreModule.Debug("[Core]: Done loading "..script.Parent.Name..".")
     --[[

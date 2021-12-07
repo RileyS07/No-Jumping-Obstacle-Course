@@ -4,7 +4,7 @@ userInterfaceManager.ActiveContainers = {}
 userInterfaceManager.PriorityInterface = nil
 userInterfaceManager.ActiveContainerUpdated = Instance.new("BindableEvent")	-- => screenGui, container, isActive
 
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local coreModule = require(script:FindFirstAncestor("Core"))
 local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
 local clientAnimationsLibrary = require(coreModule.GetObject("Libraries.ClientAnimations"))
 
@@ -19,7 +19,7 @@ function userInterfaceManager.Initialize()
 	coreModule.LoadModule("/EffectTimers")
 
 	-- Escape to exit.
-	coreModule.Services.GuiService.MenuOpened:Connect(function()
+	game:GetService("GuiService").MenuOpened:Connect(function()
 		for screenGui, container in next, userInterfaceManager.ActiveContainers do
 			userInterfaceManager.UpdateActiveContainer(container)
 		end
@@ -68,7 +68,7 @@ function userInterfaceManager.DisableInterface(interfaceName, exceptionBoolean)
 		for _, interfaceObject in next, clientEssentialsLibrary.GetPlayer():WaitForChild("PlayerGui"):GetChildren() do
 
 			-- This line is important so we don't disable stuff like Chat and PlayerList etc.
-			if coreModule.Services.StarterGui:FindFirstChild(interfaceObject.Name) and interfaceObject:IsA("GuiBase2d") then
+			if game:GetService("StarterGui"):FindFirstChild(interfaceObject.Name) and interfaceObject:IsA("GuiBase2d") then
 				if not userInterfaceManager.GetPriorityInterface() or (userInterfaceManager.GetPriorityInterface() ~= interfaceObject or (exceptionBoolean and userInterfaceManager.GetPriorityInterface().Name == interfaceName)) then
 					interfaceObject.Enabled = exceptionBoolean and interfaceObject.Name == interfaceName
 				end
@@ -126,9 +126,9 @@ function userInterfaceManager.UpdateActiveContainer(container, functionParameter
 	end
 
 	-- Do we apply a blur?
-	if not functionParameters.OverrideBlur and coreModule.Services.Lighting:FindFirstChild("MenuBlur") then
-		coreModule.Services.TweenService:Create(
-			coreModule.Services.Lighting.MenuBlur,
+	if not functionParameters.OverrideBlur and game:GetService("Lighting"):FindFirstChild("MenuBlur") then
+		game:GetService("TweenService"):Create(
+			game:GetService("Lighting").MenuBlur,
 			TweenInfo.new(0.5, Enum.EasingStyle.Linear),
 			{Size = userInterfaceManager.HasActiveContainer(screenGui) and 13 or 0}
 		):Play()

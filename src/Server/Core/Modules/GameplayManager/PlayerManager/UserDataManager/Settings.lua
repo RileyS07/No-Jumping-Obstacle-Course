@@ -1,7 +1,7 @@
 -- Variables
 local settingsManager = {}
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
-local userDataManager = require(coreModule.GetObject("/Parent"))
+local coreModule = require(script:FindFirstAncestor("Core"))
+local userDataManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.UserDataManager"))
 
 -- Initialize
 function settingsManager.Initialize()

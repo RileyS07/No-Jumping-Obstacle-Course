@@ -4,7 +4,7 @@ powerupsManager.PowerupsUpdated = Instance.new("BindableEvent")
 powerupsManager.PowerupInformation = {}
 powerupsManager.Remotes = {}
 
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local coreModule = require(script:FindFirstAncestor("Core"))
 local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
 
 -- Initialize
@@ -52,7 +52,7 @@ function powerupsManager.SetupPowerups()
                     local powerupPlatformHitbox = (powerupPlatform:IsA("Model") and powerupPlatform.PrimaryPart) or powerupPlatform
                     
                     powerupPlatformHitbox.Touched:Connect(function(hit)
-                        local player = coreModule.Services.Players:GetPlayerFromCharacter(hit.Parent)
+                        local player = game:GetService("Players"):GetPlayerFromCharacter(hit.Parent)
 
                         -- We have to make sure they're valid and within a reasonable distance from the hitbox.
                         if not utilitiesLibrary.IsPlayerAlive(player) then return end
@@ -70,7 +70,7 @@ function powerupsManager.SetupPowerups()
                                 Color = powerupPlatform:GetAttribute("Color")
                             })
 
-                            coreModule.Services.CollectionService:AddTag(player.Character, powerupContainer.Name)
+                            game:GetService("CollectionService"):AddTag(player.Character, powerupContainer.Name)
                             powerupsManager.Remotes.PlaySoundEffect:FireClient(player, powerupContainer.Name.."Powerup")
                             powerupsManager.ApplyPowerup(player, powerupContainer.Name, powerupPlatform)
                             
@@ -105,10 +105,10 @@ function powerupsManager.ApplyPowerup(player, powerupName, powerupPlatform)
         coroutine.wrap(function()
 
             -- Yield till we can proceed to remove the powerup.
-            repeat coreModule.Services.RunService.Stepped:Wait()
+            repeat game:GetService("RunService").Stepped:Wait()
             until
             not utilitiesLibrary.IsPlayerAlive(player)
-            or not coreModule.Services.CollectionService:HasTag(player.Character, powerupName)
+            or not game:GetService("CollectionService"):HasTag(player.Character, powerupName)
             or not powerupsManager.GetPowerupInformation(player, powerupName) 
             or os.clock() - powerupsManager.GetPowerupInformation(player, powerupName).Start >= powerupsManager.GetPowerupInformation(player, powerupName).Duration
             
@@ -129,7 +129,7 @@ function powerupsManager.RemovePowerup(player, powerupName)
     if typeof(powerupName) ~= "string" then return end
 
     -- Time to start the removal process.
-    if utilitiesLibrary.IsPlayerAlive(player) then coreModule.Services.CollectionService:RemoveTag(player.Character, powerupName) end
+    if utilitiesLibrary.IsPlayerAlive(player) then game:GetService("CollectionService"):RemoveTag(player.Character, powerupName) end
     if powerupsManager.GetPowerupInformation(player) then powerupsManager.GetPowerupInformation(player)[powerupName] = nil end
     powerupsManager.Remotes.TimerInformationUpdated:FireClient(player, powerupsManager.GetPowerupInformation(player))
     powerupsManager.Remotes.PlaySoundEffect:FireClient(player, powerupName.."PowerupRemoved")

@@ -4,8 +4,8 @@ gameplayMechanicManager.MechanicContainer = nil
 gameplayMechanicManager.CommonRaycastParameters = nil
 gameplayMechanicManager.PlatformsBeingSimulated = {}
 
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
-local mechanicsManager = require(coreModule.GetObject("/Parent"))
+local coreModule = require(script:FindFirstAncestor("Core"))
+local mechanicsManager = require(coreModule.GetObject("Modules.GameplayManager.MechanicsManager"))
 local userInterfaceManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.UserInterfaceManager"))
 local soundEffectsManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.SoundEffects"))
 local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
@@ -103,14 +103,14 @@ function gameplayMechanicManager.SetupKeybindFunctionality()
 
                 -- Now that we have the results let's bind/unbind.
                 if isPlayerNearAnySwitchPlatforms then
-                    coreModule.Services.ContextActionService:BindAction(keybindActionName, keybindActionFunction, true, Enum.KeyCode.Q)
-                    coreModule.Services.ContextActionService:SetDescription(keybindActionName, keybindButtonDescription)
-                    coreModule.Services.ContextActionService:SetImage(keybindActionName, keybindButtonImageContent)
+                    game:GetService("ContextActionService"):BindAction(keybindActionName, keybindActionFunction, true, Enum.KeyCode.Q)
+                    game:GetService("ContextActionService"):SetDescription(keybindActionName, keybindButtonDescription)
+                    game:GetService("ContextActionService"):SetImage(keybindActionName, keybindButtonImageContent)
                 else  
-                    coreModule.Services.ContextActionService:UnbindAction(keybindActionName)
+                    game:GetService("ContextActionService"):UnbindAction(keybindActionName)
                 end
             else
-                coreModule.Services.ContextActionService:UnbindAction(keybindActionName)
+                game:GetService("ContextActionService"):UnbindAction(keybindActionName)
             end
 
             wait(0.5)

@@ -1,7 +1,7 @@
 -- Variables
 local specificPowerupManager = {}
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
-local powerupsManager = require(coreModule.GetObject("/Parent"))
+local coreModule = require(script:FindFirstAncestor("Core"))
+local powerupsManager = require(coreModule.GetObject("Modules.GameplayManager.MechanicsManager.PowerupsManager"))
 local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
 local collisionsLibrary = require(coreModule.Shared.GetObject("Libraries.Collisions"))
 
@@ -33,8 +33,8 @@ function specificPowerupManager.Initialize()
         end
     end
     
-    coreModule.Services.CollectionService:GetInstanceRemovedSignal(script.Name):Connect(function(character)
-        local player = coreModule.Services.Players:GetPlayerFromCharacter(character)
+    game:GetService("CollectionService"):GetInstanceRemovedSignal(script.Name):Connect(function(character)
+        local player = game:GetService("Players"):GetPlayerFromCharacter(character)
 		if not utilitiesLibrary.IsPlayerAlive(player) then return end
 		if not character.Humanoid:FindFirstChild("HumanoidDescription") then return end
 		

@@ -4,8 +4,8 @@ gameplayMechanicManager.MechanicContainer = nil
 gameplayMechanicManager.CommonRaycastParameters = nil
 gameplayMechanicManager.PlatformsBeingSimulated = {}
 
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
-local mechanicsManager = require(coreModule.GetObject("/Parent"))
+local coreModule = require(script:FindFirstAncestor("Core"))
+local mechanicsManager = require(coreModule.GetObject("Modules.GameplayManager.MechanicsManager"))
 local soundEffectsManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.SoundEffects"))
 local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
 local playerMouseLibrary = require(coreModule.GetObject("Libraries.UserInput.Mouse"))

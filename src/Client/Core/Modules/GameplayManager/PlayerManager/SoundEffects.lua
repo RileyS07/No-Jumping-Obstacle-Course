@@ -5,7 +5,7 @@ soundEffectsManager.SoundEffectsFolder = nil
 soundEffectsManager.CachedSoundObjects = {}
 soundEffectsManager.VolumeModifier = 1
 
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local coreModule = require(script:FindFirstAncestor("Core"))
 local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
 
 -- Initialize

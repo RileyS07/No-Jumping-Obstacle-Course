@@ -3,8 +3,8 @@ local gameplayMechanicManager = {}
 gameplayMechanicManager.MechanicContainer = nil
 gameplayMechanicManager.PlatformsBeingSimulated = {}
 
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
-local mechanicsManager = require(coreModule.GetObject("/Parent"))
+local coreModule = require(script:FindFirstAncestor("Core"))
+local mechanicsManager = require(coreModule.GetObject("Modules.GameplayManager.MechanicsManager"))
 local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
 local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
 
@@ -46,7 +46,7 @@ function gameplayMechanicManager.SimulatePlatform(platformObject)
 		
 		while true do
 			if not utilitiesLibrary.IsPlayerValid() then return end
-			local deltaTime = coreModule.Services.RunService.RenderStepped:Wait()
+			local deltaTime = game:GetService("RunService").RenderStepped:Wait()
 
 			-- This resets the position to the ideal center position.
 			-- This is so that when we reapply the offset from the center it doesn't gradually fly off into the distance.
@@ -129,7 +129,7 @@ function gameplayMechanicManager.SetupTrippingFunctionality(platformObject)
 
 	-- I have this separate so that when welded parts that are inside of the PrimaryPart also extend this functionality.
 	local function onTouched(hit)
-		local player = coreModule.Services.Players:GetPlayerFromCharacter(hit.Parent)
+		local player = game:GetService("Players"):GetPlayerFromCharacter(hit.Parent)
 
 		-- Guard clauses.
 		if player ~= clientEssentialsLibrary.GetPlayer() or not utilitiesLibrary.IsPlayerAlive(player) then return end

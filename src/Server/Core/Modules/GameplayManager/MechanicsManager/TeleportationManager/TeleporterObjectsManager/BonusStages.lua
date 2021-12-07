@@ -3,9 +3,9 @@ local bonusStagesManager = {}
 bonusStagesManager.Assets = {}
 bonusStagesManager.Remotes = {}
 
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
-local teleporterObjectsManager = require(coreModule.GetObject("/Parent"))
-local teleportationManager = require(coreModule.GetObject("/Parent.Parent"))
+local coreModule = require(script:FindFirstAncestor("Core"))
+local teleporterObjectsManager = require(coreModule.GetObject("Modules.GameplayManager.MechanicsManager.TeleportationManager.TeleporterObjectsManager"))
+local teleportationManager = require(coreModule.GetObject("Modules.GameplayManager.MechanicsManager.TeleportationManager"))
 local userDataManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.UserDataManager"))
 local badgeLibrary = require(coreModule.GetObject("Libraries.BadgeLibrary"))
 local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
@@ -50,7 +50,7 @@ function bonusStagesManager.Initialize()
 
 			-- Player touched the teleporter.
 			teleporterObject.PrimaryPart.Touched:Connect(function(hit)
-				local player = coreModule.Services.Players:GetPlayerFromCharacter(hit.Parent)
+				local player = game:GetService("Players"):GetPlayerFromCharacter(hit.Parent)
 
 				-- Guard clauses to make sure everything is valid.
 				if not utilitiesLibrary.IsPlayerAlive(player) then return end
@@ -59,11 +59,11 @@ function bonusStagesManager.Initialize()
 				bonusStagesManager.SimulateTeleportation(player, teleporterObject, bonusStageLevelReference)
 			end)
 		elseif teleporterObject:IsA("Model") then
-			coreModule.Debug(
+			--[[coreModule.Debug(
 				("Teleporter: %s, has PrimaryPart: %s, exists in LevelStorage.BonusStages: %s"):format(teleporterObject:GetFullName(), tostring(teleporterObject.PrimaryPart ~= nil), tostring(workspace.Map.Gameplay.LevelStorage.BonusStages:FindFirstChild(teleporterObject.Name) ~= nil)),
 				coreModule.Shared.Enums.DebugLevel.Exception,
 				warn
-			)
+			)]]
 		end
 	end
 
@@ -76,7 +76,7 @@ function bonusStagesManager.Initialize()
 				if checkpoint:IsA("BasePart") and tonumber(checkpoint.Name) then
 
 					checkpoint.Touched:Connect(function(hit)
-						local player = coreModule.Services.Players:GetPlayerFromCharacter(hit.Parent)
+						local player = game:GetService("Players"):GetPlayerFromCharacter(hit.Parent)
 
 						-- Guard clauses to make sure everything is valid.
 						if not utilitiesLibrary.IsPlayerAlive(player) then return end

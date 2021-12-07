@@ -1,13 +1,13 @@
 -- Variables
 local utilitiesLibrary = {}
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local coreModule = require(script:FindFirstAncestor("Core"))
 
 -- Methods
 -- Mostly used in addition with IsPlayerAlive but is still a useful function for type checking for Player.
 function utilitiesLibrary.IsPlayerValid(player)
-	player = player or (coreModule.Services.RunService:IsClient() and coreModule.Services.Players.LocalPlayer)
+	player = player or (game:GetService("RunService"):IsClient() and game:GetService("Players").LocalPlayer)
 	if typeof(player) ~= "Instance" or not player:IsA("Player") then return end
-	if not player:IsDescendantOf(coreModule.Services.Players) then return end
+	if not player:IsDescendantOf(game:GetService("Players")) then return end
 
 	return true
 end
@@ -15,7 +15,7 @@ end
 
 -- A super useful function that leaves almost 0 room for error to check if a player is alive.
 function utilitiesLibrary.IsPlayerAlive(player)
-	player = player or (coreModule.Services.RunService:IsClient() and coreModule.Services.Players.LocalPlayer)
+	player = player or (game:GetService("RunService"):IsClient() and game:GetService("Players").LocalPlayer)
 	if not utilitiesLibrary.IsPlayerValid(player) then return end
 
 	if not player.Character then return end

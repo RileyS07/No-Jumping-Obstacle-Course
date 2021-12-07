@@ -3,7 +3,7 @@ local specificAmbientLighting = {}
 specificAmbientLighting.UserData = nil
 specificAmbientLighting.EffectPlaying = false
 
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local coreModule = require(script:FindFirstAncestor("Core"))
 local gameplayLightingManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.GameplayLighting"))
 local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
 local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
@@ -21,7 +21,7 @@ function specificAmbientLighting.Initialize()
 
     -- Touched.
     startingPoint.Touched:Connect(function(hit)
-        local player = coreModule.Services.Players:GetPlayerFromCharacter(hit.Parent)
+        local player = game:GetService("Players"):GetPlayerFromCharacter(hit.Parent)
         if player ~= clientEssentialsLibrary.GetPlayer() or not utilitiesLibrary.IsPlayerAlive() then return end
         if specificAmbientLighting.EffectPlaying then return end
         specificAmbientLighting.EffectPlaying = true
@@ -38,13 +38,13 @@ function specificAmbientLighting.Initialize()
 
             -- We have to make sure they're on the right side.
             if math.sign((startingPositionVector - currentPosition).Unit.X) == -1 then
-                coreModule.Services.Lighting.ColorCorrection.Saturation = math.clamp(-(startingPositionVector - currentPosition).Magnitude/(startingPositionVector - endingPositionVector).Magnitude, -1, 0)
+                game:GetService("Lighting").ColorCorrection.Saturation = math.clamp(-(startingPositionVector - currentPosition).Magnitude/(startingPositionVector - endingPositionVector).Magnitude, -1, 0)
             else
                 gameplayLightingManager.UpdateLighting(specificAmbientLighting.UserData) 
                 break
             end
 
-            coreModule.Services.RunService.RenderStepped:Wait()
+            game:GetService("RunService").RenderStepped:Wait()
         end
 
         specificAmbientLighting.EffectPlaying = false

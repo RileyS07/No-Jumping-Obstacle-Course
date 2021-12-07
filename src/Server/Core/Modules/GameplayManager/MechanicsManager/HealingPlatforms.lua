@@ -3,7 +3,7 @@ local gameplayMechanicManager = {}
 gameplayMechanicManager.Remotes = {}
 gameplayMechanicManager.PlatformsBeingSimulated = {}
 
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local coreModule = require(script:FindFirstAncestor("Core"))
 local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
 
 -- Initialize
@@ -17,7 +17,7 @@ function gameplayMechanicManager.Initialize()
             -- PrimaryPart is what the players will touch to heal themselves.
             if healingPlatform:IsA("Model") and healingPlatform.PrimaryPart then
                 healingPlatform.PrimaryPart.Touched:Connect(function(hit)
-                    local player = coreModule.Services.Players:GetPlayerFromCharacter(hit.Parent)
+                    local player = game:GetService("Players"):GetPlayerFromCharacter(hit.Parent)
                     if not utilitiesLibrary.IsPlayerAlive(player) then return end
                     if gameplayMechanicManager.IsPlatformBeingSimulated(player, healingPlatform) then return end
                     

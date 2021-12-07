@@ -1,6 +1,6 @@
 -- Variables
 local specificClientAnimation = {}
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local coreModule = require(script:FindFirstAncestor("Core"))
 local cameraEssentialsLibrary = require(coreModule.GetObject("Libraries.CameraEssentials"))
 local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
 local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
@@ -13,7 +13,7 @@ function specificClientAnimation.Play()
     -- Reset the camera to their humanoid.
     workspace.CurrentCamera.CameraType = Enum.CameraType.Custom
 	workspace.CurrentCamera.CameraSubject = clientEssentialsLibrary.GetPlayer().Character.Humanoid
-	coreModule.Services.TweenService:Create(
+	game:GetService("TweenService"):Create(
 		workspace.CurrentCamera,
 		TweenInfo.new(1, Enum.EasingStyle.Linear),
 		{FieldOfView = 70}

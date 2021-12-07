@@ -2,7 +2,7 @@
 local mechanicTutorialsManager = {}
 mechanicTutorialsManager.SameServerTutorialCache = {}
 
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local coreModule = require(script:FindFirstAncestor("Core"))
 local cutsceneManager = require(coreModule.GetObject("/Parent"))
 
 -- Initialize

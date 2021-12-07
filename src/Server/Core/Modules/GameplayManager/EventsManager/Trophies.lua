@@ -2,7 +2,7 @@
 local specificEventManager = {}
 specificEventManager.Remotes = {}
 
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local coreModule = require(script:FindFirstAncestor("Core"))
 local userDataManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.UserDataManager"))
 local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
 
@@ -21,7 +21,7 @@ function specificEventManager.Initialize()
 			tropyObject.Touched:Connect(function(hit)
 
 				-- Guard clauses to make sure the player is alive, valid, and their data exists.
-				local player = coreModule.Services.Players:GetPlayerFromCharacter(hit.Parent)
+				local player = game:GetService("Players"):GetPlayerFromCharacter(hit.Parent)
 				if not utilitiesLibrary.IsPlayerAlive(player) then return end
 				if not userDataManager.GetData(player) then return end
 				

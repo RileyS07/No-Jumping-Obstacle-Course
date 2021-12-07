@@ -1,6 +1,6 @@
 -- Variables
 local versionUpdatesManager = {}
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local coreModule = require(script:FindFirstAncestor("Core"))
 local teleportationManager = require(coreModule.GetObject("Modules.GameplayManager.MechanicsManager.TeleportationManager"))
 
 -- Initialize
@@ -8,19 +8,19 @@ function versionUpdatesManager.Initialize()
     coreModule.Shared.GetObject("//Remotes.Server.IsReservedServer").OnServerInvoke = versionUpdatesManager.IsReservedServer
 
     -- Someone joined!
-    coreModule.Services.Players.PlayerAdded:Connect(function(player)
+    game:GetService("Players").PlayerAdded:Connect(function(player)
         if not versionUpdatesManager.IsReservedServer() then return end
         teleportationManager.TeleportPlayerListPostTranslationToPlaceId({player}, game.PlaceId)
     end)
 
     -- Is it a reserved server?
     if versionUpdatesManager.IsReservedServer() then
-        teleportationManager.TeleportPlayerListPostTranslationToPlaceId(coreModule.Services.Players:GetPlayers(), game.PlaceId)
+        teleportationManager.TeleportPlayerListPostTranslationToPlaceId(game:GetService("Players"):GetPlayers(), game.PlaceId)
         return
     end
 
     -- Server shutdown.
-    if not coreModule.Services.RunService:IsStudio() then
+    if not game:GetService("RunService"):IsStudio() then
         game:BindToClose(versionUpdatesManager.ShutdownServer)
     end
 end
@@ -34,8 +34,8 @@ end
 
 
 function versionUpdatesManager.ShutdownServer()
-    if coreModule.Services.RunService:IsStudio() then return end
-	if #coreModule.Services.Players:GetPlayers() == 0 then return end
+    if game:GetService("RunService"):IsStudio() then return end
+	if #game:GetService("Players"):GetPlayers() == 0 then return end
 
     coreModule.Shared.GetObject("//Remotes.Server.VersionUpdated"):FireAllClients()
     
@@ -43,14 +43,14 @@ function versionUpdatesManager.ShutdownServer()
     local reservedServerAccessCode = coreModule.Services.TeleportService:ReserveServer(game.PlaceId)
 
     teleportationManager.TeleportPlayerListPostTranslationToPlaceId(
-        coreModule.Services.Players:GetPlayers(), game.PlaceId, {ReservedServerAccessCode = reservedServerAccessCode}
+        game:GetService("Players"):GetPlayers(), game.PlaceId, {ReservedServerAccessCode = reservedServerAccessCode}
     )
 
     -- Someone joined!
-    coreModule.Services.Players.PlayerAdded:Connect(function(player)
+    game:GetService("Players").PlayerAdded:Connect(function(player)
         if not versionUpdatesManager.IsReservedServer() then return end
         teleportationManager.TeleportPlayerListPostTranslationToPlaceId(
-            coreModule.Services.Players:GetPlayers(), game.PlaceId, {ReservedServerAccessCode = reservedServerAccessCode}
+            game:GetService("Players"):GetPlayers(), game.PlaceId, {ReservedServerAccessCode = reservedServerAccessCode}
         )
     end)
 end

@@ -2,7 +2,7 @@
 local playerMouseLibrary = {}
 playerMouseLibrary.InputListeners = {}
 
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local coreModule = require(script:FindFirstAncestor("Core"))
 
 -- Initialize
 function playerMouseLibrary.Initialize()
@@ -27,9 +27,9 @@ function playerMouseLibrary.Initialize()
 		end
 	end
 
-	coreModule.Services.UserInputService.InputBegan:Connect(processInput)
-	coreModule.Services.UserInputService.InputEnded:Connect(processInput)
-	coreModule.Services.UserInputService.InputChanged:Connect(processInput)
+	game:GetService("UserInputService").InputBegan:Connect(processInput)
+	game:GetService("UserInputService").InputEnded:Connect(processInput)
+	game:GetService("UserInputService").InputChanged:Connect(processInput)
 end
 
 
@@ -68,7 +68,7 @@ end
 
 
 function playerMouseLibrary.GetPosition()
-	return coreModule.Services.UserInputService:GetMouseLocation()
+	return game:GetService("UserInputService"):GetMouseLocation()
 end
 
 

@@ -3,7 +3,7 @@ local forceShiftLockManager = {}
 forceShiftLockManager.Interface = {}
 forceShiftLockManager.IsShiftLockActive = true
 
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local coreModule = require(script:FindFirstAncestor("Core"))
 local userInterfaceManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.UserInterfaceManager"))
 local cameraEssentialsLibrary = require(coreModule.GetObject("Libraries.CameraEssentials"))
 local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
@@ -15,32 +15,32 @@ function forceShiftLockManager.Initialize()
     forceShiftLockManager.Interface.Button = userInterfaceManager.GetInterface("MainInterface"):WaitForChild("Keybinds"):WaitForChild("Shiftlock")
 
     -- The actual shift lock logic.
-    coreModule.Services.RunService:BindToRenderStep("MobileShiftlock", Enum.RenderPriority.Camera.Value + 1, function()
+    game:GetService("RunService"):BindToRenderStep("MobileShiftlock", Enum.RenderPriority.Camera.Value + 1, function()
         if not cameraEssentialsLibrary.IsCurrentCameraReadyForManipulation()  then return end
-        if not utilitiesLibrary.IsPlayerValid() then coreModule.Services.RunService:UnbindFromRenderStep("MobileShiftlock") end
+        if not utilitiesLibrary.IsPlayerValid() then game:GetService("RunService"):UnbindFromRenderStep("MobileShiftlock") end
 
         -- Reset the values.
         if not forceShiftLockManager.IsShiftLockActive or userInterfaceManager.GetPriorityInterface() or next(userInterfaceManager.ActiveContainers) then 
-            coreModule.Services.UserInputService.MouseIconEnabled = true
+            game:GetService("UserInputService").MouseIconEnabled = true
 
             if utilitiesLibrary.IsPlayerAlive() and clientEssentialsLibrary.GetPlayer().Character.PrimaryPart.LocalTransparencyModifier >= 0.8 then
                 UserSettings():GetService("UserGameSettings").RotationType = Enum.RotationType.CameraRelative
-                coreModule.Services.UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
-            elseif coreModule.Services.UserInputService.MouseBehavior ~= Enum.MouseBehavior.Default then
+                game:GetService("UserInputService").MouseBehavior = Enum.MouseBehavior.LockCenter
+            elseif game:GetService("UserInputService").MouseBehavior ~= Enum.MouseBehavior.Default then
                 UserSettings():GetService("UserGameSettings").RotationType = Enum.RotationType.MovementRelative
-                coreModule.Services.UserInputService.MouseBehavior = Enum.MouseBehavior.Default
+                game:GetService("UserInputService").MouseBehavior = Enum.MouseBehavior.Default
             end
 
             return 
         end
 
         UserSettings():GetService("UserGameSettings").RotationType = Enum.RotationType.CameraRelative
-        coreModule.Services.UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
-        coreModule.Services.UserInputService.MouseIconEnabled = false
+        game:GetService("UserInputService").MouseBehavior = Enum.MouseBehavior.LockCenter
+        game:GetService("UserInputService").MouseIconEnabled = false
     end)
 
     -- Toggle it on and off.
-    coreModule.Services.UserInputService.InputBegan:Connect(function(inputObject, gameProcessedEvent)
+    game:GetService("UserInputService").InputBegan:Connect(function(inputObject, gameProcessedEvent)
         if gameProcessedEvent then return end
         if inputObject.KeyCode ~= Enum.KeyCode.LeftShift and inputObject.KeyCode ~= Enum.KeyCode.RightShift and inputObject.KeyCode ~= Enum.KeyCode.ButtonR2 then return end
 
@@ -53,7 +53,7 @@ function forceShiftLockManager.Initialize()
         forceShiftLockManager.UpdateShiftLockInterface()
     end)
 
-    coreModule.Services.UserInputService.LastInputTypeChanged:Connect(function()
+    game:GetService("UserInputService").LastInputTypeChanged:Connect(function()
         forceShiftLockManager.UpdateShiftLockInterface()
     end)
 

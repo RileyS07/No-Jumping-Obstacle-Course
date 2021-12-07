@@ -1,6 +1,6 @@
 -- Variables
 local specificClientAnimation = {}
-local coreModule = require(script:FindFirstAncestor("CoreModule"))
+local coreModule = require(script:FindFirstAncestor("Core"))
 local soundEffectsManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.SoundEffects"))
 
 -- Methods
@@ -14,7 +14,7 @@ function specificClientAnimation.Play(platformObject, simulationLength)
     -- Downwards.
     platformObject.PrimaryPart.Color = script:GetAttribute("ActiveStateColor") or Color3.fromRGB(255, 0, 0)
     soundEffectsManager.PlaySoundEffect("ButtonActivated", {Parent = platformObject.PrimaryPart})
-    coreModule.Services.TweenService:Create(
+    game:GetService("TweenService"):Create(
         platformObject.PrimaryPart, 
         buttonMovementTweenInfo, 
         {CFrame = platformObject:GetPrimaryPartCFrame()*CFrame.new(-(script:GetAttribute("ActiveStateOffset") or Vector3.new(0, 0.3, 0)))}
@@ -23,7 +23,7 @@ function specificClientAnimation.Play(platformObject, simulationLength)
     wait(simulationLength - math.min(1, simulationLength/2))
 
     -- Upwards.
-    local upwardsTweenObject = coreModule.Services.TweenService:Create(
+    local upwardsTweenObject = game:GetService("TweenService"):Create(
         platformObject.PrimaryPart, buttonMovementTweenInfo, {
             CFrame = platformObject:GetPrimaryPartCFrame()*CFrame.new(script:GetAttribute("ActiveStateOffset") or Vector3.new(0, 0.3, 0))
         }
