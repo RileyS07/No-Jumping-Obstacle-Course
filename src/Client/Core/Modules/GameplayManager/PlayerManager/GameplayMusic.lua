@@ -47,7 +47,6 @@ function gameplayMusicManager.UpdateMusic(userData)
 		else
 			coreModule.Debug(
                 ("GameplayMusic: %s does not exist."):format(userInterfaceManager.GetPriorityInterface().Name),
-                coreModule.Shared.Enums.DebugLevel.Exception,
                 warn
             )
 		end
@@ -65,7 +64,6 @@ function gameplayMusicManager.UpdateMusic(userData)
         else
             coreModule.Debug(
                 ("GameplayMusic: %s does not exist."):format(userData.UserInformation.CurrentBonusStage),
-                coreModule.Shared.Enums.DebugLevel.Exception,
                 warn
             )
         end
@@ -80,7 +78,6 @@ function gameplayMusicManager.UpdateMusic(userData)
         else
             coreModule.Debug(
                 ("GameplayMusic: %s does not exist."):format("Zone "..tostring(userData.UserInformation.CurrentCheckpoint/10).." Trial"),
-                coreModule.Shared.Enums.DebugLevel.Exception,
                 warn
             )
         end
@@ -93,7 +90,6 @@ function gameplayMusicManager.UpdateMusic(userData)
 	else
 		coreModule.Debug(
 			("GameplayMusic: %s does not exist."):format("Stage "..tostring(userData.UserInformation.CurrentCheckpoint)),
-			coreModule.Shared.Enums.DebugLevel.Standard,
 			warn
 		)
 	end
@@ -105,7 +101,6 @@ function gameplayMusicManager.UpdateMusic(userData)
 	else
 		coreModule.Debug(
 			("GameplayMusic: %s does not exist."):format("Zone "..tostring(math.ceil(userData.UserInformation.CurrentCheckpoint/10))),
-			coreModule.Shared.Enums.DebugLevel.Standard,
 			warn
 		)
 	end

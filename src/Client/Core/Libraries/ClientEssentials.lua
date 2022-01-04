@@ -18,6 +18,7 @@ end
 
 function clientEssentialsLibrary.SetCore(...)
 	repeat game:GetService("RunService").Stepped:Wait()
+		print("???")
 	until pcall(game:GetService("StarterGui").SetCore, game:GetService("StarterGui"), ...)
 end
 
