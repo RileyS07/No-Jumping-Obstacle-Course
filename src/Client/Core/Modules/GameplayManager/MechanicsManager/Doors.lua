@@ -46,7 +46,6 @@ function gameplayMechanicManager.Initialize()
             elseif platformObject:IsA("Model") then
                 coreModule.Debug(
 					("Platform: %s, has PrimaryPart: %s."):format(platformObject:GetFullName(), tostring(platformObject.PrimaryPart ~= nil)),
-					coreModule.Shared.Enums.DebugLevel.Exception,
 					warn
 				)
             end

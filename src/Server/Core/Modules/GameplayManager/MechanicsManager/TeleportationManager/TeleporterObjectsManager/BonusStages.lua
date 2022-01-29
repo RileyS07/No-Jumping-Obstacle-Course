@@ -58,12 +58,6 @@ function bonusStagesManager.Initialize()
 
 				bonusStagesManager.SimulateTeleportation(player, teleporterObject, bonusStageLevelReference)
 			end)
-		elseif teleporterObject:IsA("Model") then
-			--[[coreModule.Debug(
-				("Teleporter: %s, has PrimaryPart: %s, exists in LevelStorage.BonusStages: %s"):format(teleporterObject:GetFullName(), tostring(teleporterObject.PrimaryPart ~= nil), tostring(workspace.Map.Gameplay.LevelStorage.BonusStages:FindFirstChild(teleporterObject.Name) ~= nil)),
-				coreModule.Shared.Enums.DebugLevel.Exception,
-				warn
-			)]]
 		end
 	end
 

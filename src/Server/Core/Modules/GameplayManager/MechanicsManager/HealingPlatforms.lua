@@ -27,7 +27,6 @@ function gameplayMechanicManager.Initialize()
             elseif healingPlatform:IsA("Model") then
                 coreModule.Debug(
 					("HealingPlatform: %s, has PrimaryPart: %s."):format(healingPlatform:GetFullName(), tostring(healingPlatform.PrimaryPart ~= nil)),
-					coreModule.Shared.Enums.DebugLevel.Exception,
 					warn
 				)
             end

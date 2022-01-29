@@ -21,7 +21,6 @@ function gameplayMechanicManager.Initialize()
 			elseif platformObject:IsA("Model") then
 				coreModule.Debug(
 					("SpinningPlatform: %s, has PrimaryPart: %s, has Stand: %s."):format(platformObject:GetFullName(), tostring(platformObject.PrimaryPart ~= nil), tostring(platformObject:FindFirstChild("Stand") ~= nil)), 
-					coreModule.Shared.Enums.DebugLevel.Exception, 
 					warn
 				)
 			end

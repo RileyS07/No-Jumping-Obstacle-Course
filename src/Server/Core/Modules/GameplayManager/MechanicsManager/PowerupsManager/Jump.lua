@@ -17,7 +17,7 @@ end
 -- Apply
 function specificPowerupManager.Apply(player, powerupPlatform)
     if not utilitiesLibrary.IsPlayerAlive(player) then return end
-    
+    print("???")
     player.Character.Humanoid.JumpHeight = powerupPlatform:GetAttribute("JumpHeight") or script:GetAttribute("DefaultJumpHeight") or 7.5
 end
 

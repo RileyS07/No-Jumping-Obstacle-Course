@@ -17,7 +17,7 @@ function specificInterfaceManager.Initialize()
 
 		-- Update the visuals on the ui.
 		specificInterfaceManager.Interface.Container:WaitForChild("BackgroundImage"):WaitForChild("ImageLabel").Image = imageContent or "rbxassetid://5632265938"
-		specificInterfaceManager.Interface.Content:WaitForChild("Title").Text = title or "???"
+		specificInterfaceManager.Interface.Container:WaitForChild("BackgroundImage"):WaitForChild("Title").Text = title or "???"
 		specificInterfaceManager.Interface.Content:WaitForChild("Description").Text = description or "???"
 
 		-- We don't want overlapping.

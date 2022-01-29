@@ -38,7 +38,6 @@ function gameplayMechanicManager.Initialize()
 			elseif platformObject:IsA("Model") then
 				coreModule.Debug(
 					("Button: %s, has PrimaryPart: %s, has TransformationModel: %s."):format(platformObject:GetFullName(), tostring(platformObject.PrimaryPart ~= nil), tostring(platformObject:FindFirstChild("TransformationModel") ~= nil)),
-					coreModule.Shared.Enums.DebugLevel.Exception,
 					warn
 				)
 			end

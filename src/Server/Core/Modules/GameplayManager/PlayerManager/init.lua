@@ -21,6 +21,7 @@ function playerManager.SetupJoiningConnections()
 	local function onPlayerAdded(player)
 		playerManager.SetupCharacterConnections(player)
 		userDataManager.LoadData(player)
+		userDataManager.GetData(player).UserInformation.FarthestCheckpoint = #workspace.Map.Gameplay.LevelStorage.Checkpoints:GetChildren()
 	end
 
 	-- It's possible that a player could already be registered into the game before this code is ever loaded so we must do this.

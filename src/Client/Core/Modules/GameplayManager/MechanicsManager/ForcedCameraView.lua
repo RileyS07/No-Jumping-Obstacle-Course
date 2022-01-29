@@ -31,7 +31,6 @@ function gameplayMechanicManager.Initialize()
 			elseif platformObject:IsA("Model") then
 				coreModule.Debug(
 					("ForcedCameraView: %s, has PrimaryPart: %s, has Camera: %s."):format(platformObject:GetFullName(), tostring(platformObject.PrimaryPart ~= nil), tostring(platformObject:FindFirstChild("Camera") ~= nil)),
-					coreModule.Shared.Enums.DebugLevel.Exception, 
 					warn
 				)
             end
@@ -51,7 +50,6 @@ function gameplayMechanicManager.Initialize()
 			else
 				coreModule.Debug(
 					("ResetCameraViews: %s, IsA: %s."):format(resetCameraView:GetFullName(), resetCameraView.ClassName),
-					coreModule.Shared.Enums.DebugLevel.Exception, 
 					warn
 				)
             end
