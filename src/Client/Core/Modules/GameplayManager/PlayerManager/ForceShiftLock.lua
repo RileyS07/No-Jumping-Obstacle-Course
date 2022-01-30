@@ -12,7 +12,7 @@ local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilitie
 
 -- Initialize
 function forceShiftLockManager.Initialize()
-    forceShiftLockManager.Interface.Button = userInterfaceManager.GetInterface("MainInterface"):WaitForChild("Keybinds"):WaitForChild("Shiftlock")
+    forceShiftLockManager.Interface.Button = userInterfaceManager.GetInterface("MainInterface"):WaitForChild("Shiftlock")
 
     -- The actual shift lock logic.
     game:GetService("RunService"):BindToRenderStep("MobileShiftlock", Enum.RenderPriority.Camera.Value + 1, function()
@@ -74,12 +74,12 @@ end
 
 
 function forceShiftLockManager.UpdateShiftLockInterface()
-    clientAnimationsLibrary.PlayAnimation(
+    --[[clientAnimationsLibrary.PlayAnimation(
         "UpdateShiftLockIcon",
         forceShiftLockManager.GetShiftLockActive(),
         forceShiftLockManager.Interface.Button:WaitForChild("Icon"),
         forceShiftLockManager.Interface.Button:WaitForChild("KeyName")
-    )
+    )]]
 end
 
 
