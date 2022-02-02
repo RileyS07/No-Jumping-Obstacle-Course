@@ -31,6 +31,14 @@ function specificInterfaceManager.Initialize()
                 userInterfaceManager.DisableInterface(specificInterfaceManager.Interface.ScreenGui.Name)
                 userInterfaceManager.EnableInterface("MainInterface")
             end)()
+
+            -- Last case scenario.
+            task.delay(5, function()
+                if specificInterfaceManager.Interface.ScreenGui.Enabled then
+                    userInterfaceManager.DisableInterface(specificInterfaceManager.Interface.ScreenGui.Name)
+                    userInterfaceManager.EnableInterface("MainInterface")
+                end
+            end)
         end
 
         return

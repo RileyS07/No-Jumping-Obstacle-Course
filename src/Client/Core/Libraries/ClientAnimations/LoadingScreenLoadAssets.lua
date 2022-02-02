@@ -30,7 +30,7 @@ function specificClientAnimation.Play(textLabel)
 
             textLabel.Text = "Loading asset "..index.."/"..#assetsArray
             textLabel.MaxVisibleGraphemes = textLabel.Text:len()
-            coreModule.Services.ContentProvider:PreloadAsync({assetsArray[index]})
+            game:GetService("ContentProvider"):PreloadAsync({assetsArray[index]})
         end
 
         wait(1)

@@ -194,7 +194,7 @@ function teleportationManager.TeleportPlayerPostTranslationToPlaceId(player, goa
 
 	-- We can start the effect.
 	teleportationManager.Remotes.TeleportationStateUpdated:InvokeClient(player, true)
-	pcall(coreModule.Services.TeleportService.TeleportAsync, coreModule.Services.TeleportService, goalPlaceId, {player}, validTeleportOptions)
+	pcall(game:GetService("TeleportService").TeleportAsync, game:GetService("TeleportService"), goalPlaceId, {player}, validTeleportOptions)
 end
 
 
@@ -220,7 +220,7 @@ function teleportationManager.TeleportPlayerListPostTranslationToPlaceId(players
 				teleportationManager.Remotes.TeleportationStateUpdated:InvokeClient(player, true)
 			end
 
-			pcall(coreModule.Services.TeleportService.TeleportAsync, coreModule.Services.TeleportService, goalPlaceId, {player}, validTeleportOptions)
+			pcall(game:GetService("TeleportService").TeleportAsync, game:GetService("TeleportService"), goalPlaceId, {player}, validTeleportOptions)
 		end
 	end
 end

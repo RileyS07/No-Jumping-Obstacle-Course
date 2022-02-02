@@ -10,7 +10,7 @@ local clientAnimationsLibrary = require(coreModule.GetObject("Libraries.ClientAn
 
 -- Initialize
 function userInterfaceManager.Initialize()
-	--coreModule.LoadModule("/LoadingScreen")
+	coreModule.LoadModule("/LoadingScreen")
 	coreModule.LoadModule("/VersionUpdates")
 	coreModule.LoadModule("/TeleportationConsent")
 	coreModule.LoadModule("/TeleportationOverlay")

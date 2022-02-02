@@ -35,7 +35,7 @@ function mechanicsManager.PlayAppearanceChangedEffect(basePart, smokeParticleEmi
 	local smokeParticleEmitter = coreModule.Shared.GetObject("//Assets.Objects.ParticleEmitters.Smoke"):Clone()
 	smokeParticleEmitter.Parent = basePart
 	smokeParticleEmitter:Emit(smokeParticleEmittance or 5)
-	coreModule.Services.Debris:AddItem(smokeParticleEmitter, smokeParticleEmitter.Lifetime.Max)
+	game:GetService("Debris"):AddItem(smokeParticleEmitter, smokeParticleEmitter.Lifetime.Max)
 
 	soundEffectsManager.PlaySoundEffect("Poof", {Parent = basePart})
 end

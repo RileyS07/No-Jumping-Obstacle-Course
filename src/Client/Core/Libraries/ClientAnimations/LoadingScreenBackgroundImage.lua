@@ -28,7 +28,7 @@ function specificClientAnimation.Play(backgroundImages)
                     if not specificClientAnimation.IsPlaying then return end
                     
                     -- This is where the magic happens.
-                    coreModule.Services.ContentProvider:PreloadAsync({backgroundImage})
+                    game:GetService("ContentProvider"):PreloadAsync({backgroundImage})
                     clientAnimationsLibrary.PlayAnimation("LoadingScreenImageSwitch", backgroundImages[math.max(index - 1, 1)], backgroundImage)
                     wait(script:GetAttribute("TimeBetweenImages") or 6)
                 end

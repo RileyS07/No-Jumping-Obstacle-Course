@@ -20,7 +20,7 @@ end
 
 -- Methods
 function gameplayLightingManager.UpdateLighting(userData)
-
+    print("WHAT")
     -- These guard clauses make sure that both this AND UpdateLightingPostTranslation work properly.
     if not userData then return end
     if not gameplayLightingManager.Assets.LightingContainer then return end
@@ -28,7 +28,7 @@ function gameplayLightingManager.UpdateLighting(userData)
     if not gameplayLightingManager.Assets.LightingContainer:FindFirstChild("Default") then return end
     if not gameplayLightingManager.Assets.LightingContainer.Default:FindFirstChild("Properties") then return end
     if not gameplayLightingManager.Assets.LightingContainer.Default.Properties:IsA("ModuleScript") then return end
-
+    print(userData)
     -- First we're gonna see if they're in a BonusStage.
     if userData.UserInformation.CurrentBonusStage ~= "" then
 
@@ -51,6 +51,7 @@ function gameplayLightingManager.UpdateLighting(userData)
 
 		local lightingContainer = gameplayLightingManager.Assets.LightingContainer:FindFirstChild("Zone "..tostring(userData.UserInformation.CurrentCheckpoint/10).." Trial")
         if lightingContainer then
+            print("???")
             return gameplayLightingManager.UpdateLightingPostTranslation(lightingContainer)
         else
             coreModule.Debug(

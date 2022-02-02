@@ -28,7 +28,7 @@ function badgeLibrary.AwardBadge(player, badgeId)
 	badgeLibrary.BadgeOwnershipCache[player][badgeId] = true
 
 	-- Award the badge + notify the server and client.
-	coreModule.Services.BadgeService:AwardBadge(player.UserId, badgeId)
+	game:GetService("BadgeService"):AwardBadge(player.UserId, badgeId)
 	badgeLibrary.BadgeOwnershipUpdated:Fire(player, badgeId)
 	coreModule.Shared.GetObject("//Remotes.Server.BadgeOwnershipUpdated"):FireClient(player, badgeId)
 end
@@ -43,7 +43,7 @@ function badgeLibrary.UserOwnsBadge(player, badgeId)
 	--  Check the BadgeOwnershipCache and update it if possible.
 	badgeLibrary.BadgeOwnershipCache[player] = badgeLibrary.BadgeOwnershipCache[player] or {}
 	if badgeLibrary.BadgeOwnershipCache[player][badgeId] == nil then
-		badgeLibrary.BadgeOwnershipCache[player][badgeId] = coreModule.Services.BadgeService:UserHasBadgeAsync(player.UserId, badgeId)
+		badgeLibrary.BadgeOwnershipCache[player][badgeId] = game:GetService("BadgeService"):UserHasBadgeAsync(player.UserId, badgeId)
 	end
 	
 	return badgeLibrary.BadgeOwnershipCache[player][badgeId]

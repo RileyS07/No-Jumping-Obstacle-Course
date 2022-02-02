@@ -40,7 +40,7 @@ function versionUpdatesManager.ShutdownServer()
     coreModule.Shared.GetObject("//Remotes.Server.VersionUpdated"):FireAllClients()
     
     -- Teleport them away.
-    local reservedServerAccessCode = coreModule.Services.TeleportService:ReserveServer(game.PlaceId)
+    local reservedServerAccessCode = game:GetService("TeleportService"):ReserveServer(game.PlaceId)
 
     teleportationManager.TeleportPlayerListPostTranslationToPlaceId(
         game:GetService("Players"):GetPlayers(), game.PlaceId, {ReservedServerAccessCode = reservedServerAccessCode}
