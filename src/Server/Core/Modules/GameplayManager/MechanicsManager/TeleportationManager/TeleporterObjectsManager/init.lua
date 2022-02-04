@@ -12,9 +12,10 @@ function teleporterObjectsManager.Initialize()
 
     -- Setup.
     teleporterObjectsManager.Remotes.GetTeleportationConsent = coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.GetTeleportationConsent")
-    
+
     -- Loading modules.
     coreModule.LoadModule("/BonusStages")
+    coreModule.LoadModule("/Locations")
 end
 
 

@@ -27,7 +27,8 @@ function teleportationManager.TeleportPlayer(player, functionParamaters)
 	functionParamaters = setmetatable(functionParamaters or {}, {__index = {
 		ManualTeleportationLocation = nil,	-- This can be a Vector3/CFrame or a PlaceId.
 		RestoreConditions = true,
-		TeleportOptions = {}
+		TeleportOptions = {},
+		OverlayColor = nil
 	}})
 
 	-- Only two guard clauses here to see if they're alive and they have valid data; The individual specific sections will have their own guard clauses.
@@ -37,10 +38,10 @@ function teleportationManager.TeleportPlayer(player, functionParamaters)
 
 	-- If ManualTeleportationLocation is nil that means we assume they want to be teleported based on their userdata.
 	if typeof(functionParamaters.ManualTeleportationLocation) == "nil" then
-		
+
 		-- Bonus Stages.
 		if userData.UserInformation.CurrentBonusStage ~= "" then
-			
+
 			-- BonusStages doesn't exist.
 			if not workspace.Map.Gameplay.LevelStorage:FindFirstChild("BonusStages") then
 				coreModule.Debug("Workspace.Map.Gameplay.LevelStorage.BonusStages doesn't exist.", nil, warn)
@@ -72,7 +73,7 @@ function teleportationManager.TeleportPlayer(player, functionParamaters)
 
 			-- If it reached this point all is good.
 			return teleportationManager.TeleportPlayerPostTranslationToCFrame(
-				player, 
+				player,
 				teleportationManager.GetSeamlessCFrameAboveBasePart(player, workspace.Map.Gameplay.LevelStorage.BonusStages[userData.UserInformation.CurrentBonusStage].Checkpoints[userData.UserInformation.CurrentBonusStageCheckpoint]),
 				functionParamaters.RestoreConditions
 			)
@@ -91,19 +92,24 @@ function teleportationManager.TeleportPlayer(player, functionParamaters)
 			return
 		end
 
+		-- Quick fix 2/3/2022. Just clamps their current checkpoint to their furthest.
+		userData.UserInformation.CurrentCheckpoint = math.clamp(userData.UserInformation.CurrentCheckpoint, 1, userData.UserInformation.FarthestCheckpoint)
+
 		-- If it reached this point all is good.
 		return teleportationManager.TeleportPlayerPostTranslationToCFrame(
-			player, 
+			player,
 			teleportationManager.GetSeamlessCFrameAboveBasePart(player, workspace.Map.Gameplay.LevelStorage.Checkpoints[userData.UserInformation.CurrentCheckpoint]),
-			functionParamaters.RestoreConditions
+			functionParamaters.RestoreConditions,
+			functionParamaters.OverlayColor
 		)
-	
+
 	-- CFrame/Vector3 manually passed.
 	elseif typeof(functionParamaters.ManualTeleportationLocation) == "CFrame" or typeof(functionParamaters.ManualTeleportationLocation) == "Vector3" then
 		return teleportationManager.TeleportPlayerPostTranslationToCFrame(
-			player, 
+			player,
 			typeof(functionParamaters.ManualTeleportationLocation) == "Vector3" and CFrame.new(functionParamaters.ManualTeleportationLocation) or functionParamaters.ManualTeleportationLocation,
-			functionParamaters.RestoreConditions
+			functionParamaters.RestoreConditions,
+			functionParamaters.OverlayColor
 		)
 
 	-- PlaceId.
@@ -154,14 +160,14 @@ end
 
 -- Private Methods
 -- TeleportPlayer translates the data given into a format this method/TeleportPlayerPostTranslationToPlace can use.
-function teleportationManager.TeleportPlayerPostTranslationToCFrame(player, goalCFrame, restorePlayerConditions)
+function teleportationManager.TeleportPlayerPostTranslationToCFrame(player, goalCFrame, restorePlayerConditions, overlayColor: Color3?)
 	if not utilitiesLibrary.IsPlayerAlive(player) then return end
 	if not typeof(goalCFrame) == "CFrame" then return end
 	if teleportationManager.IsPlayerBeingTeleported(player) then return end
 	teleportationManager.PlayersBeingTeleported[player] = true
 
 	-- We can start the effect.
-	teleportationManager.Remotes.TeleportationStateUpdated:InvokeClient(player, true, script:GetAttribute("TeleportationAnimationLength") or 0.5)
+	teleportationManager.Remotes.TeleportationStateUpdated:InvokeClient(player, true, script:GetAttribute("TeleportationAnimationLength") or 0.5, overlayColor or Color3.new(0, 0, 0))
 	wait(script:GetAttribute("TeleportationAnimationLength") or 0.5)
 
 	-- We need to double check if they're still alive after yielding though.
@@ -169,10 +175,10 @@ function teleportationManager.TeleportPlayerPostTranslationToCFrame(player, goal
 	player.Character:SetPrimaryPartCFrame(goalCFrame)
 
 	wait(script:GetAttribute("TeleportationAnimationLength") or 0.5)
-	teleportationManager.Remotes.TeleportationStateUpdated:InvokeClient(player, false, script:GetAttribute("TeleportationAnimationLength") or 0.5)
+	teleportationManager.Remotes.TeleportationStateUpdated:InvokeClient(player, false, script:GetAttribute("TeleportationAnimationLength") or 0.5, overlayColor or Color3.new(0, 0, 0))
 	teleportationManager.PlayersBeingTeleported[player] = nil
 	teleportationManager.PlayerTeleported:Fire(player)
-	
+
 	-- Do we restore player conditions?
 	if restorePlayerConditions then
 		teleportationManager.RestorePlayerConditions(player)
@@ -238,7 +244,7 @@ function teleportationManager.GetSeamlessCFrameAboveBasePart(player, basePart)
 
 	-- sizeY/2 + legY + rootPartY + hipHeight
 	return basePart.CFrame*CFrame.new(
-		0, 
+		0,
 		basePart.Size.Y/2 + player.Character["Left Leg"].Size.Y + player.Character.HumanoidRootPart.Size.Y + player.Character.Humanoid.HipHeight,
 		0
 	)

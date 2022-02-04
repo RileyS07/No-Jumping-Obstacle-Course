@@ -22,7 +22,7 @@ function checkpointsManager.Initialize()
 			checkpointPlatform.Touched:Connect(function(hit)
 				local player = game:GetService("Players"):GetPlayerFromCharacter(hit.Parent)
 				if not utilitiesLibrary.IsPlayerAlive(player) then return end
-				
+
 				-- Update their Farthest and Current checkpoints.
 				checkpointsManager.UpdateFarthestCheckpoint(player, tonumber(checkpointPlatform.Name))
 				checkpointsManager.UpdateCurrentCheckpoint(player, tonumber(checkpointPlatform.Name))
@@ -37,7 +37,7 @@ function checkpointsManager.Initialize()
 		if not utilitiesLibrary.IsPlayerAlive(player) then return end
 		if not userDataManager.GetData(player) then return end
 		if userDataManager.GetData(player).UserInformation.FarthestCheckpoint < checkpointNumber then return end
-		
+
 		-- Update their Farthest and Current checkpoints.
 		checkpointsManager.UpdateFarthestCheckpoint(player, checkpointNumber)
 		checkpointsManager.UpdateCurrentCheckpoint(player, checkpointNumber)
@@ -63,8 +63,17 @@ function checkpointsManager.UpdateFarthestCheckpoint(player, checkpointNumber)
 	-- Update their data to match their new farthest checkpoint.
 	local userData = userDataManager.GetData(player)
 	userData.UserInformation.FarthestCheckpoint = checkpointNumber
-	table.insert(userData.UserInformation.CompletedStages, checkpointNumber)
 	checkpointsManager.Remotes.CheckpointInformationUpdated:FireClient(player, userData)
+
+	-- Because of testing.
+	if not table.find(userData.UserInformation.CompletedStages, checkpointNumber) then
+		table.insert(userData.UserInformation.CompletedStages, checkpointNumber)
+	end
+
+	-- Did they just finish the game???
+	if checkpointNumber == 101 then
+		checkpointsManager.Remotes.MakeSystemMessage:FireAllClients(player.Name .. " has just beat No Jumping Zone!")
+	end
 end
 
 
@@ -72,16 +81,16 @@ end
 function checkpointsManager.UpdateCurrentCheckpoint(player, checkpointNumber)
 	if not utilitiesLibrary.IsPlayerValid(player) then return end
 	if not userDataManager.GetData(player) then return end
-	
+
 	-- This should be impossible but I still have it here just in case.
 	if userDataManager.GetData(player).UserInformation.FarthestCheckpoint < checkpointNumber then return end
-	
+
 	-- Update their data to match their new current checkpoint.
 	local userData = userDataManager.GetData(player)
 	local originalCurrentCheckpoint = userData.UserInformation.CurrentCheckpoint
 	userData.UserInformation.CurrentCheckpoint = checkpointNumber
 	userData.UserInformation.CurrentBonusStage = ""
-	
+
 	-- Backwards compatibility for things like badges and CompletedStages.
 	if originalCurrentCheckpoint ~= userData.UserInformation.CurrentCheckpoint then
 		checkpointsManager.CurrentCheckpointUpdated:Fire(player, originalCurrentCheckpoint, userData.UserInformation.CurrentCheckpoint)
@@ -92,17 +101,17 @@ function checkpointsManager.UpdateCurrentCheckpoint(player, checkpointNumber)
 		if not table.find(userData.UserInformation.CompletedStages, checkpointNumber) then
 			table.insert(userData.UserInformation.CompletedStages, checkpointNumber, math.min(checkpointNumber, #userData.UserInformation.CompletedStages))
 		end
-		
+
 		-- Backwards compatibility for award trial badges.
 		if checkpointNumber > 1 and checkpointNumber%10 == 1 then
 			if badgeStorageLibrary.GetBadgeList("Trials") then
 				badgeLibrary.AwardBadge(player, badgeStorageLibrary.GetBadgeList("Trials")[math.floor(checkpointNumber/10)])
 			end
-			
+
 			checkpointsManager.Remotes.PlaySoundEffect:FireClient(player, "Clapping")
 			checkpointsManager.Remotes.MakeSystemMessage:FireAllClients(player.Name.." has completed Trial "..tostring(math.floor(checkpointNumber/10)).."!")
 		end
-		
+
 		checkpointsManager.Remotes.CheckpointInformationUpdated:FireClient(player, userData)
 	end
 end
