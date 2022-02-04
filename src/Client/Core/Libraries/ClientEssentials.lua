@@ -10,15 +10,14 @@ end
 
 function clientEssentialsLibrary.SetCoreGuiEnabled(coreGuiType, isEnabled)
 	repeat
-		game:GetService("RunService").RenderStepped:Wait()
+		task.wait()
 		game:GetService("StarterGui"):SetCoreGuiEnabled(coreGuiType, isEnabled)
 	until game:GetService("StarterGui"):GetCoreGuiEnabled(coreGuiType) == isEnabled
 end
 
 
 function clientEssentialsLibrary.SetCore(...)
-	repeat game:GetService("RunService").Stepped:Wait()
-		print("???")
+	repeat task.wait()
 	until pcall(game:GetService("StarterGui").SetCore, game:GetService("StarterGui"), ...)
 end
 

@@ -38,17 +38,12 @@ end
 function gameplayMusicManager.UpdateMusic(userData)
     if not gameplayMusicManager.Assets.MusicContainer then return end
 	if #gameplayMusicManager.Assets.MusicContainer:GetChildren() == 0 then return end
-	
+
 	-- FIRST we check if there is a priority interface and also if there's music for it.
 	if userInterfaceManager.GetPriorityInterface() then
 		local soundContainer = gameplayMusicManager.Assets.MusicContainer:FindFirstChild(userInterfaceManager.GetPriorityInterface().Name)
 		if soundContainer and (soundContainer:IsA("Sound") or soundContainer:IsA("SoundGroup")) then
 			return gameplayMusicManager.UpdateMusicPostTranslation(soundContainer)
-		else
-			coreModule.Debug(
-                ("GameplayMusic: %s does not exist."):format(userInterfaceManager.GetPriorityInterface().Name),
-                warn
-            )
 		end
 	end
 
@@ -61,11 +56,6 @@ function gameplayMusicManager.UpdateMusic(userData)
 		local soundContainer = gameplayMusicManager.Assets.MusicContainer:FindFirstChild(userData.UserInformation.CurrentBonusStage)
         if soundContainer and (soundContainer:IsA("Sound") or soundContainer:IsA("SoundGroup")) then
             return gameplayMusicManager.UpdateMusicPostTranslation(soundContainer)
-        else
-            coreModule.Debug(
-                ("GameplayMusic: %s does not exist."):format(userData.UserInformation.CurrentBonusStage),
-                warn
-            )
         end
     end
 
@@ -75,11 +65,6 @@ function gameplayMusicManager.UpdateMusic(userData)
 		local soundContainer = gameplayMusicManager.Assets.MusicContainer:FindFirstChild("Zone "..tostring(userData.UserInformation.CurrentCheckpoint/10).." Trial")
         if soundContainer and (soundContainer:IsA("Sound") or soundContainer:IsA("SoundGroup")) then
             return gameplayMusicManager.UpdateMusicPostTranslation(soundContainer)
-        else
-            coreModule.Debug(
-                ("GameplayMusic: %s does not exist."):format("Zone "..tostring(userData.UserInformation.CurrentCheckpoint/10).." Trial"),
-                warn
-            )
         end
     end
 
@@ -87,22 +72,12 @@ function gameplayMusicManager.UpdateMusic(userData)
 	local stageSpecificSoundContainer = gameplayMusicManager.Assets.MusicContainer:FindFirstChild("Stage "..tostring(userData.UserInformation.CurrentCheckpoint))
 	if stageSpecificSoundContainer and (stageSpecificSoundContainer:IsA("Sound") or stageSpecificSoundContainer:IsA("SoundGroup")) then
 		return gameplayMusicManager.UpdateMusicPostTranslation(stageSpecificSoundContainer)
-	else
-		coreModule.Debug(
-			("GameplayMusic: %s does not exist."):format("Stage "..tostring(userData.UserInformation.CurrentCheckpoint)),
-			warn
-		)
 	end
 
 	-- Is there any for this zone?
 	local zoneSpecificSoundContainer = gameplayMusicManager.Assets.MusicContainer:FindFirstChild("Zone "..tostring(math.ceil(userData.UserInformation.CurrentCheckpoint/10)))
 	if zoneSpecificSoundContainer and (zoneSpecificSoundContainer:IsA("Sound") or zoneSpecificSoundContainer:IsA("SoundGroup")) then
 		return gameplayMusicManager.UpdateMusicPostTranslation(zoneSpecificSoundContainer)
-	else
-		coreModule.Debug(
-			("GameplayMusic: %s does not exist."):format("Zone "..tostring(math.ceil(userData.UserInformation.CurrentCheckpoint/10))),
-			warn
-		)
 	end
 
 	-- Desperation to have at least a sound playing.

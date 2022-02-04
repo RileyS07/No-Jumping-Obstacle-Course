@@ -13,6 +13,7 @@ local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilitie
 -- Initialize
 function forceShiftLockManager.Initialize()
     forceShiftLockManager.Interface.Button = userInterfaceManager.GetInterface("MainInterface"):WaitForChild("Shiftlock")
+    forceShiftLockManager.Interface.Icon = userInterfaceManager.GetInterface("MainInterface"):WaitForChild("ShiftlockIcon")
 
     -- The actual shift lock logic.
     game:GetService("RunService"):BindToRenderStep("MobileShiftlock", Enum.RenderPriority.Camera.Value + 1, function()
@@ -31,7 +32,7 @@ function forceShiftLockManager.Initialize()
                 game:GetService("UserInputService").MouseBehavior = Enum.MouseBehavior.Default
             end
 
-            return 
+            return
         end
 
         UserSettings():GetService("UserGameSettings").RotationType = Enum.RotationType.CameraRelative
@@ -74,12 +75,11 @@ end
 
 
 function forceShiftLockManager.UpdateShiftLockInterface()
-    --[[clientAnimationsLibrary.PlayAnimation(
-        "UpdateShiftLockIcon",
-        forceShiftLockManager.GetShiftLockActive(),
-        forceShiftLockManager.Interface.Button:WaitForChild("Icon"),
-        forceShiftLockManager.Interface.Button:WaitForChild("KeyName")
-    )]]
+    forceShiftLockManager.Interface.Icon.Visible = forceShiftLockManager.GetShiftLockActive()
+    forceShiftLockManager.Interface.Button.Image =
+        forceShiftLockManager.GetShiftLockActive()
+        and "rbxasset://textures/ui/mouseLock_on@2x.png" 
+        or "rbxasset://textures/ui/mouseLock_off@2x.png"
 end
 
 

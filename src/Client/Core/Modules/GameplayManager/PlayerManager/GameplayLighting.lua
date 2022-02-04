@@ -20,7 +20,7 @@ end
 
 -- Methods
 function gameplayLightingManager.UpdateLighting(userData)
-    print("WHAT")
+
     -- These guard clauses make sure that both this AND UpdateLightingPostTranslation work properly.
     if not userData then return end
     if not gameplayLightingManager.Assets.LightingContainer then return end
@@ -28,7 +28,7 @@ function gameplayLightingManager.UpdateLighting(userData)
     if not gameplayLightingManager.Assets.LightingContainer:FindFirstChild("Default") then return end
     if not gameplayLightingManager.Assets.LightingContainer.Default:FindFirstChild("Properties") then return end
     if not gameplayLightingManager.Assets.LightingContainer.Default.Properties:IsA("ModuleScript") then return end
-    print(userData)
+
     -- First we're gonna see if they're in a BonusStage.
     if userData.UserInformation.CurrentBonusStage ~= "" then
 
@@ -36,10 +36,6 @@ function gameplayLightingManager.UpdateLighting(userData)
         if lightingContainer then
             return gameplayLightingManager.UpdateLightingPostTranslation(lightingContainer)
         else
-            coreModule.Debug(
-                ("GameplayLighting: %s does not exist."):format(userData.UserInformation.CurrentBonusStage),
-                warn
-            )
 
             -- Resort to the default.
             return gameplayLightingManager.UpdateLightingPostTranslation(gameplayLightingManager.Assets.LightingContainer.Default)
@@ -51,13 +47,7 @@ function gameplayLightingManager.UpdateLighting(userData)
 
 		local lightingContainer = gameplayLightingManager.Assets.LightingContainer:FindFirstChild("Zone "..tostring(userData.UserInformation.CurrentCheckpoint/10).." Trial")
         if lightingContainer then
-            print("???")
             return gameplayLightingManager.UpdateLightingPostTranslation(lightingContainer)
-        else
-            coreModule.Debug(
-                ("GameplayLighting: %s does not exist."):format("Zone "..tostring(userData.UserInformation.CurrentCheckpoint/10).." Trial"),
-                warn
-            )
         end
     end
     
@@ -71,11 +61,6 @@ function gameplayLightingManager.UpdateLighting(userData)
 	local zoneSpecificLightingContainer = gameplayLightingManager.Assets.LightingContainer:FindFirstChild("Zone "..tostring(math.ceil(userData.UserInformation.CurrentCheckpoint/10)))
 	if zoneSpecificLightingContainer then
 		return gameplayLightingManager.UpdateLightingPostTranslation(zoneSpecificLightingContainer)
-	else
-		coreModule.Debug(
-			("GameplayLighting: %s does not exist."):format("Zone "..tostring(math.ceil(userData.UserInformation.CurrentCheckpoint/10))),
-			warn
-		)
 	end
 
 	-- Resort to the default.
