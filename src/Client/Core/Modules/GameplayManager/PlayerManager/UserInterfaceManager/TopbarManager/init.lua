@@ -7,6 +7,7 @@ local userInterfaceManager = require(coreModule.GetObject("Modules.GameplayManag
 function topbarManager.Initialize()
     coreModule.LoadModule("/Settings")
     coreModule.LoadModule("/StageSelection")
+    coreModule.LoadModule("/Skipping")
 end
 
 

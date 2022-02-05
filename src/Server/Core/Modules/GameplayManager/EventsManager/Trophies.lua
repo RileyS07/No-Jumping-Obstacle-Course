@@ -4,6 +4,7 @@ specificEventManager.Remotes = {}
 
 local coreModule = require(script:FindFirstAncestor("Core"))
 local userDataManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.UserDataManager"))
+local badgeService = require(coreModule.GetObject("Libraries.BadgeLibrary"))
 local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
 
 -- Initialize
@@ -46,6 +47,11 @@ function specificEventManager.Initialize()
 				if not table.find(userEventInformation.Trophy_Event.TrophiesCollected, tropyObject.Name) then
 					table.insert(userEventInformation.Trophy_Event.TrophiesCollected, tropyObject.Name)
 					specificEventManager.Remotes.TrophyCollected:FireClient(player, tropyObject)
+
+					-- Did they complete this?
+					if #userEventInformation.Trophy_Event.TrophiesCollected == 10 then
+						badgeService.AwardBadge(player, 2124575093)
+					end
 				end
 			end)
 		end

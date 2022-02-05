@@ -14,8 +14,9 @@ function badgeLibrary.AwardBadge(player, badgeId)
 	if game:GetService("RunService"):IsStudio() then return end
 	if not utilitiesLibrary.IsPlayerValid(player) then return end
 	if not tonumber(badgeId) or badgeId <= 0 then return end
+	print("Here?")
 	if badgeLibrary.UserOwnsBadge(player, badgeId) then return end
-	
+	print("Where")
 	-- Set PlayerRemovingListener; Just to help on server memory/memory leaks with the cache.
 	if not badgeLibrary.PlayerRemovingListener then
 		badgeLibrary.PlayerRemovingListener = game:GetService("Players").PlayerRemoving:Connect(function(player)
@@ -28,6 +29,7 @@ function badgeLibrary.AwardBadge(player, badgeId)
 	badgeLibrary.BadgeOwnershipCache[player][badgeId] = true
 
 	-- Award the badge + notify the server and client.
+	print("It awards it?")
 	game:GetService("BadgeService"):AwardBadge(player.UserId, badgeId)
 	badgeLibrary.BadgeOwnershipUpdated:Fire(player, badgeId)
 	coreModule.Shared.GetObject("//Remotes.Server.BadgeOwnershipUpdated"):FireClient(player, badgeId)
