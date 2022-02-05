@@ -22,6 +22,7 @@ function playerManager.SetupJoiningConnections()
 		playerManager.SetupCharacterConnections(player)
 		userDataManager.LoadData(player)
 		coreModule.LoadModule("/JoiningBadges", player)
+		coreModule.LoadModule("/Leaderstats", player)
 	end
 
 	-- It's possible that a player could already be registered into the game before this code is ever loaded so we must do this.

@@ -65,11 +65,6 @@ function checkpointsManager.UpdateFarthestCheckpoint(player, checkpointNumber)
 	userData.UserInformation.FarthestCheckpoint = checkpointNumber
 	checkpointsManager.Remotes.CheckpointInformationUpdated:FireClient(player, userData)
 
-	-- Because of testing.
-	if not table.find(userData.UserInformation.CompletedStages, checkpointNumber) then
-		table.insert(userData.UserInformation.CompletedStages, checkpointNumber)
-	end
-
 	-- Did they just finish the game???
 	if checkpointNumber == 101 then
 		checkpointsManager.Remotes.MakeSystemMessage:FireAllClients(player.Name .. " has just beat No Jumping Zone!")
@@ -97,22 +92,24 @@ function checkpointsManager.UpdateCurrentCheckpoint(player, checkpointNumber)
 		checkpointsManager.Remotes.PlaySoundEffect:FireClient(player, "CheckpointTouched", {Parent = workspace.Map.Gameplay.LevelStorage.Checkpoints[checkpointNumber]})
 		checkpointsManager.Remotes.PlaySoundEffect:FireClient(player, "Stage"..tostring(checkpointNumber))
 
-		-- Backwards compatability for CompletedStages.
-		if not table.find(userData.UserInformation.CompletedStages, checkpointNumber) then
-			table.insert(userData.UserInformation.CompletedStages, checkpointNumber, math.min(checkpointNumber, #userData.UserInformation.CompletedStages))
-		end
-
 		-- Backwards compatibility for award trial badges.
 		if checkpointNumber > 1 and checkpointNumber%10 == 1 then
 			if badgeStorageLibrary.GetBadgeList("Trials") then
 				badgeLibrary.AwardBadge(player, badgeStorageLibrary.GetBadgeList("Trials")[math.floor(checkpointNumber/10)])
 			end
 
-			checkpointsManager.Remotes.PlaySoundEffect:FireClient(player, "Clapping")
-			checkpointsManager.Remotes.MakeSystemMessage:FireAllClients(player.Name.." has completed Trial "..tostring(math.floor(checkpointNumber/10)).."!")
+			if not table.find(userData.UserInformation.CompletedStages, checkpointNumber) then
+				checkpointsManager.Remotes.PlaySoundEffect:FireClient(player, "Clapping")
+				checkpointsManager.Remotes.MakeSystemMessage:FireAllClients(player.Name.." has completed Trial "..tostring(math.floor(checkpointNumber/10)).."!")
+			end
 		end
 
 		checkpointsManager.Remotes.CheckpointInformationUpdated:FireClient(player, userData)
+	end
+
+	-- Backwards compatability for CompletedStages.
+	if not table.find(userData.UserInformation.CompletedStages, checkpointNumber) then
+		table.insert(userData.UserInformation.CompletedStages, math.min(checkpointNumber, #userData.UserInformation.CompletedStages + 1), checkpointNumber)
 	end
 end
 
