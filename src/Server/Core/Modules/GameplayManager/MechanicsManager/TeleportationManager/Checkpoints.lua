@@ -99,6 +99,7 @@ function checkpointsManager.UpdateCurrentCheckpoint(player, checkpointNumber)
 			end
 
 			if not table.find(userData.UserInformation.CompletedStages, checkpointNumber) then
+				table.insert(userData.UserInformation.CompletedStages, checkpointNumber)
 				checkpointsManager.Remotes.PlaySoundEffect:FireClient(player, "Clapping")
 				checkpointsManager.Remotes.MakeSystemMessage:FireAllClients(player.Name.." has completed Trial "..tostring(math.floor(checkpointNumber/10)).."!")
 			end
@@ -109,7 +110,7 @@ function checkpointsManager.UpdateCurrentCheckpoint(player, checkpointNumber)
 
 	-- Backwards compatability for CompletedStages.
 	if not table.find(userData.UserInformation.CompletedStages, checkpointNumber) then
-		table.insert(userData.UserInformation.CompletedStages, math.min(checkpointNumber, #userData.UserInformation.CompletedStages + 1), checkpointNumber)
+		table.insert(userData.UserInformation.CompletedStages, checkpointNumber)
 	end
 end
 

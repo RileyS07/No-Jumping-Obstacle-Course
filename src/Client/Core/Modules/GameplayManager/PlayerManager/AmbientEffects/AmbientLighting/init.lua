@@ -4,7 +4,7 @@ local coreModule = require(script:FindFirstAncestor("Core"))
 
 -- Initialize
 function ambientEffectsManager.Initialize()
-    coreModule.LoadModule("/Zone9Transition")
+    --coreModule.LoadModule("/Zone9Transition")
 end
 
 
