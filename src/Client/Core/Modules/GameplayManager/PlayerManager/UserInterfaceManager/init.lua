@@ -59,6 +59,7 @@ function userInterfaceManager.DisableInterface(interfaceName, exceptionBoolean)
 	if interfaceName and not exceptionBoolean then
 		if not userInterfaceManager.GetInterface(interfaceName) or not userInterfaceManager.GetInterface(interfaceName):IsA("GuiBase2d") then return end
 		userInterfaceManager.GetInterface(interfaceName).Enabled = false
+		userInterfaceManager.ActiveContainers[userInterfaceManager.GetInterface(interfaceName)] = nil
 
 		if userInterfaceManager.GetPriorityInterface() and interfaceName == userInterfaceManager.GetPriorityInterface().Name then
 			userInterfaceManager.PriorityInterface = nil
@@ -71,6 +72,7 @@ function userInterfaceManager.DisableInterface(interfaceName, exceptionBoolean)
 			if game:GetService("StarterGui"):FindFirstChild(interfaceObject.Name) and interfaceObject:IsA("GuiBase2d") then
 				if not userInterfaceManager.GetPriorityInterface() or (userInterfaceManager.GetPriorityInterface() ~= interfaceObject or (exceptionBoolean and userInterfaceManager.GetPriorityInterface().Name == interfaceName)) then
 					interfaceObject.Enabled = exceptionBoolean and interfaceObject.Name == interfaceName
+					userInterfaceManager.ActiveContainers[interfaceObject] = nil
 				end
 			end
 		end

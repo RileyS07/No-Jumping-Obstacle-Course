@@ -14,7 +14,6 @@ function locationTeleporterManager.Initialize()
     -- Checking all of the teleporters.
     for _, teleporterObject in next, teleporterObjectsManager.GetTeleportersContainer().Locations:GetChildren() do
         if teleporterObject.PrimaryPart and teleporterObject:FindFirstChild("Destination") and teleporterObject.Destination.Value then
-            print(teleporterObject)
 
             -- Setting up the teleporter with the BonusStageTeleporterInterface; I do this procedurally so that it's easy for us to make changes to it.
             if bonusStageTeleporterInterface then

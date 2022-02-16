@@ -11,6 +11,7 @@ function playerManager.Initialize()
 	coreModule.LoadModule("/ForceShiftLock")
 	coreModule.LoadModule("/SoundEffects")
 	coreModule.LoadModule("/AmbientEffects")
+	coreModule.LoadModule("/ManualRespawn")
 	--coreModule.LoadModule("/CutsceneManager")
 
 	-- Miscellaneous setup.

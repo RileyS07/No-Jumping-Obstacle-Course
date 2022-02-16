@@ -5,7 +5,6 @@ local badgeService = require(coreModule.GetObject("Libraries.BadgeLibrary"))
 
 -- Initialize
 function joiningBadgesManager.Initialize(player: Player)
-    print("???")
     -- Badge for joining the game.
     -- https://www.roblox.com/badges/2124520540/Let-the-Games-Begin
     badgeService.AwardBadge(player, 2124520540)

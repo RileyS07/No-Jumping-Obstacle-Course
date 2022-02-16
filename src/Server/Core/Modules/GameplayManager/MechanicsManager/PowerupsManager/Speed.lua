@@ -18,7 +18,7 @@ end
 function specificPowerupManager.Apply(player, powerupPlatform)
     if not utilitiesLibrary.IsPlayerAlive(player) then return end
     
-    player.Character.Humanoid.WalkSpeed = 16*(powerupPlatform:GetAttribute("Multiplier") or script:GetAttribute("DefaultMultiplier") or 2)
+    player.Character.Humanoid.WalkSpeed = 16 * (powerupPlatform:GetAttribute("Multiplier") or script:GetAttribute("DefaultMultiplier") or 2)
 end
 
 

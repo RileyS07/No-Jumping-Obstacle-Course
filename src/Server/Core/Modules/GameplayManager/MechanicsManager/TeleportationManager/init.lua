@@ -18,6 +18,11 @@ function teleportationManager.Initialize()
 	coreModule.LoadModule("/Checkpoints")
 	coreModule.LoadModule("/RespawnPlatforms")
 	coreModule.LoadModule("/TeleporterObjectsManager")
+
+	-- Client wants to respawn.
+	coreModule.Shared.GetObject("//Remotes.RespawnUser").OnServerEvent:Connect(function(player: Player)
+		teleportationManager.TeleportPlayer(player)
+	end)
 end
 
 
@@ -167,15 +172,15 @@ function teleportationManager.TeleportPlayerPostTranslationToCFrame(player, goal
 	teleportationManager.PlayersBeingTeleported[player] = true
 
 	-- We can start the effect.
-	teleportationManager.Remotes.TeleportationStateUpdated:InvokeClient(player, true, script:GetAttribute("TeleportationAnimationLength") or 0.5, overlayColor or Color3.new(0, 0, 0))
-	wait(script:GetAttribute("TeleportationAnimationLength") or 0.5)
+	teleportationManager.Remotes.TeleportationStateUpdated:InvokeClient(player, true, script:GetAttribute("TeleportationAnimationLength") or 0.25, overlayColor or Color3.new(0, 0, 0))
+	task.wait(script:GetAttribute("TeleportationAnimationLength") or 0.25)
 
 	-- We need to double check if they're still alive after yielding though.
 	if not utilitiesLibrary.IsPlayerAlive(player) then teleportationManager.PlayersBeingTeleported[player] = nil return end
 	player.Character:SetPrimaryPartCFrame(goalCFrame)
 
-	wait(script:GetAttribute("TeleportationAnimationLength") or 0.5)
-	teleportationManager.Remotes.TeleportationStateUpdated:InvokeClient(player, false, script:GetAttribute("TeleportationAnimationLength") or 0.5, overlayColor or Color3.new(0, 0, 0))
+	task.wait(script:GetAttribute("TeleportationAnimationLength") or 0.25)
+	teleportationManager.Remotes.TeleportationStateUpdated:InvokeClient(player, false, script:GetAttribute("TeleportationAnimationLength") or 0.25, overlayColor or Color3.new(0, 0, 0))
 	teleportationManager.PlayersBeingTeleported[player] = nil
 	teleportationManager.PlayerTeleported:Fire(player)
 
@@ -239,11 +244,11 @@ function teleportationManager.GetSeamlessCFrameAboveBasePart(player, basePart)
 
 	-- No need to yield just give a possible answer.
 	if player.Character:FindFirstChild("Left Leg") then
-		return basePart.CFrame*CFrame.new(0, 5, 0)
+		return basePart.CFrame * CFrame.new(0, 5, 0)
 	end
 
 	-- sizeY/2 + legY + rootPartY + hipHeight
-	return basePart.CFrame*CFrame.new(
+	return basePart.CFrame * CFrame.new(
 		0,
 		basePart.Size.Y/2 + player.Character["Left Leg"].Size.Y + player.Character.HumanoidRootPart.Size.Y + player.Character.Humanoid.HipHeight,
 		0
