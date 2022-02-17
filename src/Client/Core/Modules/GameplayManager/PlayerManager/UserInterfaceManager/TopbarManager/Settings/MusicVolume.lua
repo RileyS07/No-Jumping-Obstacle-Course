@@ -12,17 +12,18 @@ local clientAnimationsLibrary = require(coreModule.GetObject("Libraries.ClientAn
 -- Initialize
 function specificSettingManager.Initialize()
     specificSettingManager.Interface.Slider = settingsManager.GetSettingsContainer():WaitForChild("Audio"):WaitForChild("Music"):WaitForChild("Setting"):WaitForChild("Slider")
-   
+
     coroutine.wrap(function()
+        print("???")
         clientAnimationsLibrary.PlayAnimation(
-            "Slider", 
-            specificSettingManager.Interface.Slider, 
+            "Slider",
+            specificSettingManager.Interface.Slider,
             coreModule.Shared.GetObject("//Remotes.Data.GetUserData"):InvokeServer().Settings.MusicVolumeModifier,
             function(newValue)
-                if gameplayMusicManager.MusicState ~= coreModule.Enums.MusicState.Playing then
-                    repeat wait() until gameplayMusicManager.MusicState == coreModule.Enums.MusicState.Playing
+                if gameplayMusicManager.MusicState ~= gameplayMusicManager.Enums.MusicState.Playing then
+                    repeat task.wait() until gameplayMusicManager.MusicState == gameplayMusicManager.Enums.MusicState.Playing
                 end
-                
+
                 gameplayMusicManager.UpdateSetting(newValue)
                 specificSettingManager.Interface.Slider:WaitForChild("Percentage").Text = tostring(math.floor(100*newValue)).."%"
                 specificSettingManager.CurrentSettingValue = newValue
