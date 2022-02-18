@@ -94,8 +94,10 @@ end
 
 function gameplayMusicManager.UpdateSetting(newValue)
 	if typeof(newValue) ~= "number" then return end
-	gameplayMusicManager.PrimarySoundObject.Volume = 0.5 * newValue
-	gameplayMusicManager.SecondarySoundObject.Volume = 0.5 * newValue
+
+	gameplayMusicManager.VolumeModifier = newValue
+	print(gameplayMusicManager.VolumeModifier)
+	gameplayMusicManager.PrimarySoundObject.Volume = 0.25 * gameplayMusicManager.VolumeModifier
 end
 
 
@@ -189,7 +191,7 @@ function gameplayMusicManager.FadeBetweenSounds()
 	local nextSoundObjectFadeTween = game:GetService("TweenService"):Create(
 		gameplayMusicManager.SecondarySoundObject,
 		TweenInfo.new(1, Enum.EasingStyle.Linear),
-		{Volume = 0.25}
+		{Volume = 0.25 * gameplayMusicManager.VolumeModifier}
 	)
 
 	nextSoundObjectFadeTween:Play()
