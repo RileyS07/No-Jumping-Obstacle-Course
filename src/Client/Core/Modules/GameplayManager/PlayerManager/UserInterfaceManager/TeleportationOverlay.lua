@@ -23,6 +23,8 @@ function specificInterfaceManager.Initialize()
         )
 
         -- Do we hide the interface?
+        local wasDisabled: boolean = false
+
         if not isTeleporting then
             coroutine.wrap(function()
                 if tweenObject.PlaybackState ~= Enum.PlaybackState.Completed then
@@ -31,10 +33,13 @@ function specificInterfaceManager.Initialize()
 
                 userInterfaceManager.DisableInterface(specificInterfaceManager.Interface.ScreenGui.Name)
                 userInterfaceManager.EnableInterface("MainInterface")
+                wasDisabled = true
             end)()
 
             -- Last case scenario.
             task.delay(10, function()
+                if wasDisabled then return end
+
                 if specificInterfaceManager.Interface.ScreenGui.Enabled then
                     userInterfaceManager.DisableInterface(specificInterfaceManager.Interface.ScreenGui.Name)
                     userInterfaceManager.EnableInterface("MainInterface")

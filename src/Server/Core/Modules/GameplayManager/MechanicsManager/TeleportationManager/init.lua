@@ -172,15 +172,21 @@ function teleportationManager.TeleportPlayerPostTranslationToCFrame(player, goal
 	teleportationManager.PlayersBeingTeleported[player] = true
 
 	-- We can start the effect.
-	teleportationManager.Remotes.TeleportationStateUpdated:InvokeClient(player, true, script:GetAttribute("TeleportationAnimationLength") or 0.25, overlayColor or Color3.new(0, 0, 0))
-	task.wait(script:GetAttribute("TeleportationAnimationLength") or 0.25)
+	local teleportationAnimationLength: number = script:GetAttribute("TeleportationAnimationLength") or 0.25
+	teleportationManager.Remotes.TeleportationStateUpdated:InvokeClient(player, true, teleportationAnimationLength, overlayColor or Color3.new(0, 0, 0))
+	task.wait(teleportationAnimationLength)
 
 	-- We need to double check if they're still alive after yielding though.
-	if not utilitiesLibrary.IsPlayerAlive(player) then teleportationManager.PlayersBeingTeleported[player] = nil return end
+	if not utilitiesLibrary.IsPlayerAlive(player) then
+		teleportationManager.PlayersBeingTeleported[player] = nil
+		teleportationManager.Remotes.TeleportationStateUpdated:InvokeClient(player, false, teleportationAnimationLength, overlayColor or Color3.new(0, 0, 0))
+		return
+	end
+
 	player.Character:SetPrimaryPartCFrame(goalCFrame)
 
-	task.wait(script:GetAttribute("TeleportationAnimationLength") or 0.25)
-	teleportationManager.Remotes.TeleportationStateUpdated:InvokeClient(player, false, script:GetAttribute("TeleportationAnimationLength") or 0.25, overlayColor or Color3.new(0, 0, 0))
+	teleportationManager.Remotes.TeleportationStateUpdated:InvokeClient(player, false, teleportationAnimationLength, overlayColor or Color3.new(0, 0, 0))
+	task.wait(teleportationAnimationLength)
 	teleportationManager.PlayersBeingTeleported[player] = nil
 	teleportationManager.PlayerTeleported:Fire(player)
 
