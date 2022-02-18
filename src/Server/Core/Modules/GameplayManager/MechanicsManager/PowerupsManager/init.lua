@@ -51,51 +51,12 @@ function powerupsManager.SetupPowerups()
                 if (powerupPlatform:IsA("Model") and powerupPlatform.PrimaryPart) or powerupPlatform:IsA("BasePart") then
                     local powerupPlatformHitbox = (powerupPlatform:IsA("Model") and powerupPlatform.PrimaryPart) or powerupPlatform
 
-                    -- Starting the check loop.
-                    task.defer(function()
-                        while true do
-                            task.wait()
-                            local playersInBounds: {Player: boolean} = {}
-
-                            for _, hit: Part in next, workspace:GetPartBoundsInBox(powerupPlatformHitbox.CFrame, powerupPlatformHitbox.Size) do
-                                local player = game:GetService("Players"):GetPlayerFromCharacter(hit.Parent)
-
-                                -- We have to make sure they're valid and within a reasonable distance from the hitbox.
-                                if not utilitiesLibrary.IsPlayerAlive(player) then return end
-                                if playersInBounds[player] then return end
-                                if player:DistanceFromCharacter(teleportationManager.GetSeamlessCFrameAboveBasePart(player, powerupPlatformHitbox).Position) > 25 then return end
-
-                                -- You can reapply powerups but we want to add this so they don't spam and take up a lot of excessive resources.
-                                if powerupsManager.GetPowerupInformation(player, powerupContainer.Name) and os.clock() - powerupsManager.GetPowerupInformation(player, powerupContainer.Name).Start < 1 then return end
-
-                                playersInBounds[player] = true
-
-                                -- Do we want to reset this powerup?
-                                if not powerupPlatform:GetAttribute("Reset") then
-                                    powerupsManager.UpdatePowerup(player, powerupContainer.Name, {
-                                        Start = os.clock(),
-                                        Duration = powerupPlatform:GetAttribute("Duration") or script:GetAttribute("DefaultDuration") or 30,
-                                        IsFresh = powerupsManager.GetPowerupInformation(player, powerupContainer.Name) == nil,
-                                        Color = powerupPlatform:GetAttribute("Color")
-                                    })
-
-                                    game:GetService("CollectionService"):AddTag(player.Character, powerupContainer.Name)
-                                    powerupsManager.Remotes.PlaySoundEffect:FireClient(player, powerupContainer.Name.."Powerup")
-                                    powerupsManager.ApplyPowerup(player, powerupContainer.Name, powerupPlatform)
-
-                                -- We do want to reset it.
-                                elseif powerupsManager.GetPowerupInformation(player, powerupContainer.Name) then
-                                    powerupsManager.RemovePowerup(player, powerupContainer.Name)
-                                end
-                            end
-                        end
-                    end)
                     powerupPlatformHitbox.Touched:Connect(function(hit)
                         local player = game:GetService("Players"):GetPlayerFromCharacter(hit.Parent)
 
                         -- We have to make sure they're valid and within a reasonable distance from the hitbox.
                         if not utilitiesLibrary.IsPlayerAlive(player) then return end
-                        if player:DistanceFromCharacter(teleportationManager.GetSeamlessCFrameAboveBasePart(player, powerupPlatformHitbox).Position) > 25 then return end
+                        if player:DistanceFromCharacter(teleportationManager.GetSeamlessCFrameAboveBasePart(player, powerupPlatformHitbox).Position) > math.max(math.max(powerupPlatformHitbox.Size.X, powerupPlatformHitbox.Size.Y), powerupPlatformHitbox.Size.Z) then return end
 
                         -- You can reapply powerups but we want to add this so they don't spam and take up a lot of excessive resources.
                         if powerupsManager.GetPowerupInformation(player, powerupContainer.Name) and os.clock() - powerupsManager.GetPowerupInformation(player, powerupContainer.Name).Start < 1 then return end
