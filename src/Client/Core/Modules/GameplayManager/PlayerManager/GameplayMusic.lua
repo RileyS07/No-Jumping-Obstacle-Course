@@ -94,7 +94,8 @@ end
 
 function gameplayMusicManager.UpdateSetting(newValue)
 	if typeof(newValue) ~= "number" then return end
-	gameplayMusicManager.PrimarySoundObject.Volume = 0.5*newValue
+	gameplayMusicManager.PrimarySoundObject.Volume = 0.5 * newValue
+	gameplayMusicManager.SecondarySoundObject.Volume = 0.5 * newValue
 end
 
 

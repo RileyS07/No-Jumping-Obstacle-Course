@@ -33,24 +33,14 @@ function soundEffectsManager.PlaySoundEffect(soundEffectName, functionParameters
 	if not soundEffectsManager.SoundEffectsFolder then return end
 	if not soundEffectName or not soundEffectsManager.SoundEffectsFolder:FindFirstChild(soundEffectName) then return end
 
-	-- Does a cache exist? If not we create one; I do this to save some on performance but it can be detrimental for memory so maybe a more complex solution in the future.
-	if not soundEffectsManager.CachedSoundObjects[soundEffectName] then
-		soundEffectsManager.CachedSoundObjects[soundEffectName] = coreModule.Shared.GetObject("//Assets.Sounds.SoundEffects."..soundEffectName)
-	end
-
 	-- Creating the sound object
-	local soundObject = soundEffectsManager.CachedSoundObjects[soundEffectName]:Clone()
-	soundObject.Name = soundEffectName 
+	local soundObject = soundEffectsManager.SoundEffectsFolder[soundEffectName]:Clone()
+	soundObject.Name = soundEffectName
 	soundObject.SoundGroup = soundEffectsManager.SoundGroup
 	soundObject.Volume *= soundEffectsManager.VolumeModifier
 	soundObject.Parent = functionParameters.Parent
 	soundObject:Play()
-
-	-- Cleanup
-	coroutine.wrap(function()
-		if soundObject.IsPlaying then soundObject.Ended:Wait() end
-		soundObject:Destroy()
-	end)()
+	game:GetService("Debris"):AddItem(soundObject, soundObject.TimeLength)
 end
 
 -- Settings compatibility

@@ -59,11 +59,17 @@ function userInterfaceManager.DisableInterface(interfaceName, exceptionBoolean)
 	if interfaceName and not exceptionBoolean then
 		if not userInterfaceManager.GetInterface(interfaceName) or not userInterfaceManager.GetInterface(interfaceName):IsA("GuiBase2d") then return end
 		userInterfaceManager.GetInterface(interfaceName).Enabled = false
-		userInterfaceManager.ActiveContainers[userInterfaceManager.GetInterface(interfaceName)] = nil
+
+		-- Closing this one.
+		if userInterfaceManager.ActiveContainers[userInterfaceManager.GetInterface(interfaceName)] then
+			clientAnimationsLibrary.PlayAnimation("CloseContainer", userInterfaceManager.ActiveContainers[userInterfaceManager.GetInterface(interfaceName)])
+			userInterfaceManager.ActiveContainers[userInterfaceManager.GetInterface(interfaceName)] = nil
+		end
 
 		if userInterfaceManager.GetPriorityInterface() and interfaceName == userInterfaceManager.GetPriorityInterface().Name then
 			userInterfaceManager.PriorityInterface = nil
 		end
+
 	-- This can either be disable all interfaces or disable all interfaces except interfaceName correspondant.
 	else
 		for _, interfaceObject in next, clientEssentialsLibrary.GetPlayer():WaitForChild("PlayerGui"):GetChildren() do
@@ -72,7 +78,12 @@ function userInterfaceManager.DisableInterface(interfaceName, exceptionBoolean)
 			if game:GetService("StarterGui"):FindFirstChild(interfaceObject.Name) and interfaceObject:IsA("GuiBase2d") then
 				if not userInterfaceManager.GetPriorityInterface() or (userInterfaceManager.GetPriorityInterface() ~= interfaceObject or (exceptionBoolean and userInterfaceManager.GetPriorityInterface().Name == interfaceName)) then
 					interfaceObject.Enabled = exceptionBoolean and interfaceObject.Name == interfaceName
-					userInterfaceManager.ActiveContainers[interfaceObject] = nil
+
+					-- Closing this one.
+					if not interfaceObject.Enabled and userInterfaceManager.ActiveContainers[interfaceObject] then
+						clientAnimationsLibrary.PlayAnimation("CloseContainer", userInterfaceManager.ActiveContainers[interfaceObject])
+						userInterfaceManager.ActiveContainers[interfaceObject] = nil
+					end
 				end
 			end
 		end

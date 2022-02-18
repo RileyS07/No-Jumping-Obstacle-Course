@@ -14,6 +14,11 @@ local badgeStorageLibrary = require(coreModule.Shared.GetObject("Libraries.Badge
 function checkpointsManager.Initialize()
 	if not workspace.Map.Gameplay.LevelStorage:FindFirstChild("Checkpoints") then return end
 
+	-- Setting up remotes + assets.
+	checkpointsManager.Remotes.CheckpointInformationUpdated = coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.CheckpointInformationUpdated")
+	checkpointsManager.Remotes.PlaySoundEffect = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.PlaySoundEffect")
+	checkpointsManager.Remotes.MakeSystemMessage = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.MakeSystemMessage")
+
 	-- Setting up the checkpoints to be functional.
 	for _, checkpointPlatform in next, workspace.Map.Gameplay.LevelStorage.Checkpoints:GetChildren() do
 
@@ -43,11 +48,6 @@ function checkpointsManager.Initialize()
 		checkpointsManager.UpdateCurrentCheckpoint(player, checkpointNumber)
 		teleportationManager.TeleportPlayer(player)
 	end)
-
-	-- Setting up remotes + assets.
-	checkpointsManager.Remotes.CheckpointInformationUpdated = coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.CheckpointInformationUpdated")
-	checkpointsManager.Remotes.PlaySoundEffect = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.PlaySoundEffect")
-	checkpointsManager.Remotes.MakeSystemMessage = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.MakeSystemMessage")
 end
 
 
@@ -89,7 +89,7 @@ function checkpointsManager.UpdateCurrentCheckpoint(player, checkpointNumber)
 	-- Backwards compatibility for things like badges and CompletedStages.
 	if originalCurrentCheckpoint ~= userData.UserInformation.CurrentCheckpoint then
 		checkpointsManager.CurrentCheckpointUpdated:Fire(player, originalCurrentCheckpoint, userData.UserInformation.CurrentCheckpoint)
-		checkpointsManager.Remotes.PlaySoundEffect:FireClient(player, "CheckpointTouched", {Parent = workspace.Map.Gameplay.LevelStorage.Checkpoints[checkpointNumber]})
+		checkpointsManager.Remotes.PlaySoundEffect:FireClient(player, "CheckpointTouched")--, {Parent = workspace.Map.Gameplay.LevelStorage.Checkpoints[checkpointNumber]})
 		checkpointsManager.Remotes.PlaySoundEffect:FireClient(player, "Stage"..tostring(checkpointNumber))
 
 		-- Backwards compatibility for award trial badges.
@@ -97,6 +97,9 @@ function checkpointsManager.UpdateCurrentCheckpoint(player, checkpointNumber)
 			if badgeStorageLibrary.GetBadgeList("Trials") then
 				badgeLibrary.AwardBadge(player, badgeStorageLibrary.GetBadgeList("Trials")[math.floor(checkpointNumber/10)])
 			end
+
+			-- Fixing their data.
+			userData.UserInformation.CompletedStages = checkpointsManager._CorrectCompletedStagesArray(userData.UserInformation.CompletedStages)
 
 			if not table.find(userData.UserInformation.CompletedStages, checkpointNumber) then
 				table.insert(userData.UserInformation.CompletedStages, checkpointNumber)
@@ -114,6 +117,24 @@ function checkpointsManager.UpdateCurrentCheckpoint(player, checkpointNumber)
 	end
 end
 
+-- Corrects CompletedStages.
+function checkpointsManager._CorrectCompletedStagesArray(completedStagesArray: {}) : {}
+
+	local newCompletedStagesArray: {} = {}
+
+	for _, stageNumber: number in next, completedStagesArray do
+		if tonumber(stageNumber) and not table.find(newCompletedStagesArray, tonumber(stageNumber)) then
+			table.insert(newCompletedStagesArray, tonumber(stageNumber))
+		end
+	end
+
+	-- Sorting it.
+	table.sort(newCompletedStagesArray, function(stageNumberA: number, stageNumberB: number)
+		return stageNumberA < stageNumberB
+	end)
+
+	return newCompletedStagesArray
+end
 
 --
 return checkpointsManager
