@@ -11,7 +11,7 @@ function manualRespawnManager.Initialize()
     game:GetService("ContextActionService"):BindAction(
         "RespawnUser",
         manualRespawnManager._HandleRespawn,
-        true,
+        false,
         Enum.KeyCode.R
     )
 

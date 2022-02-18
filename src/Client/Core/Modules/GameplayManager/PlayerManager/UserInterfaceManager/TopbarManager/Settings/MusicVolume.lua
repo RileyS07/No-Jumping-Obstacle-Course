@@ -14,7 +14,6 @@ function specificSettingManager.Initialize()
     specificSettingManager.Interface.Slider = settingsManager.GetSettingsContainer():WaitForChild("Audio"):WaitForChild("Music"):WaitForChild("Setting"):WaitForChild("Slider")
 
     coroutine.wrap(function()
-        print("???")
         clientAnimationsLibrary.PlayAnimation(
             "Slider",
             specificSettingManager.Interface.Slider,
@@ -39,7 +38,7 @@ function specificSettingManager.Initialize()
                 lastSettingValue = specificSettingManager.CurrentSettingValue
             end
 
-            wait(1)
+            task.wait(1)
         end
     end)()
 end
