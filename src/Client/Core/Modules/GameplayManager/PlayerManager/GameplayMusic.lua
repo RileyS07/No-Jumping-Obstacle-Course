@@ -96,7 +96,6 @@ function gameplayMusicManager.UpdateSetting(newValue)
 	if typeof(newValue) ~= "number" then return end
 
 	gameplayMusicManager.VolumeModifier = newValue
-	print(gameplayMusicManager.VolumeModifier)
 	gameplayMusicManager.PrimarySoundObject.Volume = 0.25 * gameplayMusicManager.VolumeModifier
 end
 

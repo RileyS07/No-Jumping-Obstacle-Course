@@ -20,7 +20,7 @@ function gameplayMechanicManager.Initialize()
 
 			elseif platformObject:IsA("Model") then
 				coreModule.Debug(
-					("SpinningPlatform: %s, has PrimaryPart: %s, has Stand: %s."):format(platformObject:GetFullName(), tostring(platformObject.PrimaryPart ~= nil), tostring(platformObject:FindFirstChild("Stand") ~= nil)), 
+					("SpinningPlatform: %s, has PrimaryPart: %s, has Stand: %s."):format(platformObject:GetFullName(), tostring(platformObject.PrimaryPart ~= nil), tostring(platformObject:FindFirstChild("Stand") ~= nil)),
 					warn
 				)
 			end
@@ -42,7 +42,7 @@ function gameplayMechanicManager.SimulatePlatform(platformObject)
 
 	coroutine.wrap(function()
 		gameplayMechanicManager.SetupTrippingFunctionality(platformObject)
-		
+
 		while true do
 			if not utilitiesLibrary.IsPlayerValid() then return end
 			local deltaTime = game:GetService("RunService").RenderStepped:Wait()
@@ -50,14 +50,20 @@ function gameplayMechanicManager.SimulatePlatform(platformObject)
 			-- This resets the position to the ideal center position.
 			-- This is so that when we reapply the offset from the center it doesn't gradually fly off into the distance.
 			platformObject.PrimaryPart.Position = (platformObject.Stand.CFrame*CFrame.new(0, platformObject.Stand.Size.Y/2 + platformObject.PrimaryPart.Size.Y/2, 0)).Position
-				
+
 			-- The final CFrame matrix of where the spinner will be and how it will be oriented.
 			-- This supports all angles and all offsets.
-			local goalFinalCFrameMatrix = CFrame.fromMatrix(
-				platformObject.PrimaryPart.Position, platformObject.Stand.CFrame.RightVector, platformObject.Stand.CFrame.UpVector
-			)*CFrame.Angles(
-				0, math.rad(storedRotationInDegrees) + math.rad(360/fullSpinLength*deltaTime), 0
-			)*CFrame.new(offsetFromCenter)
+			local goalFinalCFrameMatrix: CFrame = CFrame.fromMatrix(
+				platformObject.PrimaryPart.Position,
+				platformObject.Stand.CFrame.RightVector,
+				platformObject.Stand.CFrame.UpVector
+			) * CFrame.Angles(
+				0,
+				math.rad(storedRotationInDegrees) + math.rad(360 / fullSpinLength * deltaTime),
+				0
+			) * CFrame.new(
+				offsetFromCenter
+			)
 
 			-- Update.
 			platformObject.PrimaryPart.CFrame = goalFinalCFrameMatrix
@@ -158,7 +164,7 @@ function gameplayMechanicManager.SetupTrippingFunctionality(platformObject)
 			basePart.Touched:Connect(onTouched)
 		end
 	end
-end	
+end
 
 --
 return gameplayMechanicManager
