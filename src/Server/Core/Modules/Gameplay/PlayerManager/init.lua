@@ -2,6 +2,7 @@
 local playerManager = {}
 local coreModule = require(script:FindFirstAncestor("Core"))
 local userDataManager = require(coreModule.GetObject("/UserDataManager"))
+local eventsManager = require(coreModule.GetObject("Modules.Gameplay.EventsManager"))
 local collisionsLibrary = require(coreModule.Shared.GetObject("Libraries.Collisions"))
 
 -- Initialize
@@ -21,12 +22,16 @@ function playerManager.SetupJoiningConnections()
 	local function onPlayerAdded(player)
 		playerManager.SetupCharacterConnections(player)
 		userDataManager.LoadData(player)
+		eventsManager.ValidateAllEventData(player)
 		coreModule.LoadModule("/JoiningBadges", player)
 		coreModule.LoadModule("/Leaderstats", player)
 	end
 
 	-- It's possible that a player could already be registered into the game before this code is ever loaded so we must do this.
-	for _, player in next, game:GetService("Players"):GetPlayers() do onPlayerAdded(player) end 
+	for _, player in next, game:GetService("Players"):GetPlayers() do
+		onPlayerAdded(player)
+	end
+
 	game:GetService("Players").PlayerAdded:Connect(onPlayerAdded)
 end
 
@@ -45,7 +50,9 @@ function playerManager.SetupCharacterConnections(player)
 	end
 
 	-- It's possible that the character could have already been loaded before this code is ever loaded so we must do this.
-	if player:HasAppearanceLoaded() then characterApperanceLoaded(player.Character) end
+	if player:HasAppearanceLoaded() then
+		characterApperanceLoaded(player.Character)
+	end
 	player.CharacterAppearanceLoaded:Connect(characterApperanceLoaded)
 end
 

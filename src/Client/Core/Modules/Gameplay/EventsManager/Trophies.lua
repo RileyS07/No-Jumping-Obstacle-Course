@@ -1,87 +1,87 @@
--- Variables
-local specificEventManager = {}
+local tweenService: TweenService = game:GetService("TweenService")
+
 local coreModule = require(script:FindFirstAncestor("Core"))
+local soundEffectsManager = require(coreModule.GetObject("Modules.Gameplay.PlayerManager.SoundEffects"))
+local instanceUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.InstanceUtilities"))
+local sharedConstants = require(coreModule.Shared.GetObject("Libraries.SharedConstants"))
+
+local thisEventStorage: Instance = workspace:WaitForChild("Map"):WaitForChild("Gameplay"):WaitForChild("EventStorage"):WaitForChild("Trophies")
+local collectableTrophies: {Instance} = instanceUtilities.GetChildrenWhichAre(thisEventStorage, "BasePart")
+local trophyFadeTweenInfo: TweenInfo = TweenInfo.new(sharedConstants.EVENTS.TROPHIES.FADE_SPEED, Enum.EasingStyle.Linear)
+
+local ThisEventVisualsManager = {}
 
 -- Initialize
-function specificEventManager.Initialize()
-	workspace.Map.Gameplay.EventStorage:WaitForChild("Trophies")
-	
-	-- Setting up the trophies in Workspace
-	coroutine.wrap(function()
-		local userData = coreModule.Shared.GetObject("//Remotes.Data.GetUserData"):InvokeServer()
-		
-		-- Setup the visual effects
-		for _, trophyObject in next, workspace.Map.Gameplay.EventStorage.Trophies:GetChildren() do
-			if trophyObject:IsA("BasePart") then
+function ThisEventVisualsManager.Initialize()
 
-				specificEventManager.SetupTrophyVisualEffects(trophyObject)
-				
-				-- Hide ones already collected
-				if userData.UserEventInformation.Trophy_Event and table.find(userData.UserEventInformation.Trophy_Event.TrophiesCollected, trophyObject.Name) then
-					coroutine.wrap(specificEventManager.HideTrophyObject)(trophyObject)
-				end
+	-- We want to update all of the trophies in the game to match their data.
+	task.defer(function()
+
+		local userData: {} = coreModule.Shared.GetObject("//Remotes.Data.GetUserData"):InvokeServer()
+
+		-- We want all trophies to spin.
+		for _, trophy: BasePart in next, collectableTrophies do
+			ThisEventVisualsManager.SetupTrophyVisualEffects(trophy)
+
+			-- Do we need to hide this?
+			if table.find(userData.UserEventInformation.Trophy_Event.TrophiesCollected, trophy.Name) then
+				task.spawn(ThisEventVisualsManager.HideTrophyObject, trophy)
 			end
 		end
-	end)()
-	
-	-- TrophyCollected dissappearing animation.
-	coreModule.Shared.GetObject("//Remotes.Gameplay.Events.TrophyCollected").OnClientEvent:Connect(function(trophyObject)
-		if not trophyObject then return end
-		specificEventManager.HideTrophyObject(trophyObject)
+	end)
+
+	-- A player just collected a trophy, so we need to hide it and update the interface.
+	coreModule.Shared.GetObject("//Remotes.Gameplay.Events.TrophyCollected").OnClientEvent:Connect(function(trophy: BasePart)
+		soundEffectsManager.PlaySoundEffect("TrophyCollected", {Parent = trophy})
+		ThisEventVisualsManager.HideTrophyObject(trophy)
+	end)
+end
+
+-- This animation includes the bobbing and spinning of the trophy objects.
+function ThisEventVisualsManager.SetupTrophyVisualEffects(trophy: BasePart)
+
+	-- Bobbing is the up and down movement.
+	trophy.Position = trophy.Position + Vector3.new(0, -sharedConstants.EVENTS.TROPHIES.BOBBING_DISTANCE, 0)
+
+	tweenService:Create(
+		trophy,
+		TweenInfo.new(sharedConstants.EVENTS.TROPHIES.BOBBING_SPEED, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, math.huge, true),
+		{Position = trophy.Position + Vector3.new(0, 2 * sharedConstants.EVENTS.TROPHIES.BOBBING_DISTANCE, 0)}
+	):Play()
+
+	-- Starting the spinning animation.
+	task.defer(function()
+		while trophy and trophy:IsDescendantOf(workspace) do
+			trophy.Orientation += Vector3.new(
+				0,
+				360 / sharedConstants.EVENTS.TROPHIES.ROTATION_SPEED * task.wait(),
+				0
+			)
+		end
 	end)
 end
 
 
--- Methods
--- This animation includes the bobbing and spinning of the trophy objects.
-function specificEventManager.SetupTrophyVisualEffects(trophyObject)
-
-	-- Bobbing animation
-	trophyObject.Position = trophyObject.Position + Vector3.new(0, -(script:GetAttribute("BobbingDistance") or 1), 0)
-	game:GetService("TweenService"):Create(
-		trophyObject, 
-		TweenInfo.new(script:GetAttribute("BobbingSpeed") or 1, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, math.huge, true),
-		{Position = trophyObject.Position + Vector3.new(0, 2*(script:GetAttribute("BobbingDistance") or 1), 0)}
-	):Play()
-
-	-- Spinning animation
-	coroutine.wrap(function()
-		while trophyObject do
-			local deltaTime = game:GetService("RunService").RenderStepped:Wait()
-			trophyObject.Orientation = trophyObject.Orientation + Vector3.new(0, 360/(script:GetAttribute("SpinningSpeed") or 3)*deltaTime, 0)
-		end
-	end)()
-end
-
-
 -- This animation makes the trophy fade away from existance.
-function specificEventManager.HideTrophyObject(trophyObject)
-	local commonFadeTweenInfo = TweenInfo.new(script:GetAttribute("FadeDuration") or 1, Enum.EasingStyle.Linear)
+function ThisEventVisualsManager.HideTrophyObject(trophy: BasePart)
 
 	-- The core tween object that makes the trophy invisible; We yield this one later on.
-	local transparencyTweenObject = game:GetService("TweenService"):Create(trophyObject, commonFadeTweenInfo, {Transparency = 1})
+	local transparencyTweenObject = tweenService:Create(trophy, trophyFadeTweenInfo, {Transparency = 1})
 
-	-- Tween out the PointLight, Shine, and Sparkles if they exist.
-	if trophyObject:FindFirstChild("PointLight") then
-		game:GetService("TweenService"):Create(trophyObject.PointLight, commonFadeTweenInfo, {Brightness = 0}):Play()
-	end
-
-	if trophyObject:FindFirstChild("Shine") then
-		trophyObject.Shine.Enabled = false
-		trophyObject.Shine:Clear()
-	end
-
-	if trophyObject:FindFirstChild("Sparkles") then
-		trophyObject.Sparkles.Enabled = false
-		trophyObject.Sparkles:Clear()
+	-- Turning off any lights or partcile emitters.
+	for _, child: Instance in next, trophy:GetChildren() do
+		if child:IsA("PointLight") then
+			tweenService:Create(child, trophyFadeTweenInfo, {Brightness = 0}):Play()
+		elseif child:IsA("ParticleEmitter") then
+			child.Enabled = false
+			child:Clear()
+		end
 	end
 
 	-- Yielding for the core tween object and then cleaning up.
 	transparencyTweenObject:Play()
 	transparencyTweenObject.Completed:Wait()
-	trophyObject:Destroy()
+	trophy:Destroy()
 end
 
-
---
-return specificEventManager
+return ThisEventVisualsManager

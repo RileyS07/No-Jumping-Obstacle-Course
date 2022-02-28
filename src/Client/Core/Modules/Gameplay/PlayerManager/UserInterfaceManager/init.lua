@@ -20,7 +20,7 @@ function userInterfaceManager.Initialize()
 
 	-- Escape to exit.
 	game:GetService("GuiService").MenuOpened:Connect(function()
-		for screenGui, container in next, userInterfaceManager.ActiveContainers do
+		for _, container in next, userInterfaceManager.ActiveContainers do
 			userInterfaceManager.UpdateActiveContainer(container)
 		end
 	end)

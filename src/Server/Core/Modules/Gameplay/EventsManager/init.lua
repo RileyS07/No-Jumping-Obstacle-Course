@@ -1,15 +1,20 @@
--- Variables
-local eventsManager = {}
 local coreModule = require(script:FindFirstAncestor("Core"))
 
--- Initialize
-function eventsManager.Initialize()
-	if not workspace.Map.Gameplay:FindFirstChild("EventStorage") then return end
+local EventsManager = {}
 
-	-- Loading Modules
-	coreModule.LoadModule("/Trophies")
+-- Initialize
+function EventsManager.Initialize()
+
+	coreModule.LoadModule("/")
 end
 
+-- Validates all event data possible for this player.
+function EventsManager.ValidateAllEventData(player: Player)
+	for _, moduleScript: Instance in next, script:GetChildren() do
+		if moduleScript:IsA("ModuleScript") then
+			require(moduleScript).ValidateEventData(player)
+		end
+	end
+end
 
---
-return eventsManager
+return EventsManager
