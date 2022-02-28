@@ -3,7 +3,7 @@ local locationTeleporterManager = {}
 local coreModule = require(script:FindFirstAncestor("Core"))
 local teleporterObjectsManager = require(coreModule.GetObject("Modules.GameplayManager.MechanicsManager.TeleportationManager.TeleporterObjectsManager"))
 local teleportationManager = require(coreModule.GetObject("Modules.GameplayManager.MechanicsManager.TeleportationManager"))
-local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
+local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries._Utilities"))
 
 -- Initialize
 function locationTeleporterManager.Initialize()

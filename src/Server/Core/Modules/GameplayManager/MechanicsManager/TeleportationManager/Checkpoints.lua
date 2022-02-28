@@ -7,7 +7,7 @@ local coreModule = require(script:FindFirstAncestor("Core"))
 local userDataManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.UserDataManager"))
 local teleportationManager = require(coreModule.GetObject("Modules.GameplayManager.MechanicsManager.TeleportationManager"))
 local badgeLibrary = require(coreModule.GetObject("Libraries.BadgeLibrary"))
-local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
+local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries._Utilities"))
 local badgeStorageLibrary = require(coreModule.Shared.GetObject("Libraries.BadgeStorage"))
 
 -- Initialize

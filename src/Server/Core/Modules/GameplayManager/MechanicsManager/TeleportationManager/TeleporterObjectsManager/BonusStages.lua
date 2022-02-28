@@ -8,7 +8,7 @@ local teleporterObjectsManager = require(coreModule.GetObject("Modules.GameplayM
 local teleportationManager = require(coreModule.GetObject("Modules.GameplayManager.MechanicsManager.TeleportationManager"))
 local userDataManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.UserDataManager"))
 local badgeLibrary = require(coreModule.GetObject("Libraries.BadgeLibrary"))
-local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
+local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries._Utilities"))
 local badgeStorageLibrary = require(coreModule.Shared.GetObject("Libraries.BadgeStorage"))
 
 -- Initialize
@@ -38,7 +38,7 @@ function bonusStagesManager.Initialize()
 
 				-- Difficulty; 1 star = 1 level of difficulty.
 				if (bonusStageLevelReference:GetAttribute("Difficulty") or 1) > 0 then
-					for index = 1, (bonusStageLevelReference:GetAttribute("Difficulty") or 1) - 1 do
+					for _ = 1, (bonusStageLevelReference:GetAttribute("Difficulty") or 1) - 1 do
 						bonusStageTeleporterInterfaceClone.Container.Content.StarContainer.Star:Clone().Parent = bonusStageTeleporterInterfaceClone.Container.Content.StarContainer
 					end
 				else

@@ -2,7 +2,7 @@
 local specificPowerupManager = {}
 local coreModule = require(script:FindFirstAncestor("Core"))
 local powerupsManager = require(coreModule.GetObject("Modules.GameplayManager.MechanicsManager.PowerupsManager"))
-local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
+local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries._Utilities"))
 local collisionsLibrary = require(coreModule.Shared.GetObject("Libraries.Collisions"))
 
 -- Initialize
@@ -36,7 +36,7 @@ end
 
 
 -- Apply
-function specificPowerupManager.Apply(player, powerupPlatform)
+function specificPowerupManager.Apply(player)
     if not utilitiesLibrary.IsPlayerAlive(player) then return end
     
     -- We have to do a special exception for Paint powerup.

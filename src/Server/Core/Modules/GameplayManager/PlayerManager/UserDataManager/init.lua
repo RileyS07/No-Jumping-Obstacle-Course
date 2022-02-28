@@ -7,7 +7,7 @@ userDataManager.UserDataLoaded = Instance.new("BindableEvent")
 
 local coreModule = require(script:FindFirstAncestor("Core"))
 local profileService = require(coreModule.GetObject("Libraries.ProfileService"))
-local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
+local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries._Utilities"))
 
 -- Initialize
 function userDataManager.Initialize()

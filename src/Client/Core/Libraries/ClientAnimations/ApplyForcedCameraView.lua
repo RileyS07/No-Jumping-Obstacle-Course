@@ -2,7 +2,7 @@
 local specificClientAnimation = {}
 local coreModule = require(script:FindFirstAncestor("Core"))
 local cameraEssentialsLibrary = require(coreModule.GetObject("Libraries.CameraEssentials"))
-local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
+local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries._Utilities"))
 
 -- Methods
 function specificClientAnimation.Play(goalCFrame, goalFOV)

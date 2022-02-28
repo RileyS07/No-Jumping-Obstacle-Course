@@ -7,8 +7,8 @@ local coreModule = require(script:FindFirstAncestor("Core"))
 local userInterfaceManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.UserInterfaceManager"))
 local cameraEssentialsLibrary = require(coreModule.GetObject("Libraries.CameraEssentials"))
 local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
-local clientAnimationsLibrary = require(coreModule.GetObject("Libraries.ClientAnimations"))
-local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
+--local clientAnimationsLibrary = require(coreModule.GetObject("Libraries.ClientAnimations"))
+local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries._Utilities"))
 
 -- Initialize
 function forceShiftLockManager.Initialize()
@@ -18,7 +18,9 @@ function forceShiftLockManager.Initialize()
     -- The actual shift lock logic.
     game:GetService("RunService"):BindToRenderStep("MobileShiftlock", Enum.RenderPriority.Camera.Value + 1, function()
         if not cameraEssentialsLibrary.IsCurrentCameraReadyForManipulation()  then return end
-        if not utilitiesLibrary.IsPlayerValid() then game:GetService("RunService"):UnbindFromRenderStep("MobileShiftlock") end
+        if not utilitiesLibrary.IsPlayerValid() then
+            game:GetService("RunService"):UnbindFromRenderStep("MobileShiftlock")
+        end
 
         -- Reset the values.
         if not forceShiftLockManager.IsShiftLockActive or userInterfaceManager.GetPriorityInterface() or next(userInterfaceManager.ActiveContainers) then 

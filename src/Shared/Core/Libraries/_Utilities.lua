@@ -1,6 +1,5 @@
 -- Variables
 local utilitiesLibrary = {}
-local coreModule = require(script:FindFirstAncestor("Core"))
 
 -- Methods
 -- Mostly used in addition with IsPlayerAlive but is still a useful function for type checking for Player.

@@ -5,7 +5,7 @@ badgeLibrary.BadgeOwnershipCache = {}
 badgeLibrary.PlayerRemovingListener = nil
 
 local coreModule = require(script:FindFirstAncestor("Core"))
-local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
+local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries._Utilities"))
 
 -- Methods
 function badgeLibrary.AwardBadge(player, badgeId)

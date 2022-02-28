@@ -3,7 +3,7 @@ local gameplayLightingManager = {}
 gameplayLightingManager.Assets = {}
 
 local coreModule = require(script:FindFirstAncestor("Core"))
-local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
+local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries._Utilities"))
 local tableUtilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.TableUtilities"))
 
 -- Initialize

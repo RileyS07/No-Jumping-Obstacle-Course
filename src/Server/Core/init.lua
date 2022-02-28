@@ -4,7 +4,6 @@ CoreModule.Shared = require(game:GetService("ReplicatedStorage"):WaitForChild("S
 -- Initialize
 function CoreModule.Initialize()
     print("[Core]: Loading " .. script.Parent.Name .. "!")
-    CoreModule.Shared.Initialize()
 
 	-- Loading Shared and modules.
 	CoreModule.Shared.Initialize()

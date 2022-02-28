@@ -4,7 +4,7 @@ gameplayMechanicManager.Remotes = {}
 gameplayMechanicManager.PlatformsBeingSimulated = {}
 
 local coreModule = require(script:FindFirstAncestor("Core"))
-local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
+local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries._Utilities"))
 
 -- Initialize
 function gameplayMechanicManager.Initialize()

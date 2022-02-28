@@ -6,7 +6,7 @@ specificAmbientLighting.EffectPlaying = false
 local coreModule = require(script:FindFirstAncestor("Core"))
 local gameplayLightingManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.GameplayLighting"))
 local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
-local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
+local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries._Utilities"))
 
 -- Initialize
 function specificAmbientLighting.Initialize()
@@ -29,8 +29,15 @@ function specificAmbientLighting.Initialize()
         -- Update the ColorCorrection.
         while true do
             if not clientEssentialsLibrary.GetPlayer() then break end
-            if not utilitiesLibrary.IsPlayerAlive() then gameplayLightingManager.UpdateLighting(specificAmbientLighting.UserData) break end
-            if specificAmbientLighting.UserData.UserInformation.CurrentCheckpoint ~= 80 then gameplayLightingManager.UpdateLighting(specificAmbientLighting.UserData) break end
+            if not utilitiesLibrary.IsPlayerAlive() then
+                gameplayLightingManager.UpdateLighting(specificAmbientLighting.UserData)
+                break
+            end
+
+            if specificAmbientLighting.UserData.UserInformation.CurrentCheckpoint ~= 80 then
+                gameplayLightingManager.UpdateLighting(specificAmbientLighting.UserData)
+                break
+            end
 
             -- We only care about the X and Z components.
             local currentPosition = clientEssentialsLibrary.GetPlayer().Character:GetPrimaryPartCFrame().Position*Vector3.new(1, 0, 1)

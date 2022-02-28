@@ -4,7 +4,7 @@ teleporterObjectsManager.WaitingForPlayerConsent = {}
 teleporterObjectsManager.Remotes = {}
 
 local coreModule = require(script:FindFirstAncestor("Core"))
-local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
+local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries._Utilities"))
 
 -- Initialize
 function teleporterObjectsManager.Initialize()

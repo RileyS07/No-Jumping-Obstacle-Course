@@ -1,7 +1,7 @@
 -- Variables
 local specificPowerupManager = {}
 local coreModule = require(script:FindFirstAncestor("Core"))
-local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
+local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries._Utilities"))
 
 -- Initialize
 function specificPowerupManager.Initialize()
