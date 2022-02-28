@@ -132,7 +132,7 @@ function gameplayMusicManager.UpdateMusicPostTranslation(soundContainer)
 
 		coroutine.wrap(function()
 			while gameplayMusicManager.PrimarySoundObject.Name == soundContainer.Name do
-				for index, soundObject in next, soundContainer:GetChildren() do
+				for _, soundObject in next, soundContainer:GetChildren() do
 					if gameplayMusicManager.PrimarySoundObject.Name ~= soundContainer.Name then return end
 
 					-- From here it's literally copy and paste...

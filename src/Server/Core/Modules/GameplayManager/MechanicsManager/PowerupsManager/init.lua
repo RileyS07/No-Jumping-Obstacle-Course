@@ -133,8 +133,14 @@ function powerupsManager.RemovePowerup(player, powerupName)
     if typeof(powerupName) ~= "string" then return end
 
     -- Time to start the removal process.
-    if utilitiesLibrary.IsPlayerAlive(player) then game:GetService("CollectionService"):RemoveTag(player.Character, powerupName) end
-    if powerupsManager.GetPowerupInformation(player) then powerupsManager.GetPowerupInformation(player)[powerupName] = nil end
+    if utilitiesLibrary.IsPlayerAlive(player) then
+        game:GetService("CollectionService"):RemoveTag(player.Character, powerupName)
+    end
+
+    if powerupsManager.GetPowerupInformation(player) then
+        powerupsManager.GetPowerupInformation(player)[powerupName] = nil
+    end
+
     powerupsManager.Remotes.TimerInformationUpdated:FireClient(player, powerupsManager.GetPowerupInformation(player))
     powerupsManager.Remotes.PlaySoundEffect:FireClient(player, powerupName.."PowerupRemoved")
 end
