@@ -1,61 +1,59 @@
--- Variables
-local playerManager = {}
+local players: Players = game:GetService("Players")
+
 local coreModule = require(script:FindFirstAncestor("Core"))
 local userDataManager = require(coreModule.GetObject("/UserDataManager"))
 local eventsManager = require(coreModule.GetObject("Modules.Gameplay.EventsManager"))
-local collisionsLibrary = require(coreModule.Shared.GetObject("Libraries.Collisions"))
+local physicsService = require(coreModule.Shared.GetObject("Libraries.Services.PhysicsService"))
+local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
+
+local PlayerManager = {}
 
 -- Initialize
-function playerManager.Initialize()
+function PlayerManager.Initialize()
 	coreModule.LoadModule("/UserDataManager")
 
 	-- This is for PlayerAdded and PlayerRemoving neatness.
-	playerManager.SetupJoiningConnections()
-	playerManager.SetupLeavingConnections()
+	PlayerManager.SetupJoiningConnections()
+	PlayerManager.SetupLeavingConnections()
 
-	collisionsLibrary.CollisionGroupSetCollidable("Players", "Players", false)
+	physicsService.CollisionGroupSetCollidable("Players", "Players", false)
 end
 
 
--- Private Methods
-function playerManager.SetupJoiningConnections()
-	local function onPlayerAdded(player)
-		playerManager.SetupCharacterConnections(player)
+-- Sets up the PlayerAdded wrapper.
+function PlayerManager.SetupJoiningConnections()
+
+	-- We want to handle anything involving user data first.
+	playerUtilities.CreatePlayerAddedWrapper(function(player: Player)
+
 		userDataManager.LoadData(player)
 		eventsManager.ValidateAllEventData(player)
+		PlayerManager.SetupCharacterConnections(player)
+
+		-- Misc modules.
 		coreModule.LoadModule("/JoiningBadges", player)
 		coreModule.LoadModule("/Leaderstats", player)
-	end
-
-	-- It's possible that a player could already be registered into the game before this code is ever loaded so we must do this.
-	for _, player in next, game:GetService("Players"):GetPlayers() do
-		onPlayerAdded(player)
-	end
-
-	game:GetService("Players").PlayerAdded:Connect(onPlayerAdded)
+	end)
 end
 
+-- Sets up the PlayerRemoving connection.
+function PlayerManager.SetupLeavingConnections()
 
-function playerManager.SetupLeavingConnections()
-	game:GetService("Players").PlayerRemoving:Connect(function(player)
+	-- All we have to do is save their data.
+	players.PlayerRemoving:Connect(function(player)
 		userDataManager.SaveData(player, true)
 	end)
 end
 
+-- Sets up the CharacterAdded wrapper.
+function PlayerManager.SetupCharacterConnections(player: Player)
 
-function playerManager.SetupCharacterConnections(player)
-	local function characterApperanceLoaded(character)
-		collisionsLibrary.SetDescendantsCollisionGroup(character, "Players")
+	-- The character manager will handle all of the specific stuff.
+	-- We just want to make sure their collisions are correct.
+	playerUtilities.CreateCharacterAddedWrapper(player, function(character: Model)
+		physicsService.SetCollectionsCollisionGroup(character:GetDescendants(), "Players")
 		coreModule.LoadModule("/CharacterManager", player, character)
-	end
-
-	-- It's possible that the character could have already been loaded before this code is ever loaded so we must do this.
-	if player:HasAppearanceLoaded() then
-		characterApperanceLoaded(player.Character)
-	end
-	player.CharacterAppearanceLoaded:Connect(characterApperanceLoaded)
+	end)
 end
 
-
---
-return playerManager
+return PlayerManager
