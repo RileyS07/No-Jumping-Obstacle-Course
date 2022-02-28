@@ -47,7 +47,7 @@ function versionUpdatesManager.ShutdownServer()
     )
 
     -- Someone joined!
-    game:GetService("Players").PlayerAdded:Connect(function(player)
+    game:GetService("Players").PlayerAdded:Connect(function()
         if not versionUpdatesManager.IsReservedServer() then return end
         teleportationManager.TeleportPlayerListPostTranslationToPlaceId(
             game:GetService("Players"):GetPlayers(), game.PlaceId, {ReservedServerAccessCode = reservedServerAccessCode}

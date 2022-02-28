@@ -36,7 +36,7 @@ function gameplayMechanicManager.Initialize()
 					gameplayMechanicManager.SimulatePlatform(platformObject)
 				end)
 			elseif platformObject:IsA("Model") then
-				coreModule.Debug(
+				print(
 					("Button: %s, has PrimaryPart: %s, has TransformationModel: %s."):format(platformObject:GetFullName(), tostring(platformObject.PrimaryPart ~= nil), tostring(platformObject:FindFirstChild("TransformationModel") ~= nil)),
 					warn
 				)

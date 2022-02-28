@@ -91,9 +91,11 @@ function userDataManager.GetData(player)
 	-- Their profile has not been loaded yet.
 	if not userDataManager.StoredProfiles[player] then
 
-		-- LoadData has already been called so we just need to wait.
+		-- LoadData has already been called so we just need to task.wait.
 		if userDataManager.ProfilesBeingLoaded[player] then
-			repeat wait() until not userDataManager.ProfilesBeingLoaded[player]
+			repeat
+				task.wait()
+			until not userDataManager.ProfilesBeingLoaded[player]
 
 		-- LoadData has not been called so we need to.
 		else

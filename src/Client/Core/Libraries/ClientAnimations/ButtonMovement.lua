@@ -20,7 +20,7 @@ function specificClientAnimation.Play(platformObject, simulationLength)
         {CFrame = platformObject:GetPrimaryPartCFrame()*CFrame.new(-(script:GetAttribute("ActiveStateOffset") or Vector3.new(0, 0.3, 0)))}
     ):Play()
 
-    wait(simulationLength - math.min(1, simulationLength/2))
+    task.wait(simulationLength - math.min(1, simulationLength/2))
 
     -- Upwards.
     local upwardsTweenObject = game:GetService("TweenService"):Create(

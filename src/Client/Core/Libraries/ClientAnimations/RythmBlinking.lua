@@ -12,7 +12,7 @@ function specificClientAnimation.Play(platformObject, beatMapIndex, numberOfBlin
     if typeof(blinkLength) ~= "number" then return end
 
     -- Blinking animation.
-    for blinkIndex = 1, numberOfBlinks do
+    for _ = 1, numberOfBlinks do
         for _, basePart in next, platformObject:GetDescendants() do
             if basePart:IsA("BasePart") and tonumber(basePart.Parent.Name) == beatMapIndex then
                 game:GetService("TweenService"):Create(
@@ -29,7 +29,7 @@ function specificClientAnimation.Play(platformObject, beatMapIndex, numberOfBlin
             end
         end
 
-        wait(blinkLength)
+        task.wait(blinkLength)
     end
 end
 

@@ -31,7 +31,7 @@ function gameplayMechanicManager.Initialize()
                     end
                 end)()
             elseif platformObject:IsA("Model") then
-                coreModule.Debug(
+                print(
                     ("MovingPlatform: %s, has PrimaryPart: %s, has Nodes: %s, # of Nodes: %s"):format(platformObject:GetFullName(), tostring(platformObject.PrimaryPart ~= nil), tostring(platformObject:FindFirstChild("Nodes") ~= nil), tostring(platformObject:FindFirstChild("Nodes") and #platformObject.Nodes:GetChildren() or 0)), 
                     warn
                 )
@@ -49,7 +49,7 @@ function gameplayMechanicManager.SimulatePlatform(platformObject, validNodesArra
     
     for index = 1, #platformObject.Nodes:GetChildren() do
         if not platformObject.Nodes:FindFirstChild(index) then 
-            coreModule.Debug("MovingPlatform: "..platformObject:GetFullName()..", has "..tostring(#platformObject.Nodes:GetChildren()).." children but is missing node: "..tostring(index)..".", warn) 
+            print("MovingPlatform: "..platformObject:GetFullName()..", has "..tostring(#platformObject.Nodes:GetChildren()).." children but is missing node: "..tostring(index)..".", warn) 
             break 
         end
 

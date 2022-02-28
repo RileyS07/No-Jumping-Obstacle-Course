@@ -58,7 +58,7 @@ function gameplayMechanicManager.SimulateDamagePlatform(player, damagePlatform)
         gameplayMechanicManager.Assets.Poison:Clone().Parent = player.Character.Head
         gameplayMechanicManager.Assets.PoisonGlow:Clone().Parent = player.Character.HumanoidRootPart
 
-        for index = 1, (damagePlatform:GetAttribute("Duration") or script:GetAttribute("DefaultDuration") or 1)*(damagePlatform:GetAttribute("Speed") or script:GetAttribute("DefaultSpeed") or 1) do
+        for _ = 1, (damagePlatform:GetAttribute("Duration") or script:GetAttribute("DefaultDuration") or 1)*(damagePlatform:GetAttribute("Speed") or script:GetAttribute("DefaultSpeed") or 1) do
             if not utilitiesLibrary.IsPlayerAlive(player) then break end
             if not game:GetService("CollectionService"):HasTag(player.Character, "Poisoned") then break end
             gameplayMechanicManager.Remotes.PlaySoundEffect:FireClient(player, damagePlatform.Parent.Name.."Damage", {Parent = damagePlatform})
@@ -72,7 +72,7 @@ function gameplayMechanicManager.SimulateDamagePlatform(player, damagePlatform)
                 break
             end
 
-            wait(1/(damagePlatform:GetAttribute("Speed") or script:GetAttribute("DefaultSpeed") or 1))
+            task.wait(1/(damagePlatform:GetAttribute("Speed") or script:GetAttribute("DefaultSpeed") or 1))
         end
 
         -- Clean up.
@@ -106,11 +106,11 @@ function gameplayMechanicManager.SimulateDamagePlatform(player, damagePlatform)
                 break
             end
 
-            wait(1/(damagePlatform:GetAttribute("Speed") or script:GetAttribute("DefaultSpeed") or 1))
+            task.wait(1/(damagePlatform:GetAttribute("Speed") or script:GetAttribute("DefaultSpeed") or 1))
         end
     end
 
-    wait(script:GetAttribute("Delay") or 1)
+    task.wait(script:GetAttribute("Delay") or 1)
     gameplayMechanicManager.PlatformsBeingSimulated[damagePlatform][player] = nil
 end
 

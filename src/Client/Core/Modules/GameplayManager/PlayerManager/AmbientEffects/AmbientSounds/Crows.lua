@@ -15,7 +15,7 @@ function specificAmbientSoundManager.Start()
 
     coroutine.wrap(function()
         while specificAmbientSoundManager.IsRunning do
-            wait(Random.new():NextInteger(15, 30))
+            task.wait(Random.new():NextInteger(15, 30))
 
             soundEffectsManager.PlaySoundEffect("Crow", {Parent = crowObjectsArray[Random.new():NextInteger(1, #crowObjectsArray)]})
         end

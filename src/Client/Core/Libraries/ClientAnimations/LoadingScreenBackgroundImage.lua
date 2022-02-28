@@ -11,9 +11,12 @@ function specificClientAnimation.Play(backgroundImages)
 
     -- It's gonna fade between each of these images.
     backgroundImages = backgroundImages:GetChildren()
-    table.sort(backgroundImages, function(imageA, imageB) return imageA.Name < imageB.Name end)
+    table.sort(backgroundImages, function(imageA, imageB)
+        return imageA.Name < imageB.Name
+    end)
+
     specificClientAnimation.IsPlaying = true
-    
+
     if #backgroundImages > 1 and specificClientAnimation.IsPlaying then
         coroutine.wrap(function()
 
@@ -26,11 +29,11 @@ function specificClientAnimation.Play(backgroundImages)
             while specificClientAnimation.IsPlaying do
                 for index, backgroundImage in next, backgroundImages do
                     if not specificClientAnimation.IsPlaying then return end
-                    
+
                     -- This is where the magic happens.
                     game:GetService("ContentProvider"):PreloadAsync({backgroundImage})
                     clientAnimationsLibrary.PlayAnimation("LoadingScreenImageSwitch", backgroundImages[math.max(index - 1, 1)], backgroundImage)
-                    wait(script:GetAttribute("TimeBetweenImages") or 6)
+                    task.wait(script:GetAttribute("TimeBetweenImages") or 6)
                 end
             end
         end)()

@@ -29,7 +29,7 @@ function gameplayMechanicManager.Initialize()
 					)
 				end)
 			elseif platformObject:IsA("Model") then
-				coreModule.Debug(
+				print(
 					("ForcedCameraView: %s, has PrimaryPart: %s, has Camera: %s."):format(platformObject:GetFullName(), tostring(platformObject.PrimaryPart ~= nil), tostring(platformObject:FindFirstChild("Camera") ~= nil)),
 					warn
 				)
@@ -48,7 +48,7 @@ function gameplayMechanicManager.Initialize()
 					gameplayMechanicManager.ResetForcedCameraView()
 				end)
 			else
-				coreModule.Debug(
+				print(
 					("ResetCameraViews: %s, IsA: %s."):format(resetCameraView:GetFullName(), resetCameraView.ClassName),
 					warn
 				)

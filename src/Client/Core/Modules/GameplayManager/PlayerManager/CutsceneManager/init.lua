@@ -16,7 +16,7 @@ function cutsceneManager.Initialize()
 	cutsceneManager.Interface.Content = cutsceneManager.Interface.Container:WaitForChild("Content")
 	cutsceneManager.Interface.TextContent = cutsceneManager.Interface.Content:WaitForChild("TextContent")
 	cutsceneManager.Interface.TextContent.MaxVisibleGraphemes = 0
-	
+
 	-- Loading modules
 	coreModule.LoadModule("/MechanicTutorials")
 end
@@ -32,30 +32,34 @@ function cutsceneManager.StartDialogTextAnimation(finalDialogText, callbackFunct
 	-- Setup the interface and values
 	userInterfaceManager.EnableInterface("DialogInterface", {DisableOtherInterfaces = true})
 	cutsceneManager.UpdatePlayerBeingShownDialog(true)
-	
+
 	-- Animation; I have animationCompletionEvent so that when you call this function we have the ability to yield if you want to.
 	local animationCompletionEvent = Instance.new("BindableEvent")
 	coroutine.wrap(function()
 		cutsceneManager.Interface.TextContent.MaxVisibleGraphemes = 0
 		cutsceneManager.Interface.TextContent.Text = finalDialogText
-		
+
 		-- Typewriter effect; Reveal one grapheme at a time till they're all visible.
 		for index = 1, finalDialogText:len() do
-			if callbackFunction then callbackFunction(finalDialogText:sub(1, index), coreModule.Enums.CutsceneTextAnimationCallbackState.Before) end
-			
+			if callbackFunction then
+				callbackFunction(finalDialogText:sub(1, index), coreModule.Enums.CutsceneTextAnimationCallbackState.Before)
+			end
+
 			cutsceneManager.Interface.TextContent.MaxVisibleGraphemes = index
 			soundEffectsManager.PlaySoundEffect("DialogTyping")
 			wait(script:GetAttribute("DialogGraphemeDelay") or (1 / 30))
-			
-			if callbackFunction then callbackFunction(finalDialogText:sub(1, index), coreModule.Enums.CutsceneTextAnimationCallbackState.After) end
+
+			if callbackFunction then
+				callbackFunction(finalDialogText:sub(1, index), coreModule.Enums.CutsceneTextAnimationCallbackState.After)
+			end
 		end
-		
+
 		-- Finished; Update the values and fire the event.
 		cutsceneManager.UpdatePlayerBeingShownDialog(false)
 		animationCompletionEvent:Fire()
 		animationCompletionEvent:Destroy()
 	end)()
-	
+
 	return animationCompletionEvent.Event
 end
 
@@ -68,12 +72,12 @@ function cutsceneManager.UpdatePlayerBeingShownCutscene(newValue)
 	if not cutsceneManager.IsPlayerBeingShownCutsceneValue then
 		userInterfaceManager.DisableInterface("DialogInterface")
 
-		if utilitiesLibrary.IsPlayerAlive(clientEssentialsLibrary.GetPlayer()) then 
+		if utilitiesLibrary.IsPlayerAlive(clientEssentialsLibrary.GetPlayer()) then
 			clientEssentialsLibrary.GetPlayer().Character.PrimaryPart.Anchored = false
 		end
 
 	-- Cap. Freeze them.
-	elseif utilitiesLibrary.IsPlayerAlive(clientEssentialsLibrary.GetPlayer()) then 
+	elseif utilitiesLibrary.IsPlayerAlive(clientEssentialsLibrary.GetPlayer()) then
 		clientEssentialsLibrary.GetPlayer().Character.PrimaryPart.Anchored = true
 	end
 end
@@ -95,13 +99,15 @@ end
 
 
 function cutsceneManager.IsCameraReadyForManipulation()
-	return workspace.CurrentCamera.CameraSubject ~= nil	
+	return workspace.CurrentCamera.CameraSubject ~= nil
 end
 
 
 function cutsceneManager.YieldTillCameraIsReadyForManipulation()
 	if not cutsceneManager.IsCameraReadyForManipulation() then
-		repeat wait() until cutsceneManager.IsCameraReadyForManipulation()
+		repeat
+			task.wait()
+		until cutsceneManager.IsCameraReadyForManipulation()
 	end
 end
 
@@ -111,8 +117,8 @@ end
 function cutsceneManager.TweenCurrentCameraCFrame(goalCFrame, optionalTweenInformation)
 	if not workspace.CurrentCamera then return end
 	return game:GetService("TweenService"):Create(
-		workspace.CurrentCamera, 
-		optionalTweenInformation or TweenInfo.new(1), 
+		workspace.CurrentCamera,
+		optionalTweenInformation or TweenInfo.new(1),
 		{CFrame = goalCFrame}
 	)
 end

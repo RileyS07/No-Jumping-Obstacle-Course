@@ -4,7 +4,6 @@ gameplayMechanicManager.Remotes = {}
 gameplayMechanicManager.PlatformsBeingSimulated = {}
 
 local coreModule = require(script:FindFirstAncestor("Core"))
-local teleportationManager = require(coreModule.GetObject("Modules.GameplayManager.MechanicsManager.TeleportationManager"))
 local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.Utilities"))
 
 -- Initialize
@@ -21,7 +20,7 @@ function gameplayMechanicManager.Initialize()
                     local player = game:GetService("Players"):GetPlayerFromCharacter(hit.Parent)
                     if not utilitiesLibrary.IsPlayerAlive(player) then return end
                     if gameplayMechanicManager.IsPlatformBeingSimulated(player, jumpPlatform) then return end
-                    
+
                     gameplayMechanicManager.SimulateJumpPlatform(player, jumpPlatform)
                 end)
             end
@@ -37,7 +36,7 @@ function gameplayMechanicManager.SimulateJumpPlatform(player, jumpPlatform)
     if not utilitiesLibrary.IsPlayerAlive(player) then return end
     if typeof(jumpPlatform) ~= "Instance" then return end
     if gameplayMechanicManager.IsPlatformBeingSimulated(player, jumpPlatform) then return end
-    
+
     gameplayMechanicManager.PlatformsBeingSimulated[jumpPlatform] = gameplayMechanicManager.PlatformsBeingSimulated[jumpPlatform] or {}
     gameplayMechanicManager.PlatformsBeingSimulated[jumpPlatform][player] = true
 
@@ -50,15 +49,22 @@ function gameplayMechanicManager.SimulateJumpPlatform(player, jumpPlatform)
     humanoid.Jump = true
 
     gameplayMechanicManager.Remotes.PlaySoundEffect:FireClient(player, "JumpPowerup", {Parent = jumpPlatform})
-    
+
     -- Revert it; The time is ambigious but is just some delay to give physics time to actually let them jump.
     delay(0.5, function()
         if not gameplayMechanicManager.IsPlatformBeingSimulated(player, jumpPlatform) then return end
-        if not utilitiesLibrary.IsPlayerAlive(player) then gameplayMechanicManager.PlatformsBeingSimulated[jumpPlatform][player] = nil return end
-        if player.Character.Humanoid.JumpHeight ~= goalJumpHeight then gameplayMechanicManager.PlatformsBeingSimulated[jumpPlatform][player] = nil return end
-        
+        if not utilitiesLibrary.IsPlayerAlive(player) then
+            gameplayMechanicManager.PlatformsBeingSimulated[jumpPlatform][player] = nil
+            return
+        end
+
+        if player.Character.Humanoid.JumpHeight ~= goalJumpHeight then
+            gameplayMechanicManager.PlatformsBeingSimulated[jumpPlatform][player] = nil
+            return
+        end
+
         player.Character.Humanoid.JumpHeight = previousJumpHeight
-        wait(0.5)
+        task.wait(0.5)
         gameplayMechanicManager.PlatformsBeingSimulated[jumpPlatform][player] = nil
     end)
 end

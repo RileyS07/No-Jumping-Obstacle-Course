@@ -14,16 +14,15 @@ function badgeLibrary.AwardBadge(player, badgeId)
 	if game:GetService("RunService"):IsStudio() then return end
 	if not utilitiesLibrary.IsPlayerValid(player) then return end
 	if not tonumber(badgeId) or badgeId <= 0 then return end
-	print("Here?")
 	if badgeLibrary.UserOwnsBadge(player, badgeId) then return end
-	print("Where")
+
 	-- Set PlayerRemovingListener; Just to help on server memory/memory leaks with the cache.
 	if not badgeLibrary.PlayerRemovingListener then
-		badgeLibrary.PlayerRemovingListener = game:GetService("Players").PlayerRemoving:Connect(function(player)
-			badgeLibrary.BadgeOwnershipCache[player] = nil
+		badgeLibrary.PlayerRemovingListener = game:GetService("Players").PlayerRemoving:Connect(function(thisPlayer: Player)
+			badgeLibrary.BadgeOwnershipCache[thisPlayer] = nil
 		end)
 	end
-	
+
 	-- Update BadgeOwnershipCache.
 	badgeLibrary.BadgeOwnershipCache[player] = badgeLibrary.BadgeOwnershipCache[player] or {}
 	badgeLibrary.BadgeOwnershipCache[player][badgeId] = true
@@ -41,13 +40,13 @@ function badgeLibrary.UserOwnsBadge(player, badgeId)
 	-- Guard clauses against very simple mistakes.
 	if not utilitiesLibrary.IsPlayerValid(player) then return end
 	if not tonumber(badgeId) or badgeId <= 0 then return end
-	
+
 	--  Check the BadgeOwnershipCache and update it if possible.
 	badgeLibrary.BadgeOwnershipCache[player] = badgeLibrary.BadgeOwnershipCache[player] or {}
 	if badgeLibrary.BadgeOwnershipCache[player][badgeId] == nil then
 		badgeLibrary.BadgeOwnershipCache[player][badgeId] = game:GetService("BadgeService"):UserHasBadgeAsync(player.UserId, badgeId)
 	end
-	
+
 	return badgeLibrary.BadgeOwnershipCache[player][badgeId]
 end
 

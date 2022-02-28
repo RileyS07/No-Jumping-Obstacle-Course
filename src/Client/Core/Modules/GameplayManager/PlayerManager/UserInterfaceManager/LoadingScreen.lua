@@ -48,7 +48,7 @@ function specificInterfaceManager.Initialize()
         clientAnimationsLibrary.PlayAnimation("LoadingScreenLoadAssets", specificInterfaceManager.Interface.Information:WaitForChild("Description"))
         coreModule.Shared.GetObject("//Remotes.Data.GetUserData"):InvokeServer()
         
-        wait(5)
+        task.wait(5)
 
         if userInterfaceManager.GetPriorityInterface() == specificInterfaceManager.Interface.ScreenGui then 
             clientAnimationsLibrary.PlayAnimation(

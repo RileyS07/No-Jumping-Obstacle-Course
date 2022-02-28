@@ -49,28 +49,28 @@ function teleportationManager.TeleportPlayer(player, functionParamaters)
 
 			-- BonusStages doesn't exist.
 			if not workspace.Map.Gameplay.LevelStorage:FindFirstChild("BonusStages") then
-				coreModule.Debug("Workspace.Map.Gameplay.LevelStorage.BonusStages doesn't exist.", nil, warn)
+				print("Workspace.Map.Gameplay.LevelStorage.BonusStages doesn't exist.", nil, warn)
 				userData.UserInformation.CurrentBonusStage = ""
 				teleportationManager.TeleportPlayer(player, functionParamaters)
 				return
 
 			-- CurrentBonusStage doesn't exist as a child of BonusStages.
 			elseif not workspace.Map.Gameplay.LevelStorage.BonusStages:FindFirstChild(userData.UserInformation.CurrentBonusStage) then
-				coreModule.Debug("Workspace.Map.Gameplay.LevelStorage.BonusStages[\""..userData.UserInformation.CurrentBonusStage.."\"] doesn't exist.", nil, warn)
+				print("Workspace.Map.Gameplay.LevelStorage.BonusStages[\""..userData.UserInformation.CurrentBonusStage.."\"] doesn't exist.", nil, warn)
 				userData.UserInformation.CurrentBonusStage = ""
 				teleportationManager.TeleportPlayer(player, functionParamaters)
 				return
 
 			-- Checkpoints doesn't exist in the currentBonusStage
 			elseif not workspace.Map.Gameplay.LevelStorage.BonusStages[userData.UserInformation.CurrentBonusStage]:FindFirstChild("Checkpoints") then
-				coreModule.Debug("Workspace.Map.Gameplay.LevelStorage.BonusStages[\""..userData.UserInformation.CurrentBonusStage.."\"].Checkpoints doesn't exist.", nil, warn)
+				print("Workspace.Map.Gameplay.LevelStorage.BonusStages[\""..userData.UserInformation.CurrentBonusStage.."\"].Checkpoints doesn't exist.", nil, warn)
 				userData.UserInformation.CurrentBonusStage = ""
 				teleportationManager.TeleportPlayer(player, functionParamaters)
 				return
 
 			-- The SPECIFIC checkpoint doesn't exist.
 			elseif not workspace.Map.Gameplay.LevelStorage.BonusStages[userData.UserInformation.CurrentBonusStage].Checkpoints:FindFirstChild(userData.UserInformation.CurrentBonusStageCheckpoint) then
-				coreModule.Debug("Workspace.Map.Gameplay.LevelStorage.BonusStages[\""..userData.UserInformation.CurrentBonusStage.."\"].Checkpoints[\""..userData.UserInformation.CurrentBonusStageCheckpoint.."\"] doesn't exist.", nil, warn)
+				print("Workspace.Map.Gameplay.LevelStorage.BonusStages[\""..userData.UserInformation.CurrentBonusStage.."\"].Checkpoints[\""..userData.UserInformation.CurrentBonusStageCheckpoint.."\"] doesn't exist.", nil, warn)
 				userData.UserInformation.CurrentBonusStage = ""
 				teleportationManager.TeleportPlayer(player, functionParamaters)
 				return
@@ -88,12 +88,12 @@ function teleportationManager.TeleportPlayer(player, functionParamaters)
 
 		-- Checkpoints doesn't exist.
 		if not workspace.Map.Gameplay.LevelStorage:FindFirstChild("Checkpoints") then
-			coreModule.Debug("Workspace.Map.Gameplay.LevelStorage.Checkpoints doesn't exist.", nil, warn)
+			print("Workspace.Map.Gameplay.LevelStorage.Checkpoints doesn't exist.", nil, warn)
 			return
 
 		-- CurrentCheckpoint doesn't exist as a child of Checkpoints.
 		elseif not workspace.Map.Gameplay.LevelStorage.Checkpoints:FindFirstChild(userData.UserInformation.CurrentCheckpoint) then
-			coreModule.Debug("Workspace.Map.Gameplay.LevelStorage.Checkpoints[\""..userData.UserInformation.CurrentCheckpoint.."\"] doesn't exist.", nil, warn)
+			print("Workspace.Map.Gameplay.LevelStorage.Checkpoints[\""..userData.UserInformation.CurrentCheckpoint.."\"] doesn't exist.", nil, warn)
 			return
 		end
 

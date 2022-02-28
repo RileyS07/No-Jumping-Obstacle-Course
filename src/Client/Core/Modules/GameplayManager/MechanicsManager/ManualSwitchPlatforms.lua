@@ -19,11 +19,11 @@ function gameplayMechanicManager.Initialize()
     gameplayMechanicManager.CommonRaycastParameters = RaycastParams.new()
 	gameplayMechanicManager.CommonRaycastParameters.FilterType = Enum.RaycastFilterType.Whitelist
 	gameplayMechanicManager.CommonRaycastParameters.FilterDescendantsInstances = gameplayMechanicManager.MechanicContainer:GetDescendants()
-    
+
     -- Setting up the platform to be functional.
     playerMouseLibrary.SetInputListener({Enum.UserInputType.Touch, Enum.UserInputType.MouseButton1, Enum.KeyCode.ButtonX}, Enum.UserInputState.Begin):Connect(function()
         local raycastResult = playerMouseLibrary.Raycast(gameplayMechanicManager.CommonRaycastParameters)
-              
+
         -- Guard clauses.
         if not raycastResult then return end
         if not utilitiesLibrary.IsPlayerAlive(clientEssentialsLibrary.GetPlayer()) then return end
@@ -51,7 +51,7 @@ function gameplayMechanicManager.SimulatePlatform(platformObject)
 
     clientAnimationsLibrary.PlayAnimation("SwitchTransformation", platformObject)
     soundEffectsManager.PlaySoundEffect("SwitchClicked", {Parent = platformObject})
-    wait(platformObject:GetAttribute("Duration") or script:GetAttribute("DefaultDuration") or 10)
+    task.wait(platformObject:GetAttribute("Duration") or script:GetAttribute("DefaultDuration") or 10)
     clientAnimationsLibrary.PlayAnimation("SwitchTransformation", platformObject)
 
     gameplayMechanicManager.UpdatePlatformBeingSimulated(platformObject, nil)
@@ -73,14 +73,14 @@ end
 -- Private Methods
 function gameplayMechanicManager.SetupKeybindFunctionality()
     local keybindActionName = "ManualSwitchPlatforms"
-    local keybindButtonTitle = script:GetAttribute("KeybindButtonTitle") or "Switch"
+    --local keybindButtonTitle = script:GetAttribute("KeybindButtonTitle") or "Switch"
     local keybindButtonDescription = script:GetAttribute("KeybindButtonDescription") or "Switch Description."
     local keybindButtonImageContent = script:GetAttribute("KeybindButtonImageContent") or "rbxassetid://6704235678"
 
     -- We need to setup ContentActionService so we can better support mobile devices.
-    local function keybindActionFunction(_, userInputState, inputObject)
+    local function keybindActionFunction(_, userInputState)
         if userInputState ~= Enum.UserInputState.Begin then return end
-        
+
         for _, platformObject in next, gameplayMechanicManager.MechanicContainer:GetDescendants() do
             gameplayMechanicManager.SimulatePlatform(platformObject)
         end
@@ -106,14 +106,14 @@ function gameplayMechanicManager.SetupKeybindFunctionality()
                     game:GetService("ContextActionService"):BindAction(keybindActionName, keybindActionFunction, true, Enum.KeyCode.Q)
                     game:GetService("ContextActionService"):SetDescription(keybindActionName, keybindButtonDescription)
                     game:GetService("ContextActionService"):SetImage(keybindActionName, keybindButtonImageContent)
-                else  
+                else
                     game:GetService("ContextActionService"):UnbindAction(keybindActionName)
                 end
             else
                 game:GetService("ContextActionService"):UnbindAction(keybindActionName)
             end
 
-            wait(0.5)
+            task.wait(0.5)
         end
     end)()
 end

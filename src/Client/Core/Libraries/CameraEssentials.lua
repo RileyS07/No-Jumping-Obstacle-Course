@@ -1,6 +1,5 @@
 -- Variables
 local cameraEssentialsLibrary = {}
-local coreModule = require(script:FindFirstAncestor("Core"))
 
 -- Methods
 function cameraEssentialsLibrary.IsCurrentCameraReadyForManipulation()
@@ -11,7 +10,9 @@ end
 
 function cameraEssentialsLibrary.YieldTillCurrentCameraIsReadyForManipulation()
     if not cameraEssentialsLibrary.IsCurrentCameraReadyForManipulation() then
-        repeat wait() until cameraEssentialsLibrary.IsCurrentCameraReadyForManipulation()
+        repeat
+            task.wait()
+        until cameraEssentialsLibrary.IsCurrentCameraReadyForManipulation()
     end
 end
 

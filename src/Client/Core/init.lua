@@ -1,94 +1,101 @@
--- Variables
-local coreModule = {}
-coreModule.Shared = require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Core"))
-coreModule.DebuggingEnabled = true
+local CoreModule = {}
+CoreModule.Shared = require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Core"))
 
 -- Initialize
-function coreModule.Initialize()
-    coreModule.Debug("[Core]: Loading "..script.Parent.Name..".")
-    coreModule.Shared.Initialize()
+function CoreModule.Initialize()
+    print("[Core]: Loading " .. script.Parent.Name .. "!")
 
-    -- Loading modules.
-    coreModule.LoadModule("Modules.GameplayManager")
+    -- Loading Shared and modules.
+    CoreModule.Shared.Initialize()
 
-    coreModule.Debug("[Core]: Done loading "..script.Parent.Name..".")
-
-    --[[
-    -- We don't want to load in the entire game if this is a temporary server.
-    if coreModule.Shared.GetObject("//Remotes.Server.IsReservedServer"):InvokeServer() then
-        coreModule.LoadModule("Modules.GameplayManager.PlayerManager.UserInterfaceManager.VersionUpdates")
+    if CoreModule.Shared.GetObject("//Remotes.Server.IsReservedServer"):InvokeServer() then
+        CoreModule.LoadModule("Modules.GameplayManager.PlayerManager.UserInterfaceManager.VersionUpdates")
         return
-    end
-
-    -- Loading modules
-    coreModule.LoadModule("Modules.GameplayManager")]]
-end
-
--- Public Methods
-function coreModule.GetObject(objectPath: string, environmentOffset: number?, showDebugMessage: boolean?) : Instance
-
-    -- Initial values for the search.
-    local searchLocation: Instance = script
-    local searchPathArray: {string}? = string.split(objectPath, ".")
-
-    -- //Path... starts looking from the machine source folder.
-    -- /Path... starts looking from the local source script.
-    if string.match(objectPath, "^//") then
-        searchLocation = script.Parent
-
-        if string.match(objectPath, "^//(.+)") then
-            searchPathArray = string.split(string.match(objectPath, "^//(.+)") :: string, ".")
-        else
-            searchPathArray = nil
-        end
-    elseif string.match(objectPath, "^/") then
-        searchLocation = getfenv(2 + (environmentOffset or 0)).script
-
-        if string.match(objectPath, "^/(.+)") then
-            searchPathArray = string.split(string.match(objectPath, "^/(.+)") :: string, ".")
-        else
-            searchPathArray = nil
-        end
-    end
-
-    -- Now we follow the searchPathArray and hopefully find the object.
-    if searchPathArray then
-        for _, childName in next, searchPathArray do
-            searchLocation = searchLocation:FindFirstChild(childName)
-        end
-    end
-
-    -- Do we debug?
-    if showDebugMessage then
-        coreModule.Debug("[Core]: Fetched "..searchLocation:GetFullName()..".")
-    end
-
-    --
-    return searchLocation
-end
-
-function coreModule.LoadModule(objectPath: string, ...: any)
-    local moduleScript = coreModule.GetObject(objectPath, 1)
-
-    if objectPath == "/" then
-        for _, child in next, moduleScript:GetChildren() do
-            if child:IsA("ModuleScript") then
-                coreModule.Debug("[Core]: Loading "..child:GetFullName()..".")
-                require(child).Initialize(...)
-                coreModule.Debug("[Core]: Loaded "..child:GetFullName()..".")
-            end
-        end
     else
-        coreModule.Debug("[Core]: Loading "..moduleScript:GetFullName()..".")
-        require(moduleScript).Initialize(...)
-        coreModule.Debug("[Core]: Loaded "..moduleScript:GetFullName()..".")
+        CoreModule.LoadModule("Modules/")
     end
+
+    print("[Core]: Done loading " .. script.Parent.Name .. "!")
 end
 
-function coreModule.Debug(debugMessage: string, debugFunction: (...any) -> ()?)
-    if not coreModule.DebuggingEnabled then return end
-    (debugFunction or print)(debugMessage)
+-- Fetches the object at the desired path, can specify where to start looking with prefixes.
+function CoreModule.GetObject(objectPath: string, environmentOffset: number?, showDebugMessage: boolean?) : Instance
+
+	-- Initial values for the search.
+	local searchLocation: Instance = script
+	local searchPathArray: {string}? = string.split(objectPath, ".")
+
+	-- //Path... starts looking from the machine source folder.
+	-- /Path... starts looking from the local source script.
+	if string.match(objectPath, "^//") then
+		searchLocation = script.Parent
+
+		if string.match(objectPath, "^//(.+)") then
+			searchPathArray = string.split(string.match(objectPath, "^//(.+)") :: string, ".")
+		else
+			searchPathArray = nil
+		end
+	elseif string.match(objectPath, "^/") then
+		searchLocation = getfenv(2 + (environmentOffset or 0)).script
+
+		if string.match(objectPath, "^/(.+)") then
+			searchPathArray = string.split(string.match(objectPath, "^/(.+)") :: string, ".")
+		else
+			searchPathArray = nil
+		end
+	end
+
+	-- Now we follow the searchPathArray and hopefully find the object.
+	if searchPathArray then
+		for _, childName in next, searchPathArray do
+			searchLocation = searchLocation:WaitForChild((string.gsub(childName, "/$", "")))
+		end
+	end
+
+	-- Do we debug?
+	if showDebugMessage then
+		print("[Core]: Fetched " .. searchLocation:GetFullName() .. ".")
+	end
+
+	return searchLocation
 end
 
---
-return coreModule
+-- Loads a module supported by the system. !Must have an Initialize method!
+function CoreModule.LoadModule(objectPath: string, ...: any)
+
+    -- First we have to get the module script in question.
+	local moduleScript: Instance = CoreModule.GetObject(objectPath, 1)
+
+    -- When using the character '/' the loader attempts to load all children modules.
+	if string.sub(objectPath, -1, -1) == "/" then
+		for _, child in next, moduleScript:GetChildren() do
+			if child:IsA("ModuleScript") then
+				print("[Core]: Loading " .. child:GetFullName() .. ".")
+
+                -- We want to see IF we can initialize it.
+                local returnedTable: {} = require(child)
+
+                if returnedTable.Initialize then
+                    returnedTable.Initialize(...)
+                    print("[Core]: Initialized " .. child:GetFullName() .. ".")
+                else
+                    print("[Core]: Loaded " .. child:GetFullName() .. ".")
+                end
+			end
+		end
+	else
+		print("[Core]: Loading " .. moduleScript:GetFullName() .. ".")
+
+        -- We want to see IF we can initialize it.
+        local returnedTable: {} = require(moduleScript)
+
+        if returnedTable.Initialize then
+            returnedTable.Initialize(...)
+            print("[Core]: Initialized " .. moduleScript:GetFullName() .. ".")
+        else
+            print("[Core]: Loaded " .. moduleScript:GetFullName() .. ".")
+        end
+	end
+end
+
+return CoreModule

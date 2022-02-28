@@ -1,12 +1,12 @@
 -- Variables
 local specificClientAnimation = {}
-local coreModule = require(script:FindFirstAncestor("Core"))
-local soundEffectsManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.SoundEffects"))
+--local coreModule = require(script:FindFirstAncestor("Core"))
+--local soundEffectsManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.SoundEffects"))
 
 -- Methods
 function specificClientAnimation.Play(platformObject, simulationLength, showTimerCountdown)
     if not showTimerCountdown then return end
-    
+
     if typeof(platformObject) ~= "Instance" or not platformObject:IsA("Model") or not platformObject.PrimaryPart then return end
     if not platformObject.PrimaryPart:FindFirstChild("TimerInterface") or not platformObject.PrimaryPart.TimerInterface:FindFirstChild("TimerState") then return end
     if typeof(simulationLength) ~= "number" or simulationLength <= 0 then return end
@@ -16,7 +16,7 @@ function specificClientAnimation.Play(platformObject, simulationLength, showTime
 
     for index = simulationLength, 1, -1 do
         timerStateText.Text = index
-        wait(1)
+        task.wait(1)
     end
 
     timerStateText.Text = script:GetAttribute("InactiveStateText") or "Press me!"

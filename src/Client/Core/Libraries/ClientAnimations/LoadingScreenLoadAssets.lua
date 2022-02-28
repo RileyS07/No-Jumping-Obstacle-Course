@@ -17,9 +17,9 @@ function specificClientAnimation.Play(textLabel)
     textLabel.Text = "Welcome, "..clientEssentialsLibrary.GetPlayer().Name
     textLabel.MaxVisibleGraphemes = textLabel.Text:len()
 
-    wait(3)
+    task.wait(3)
     clientAnimationsLibrary.PlayAnimation("TweenMaxVisibleGraphemes", textLabel, 0):Wait()
-    wait(1)
+    task.wait(1)
 
     if #assetsArray > 0 and specificClientAnimation.IsPlaying then
         textLabel.Text = "Loading asset 1/"..#assetsArray
@@ -33,11 +33,11 @@ function specificClientAnimation.Play(textLabel)
             game:GetService("ContentProvider"):PreloadAsync({assetsArray[index]})
         end
 
-        wait(1)
+        task.wait(1)
 
         clientAnimationsLibrary.PlayAnimation("TweenMaxVisibleGraphemes", textLabel, 0):Wait()
 
-        wait(1)
+        task.wait(1)
 
         textLabel.Text = "Assets loaded!"
         clientAnimationsLibrary.PlayAnimation("TweenMaxVisibleGraphemes", textLabel, #textLabel.Text):Wait()

@@ -19,7 +19,7 @@ function gameplayMechanicManager.Initialize()
 				gameplayMechanicManager.SimulatePlatform(platformObject)
 
 			elseif platformObject:IsA("Model") then
-				coreModule.Debug(
+				print(
 					("SpinningPlatform: %s, has PrimaryPart: %s, has Stand: %s."):format(platformObject:GetFullName(), tostring(platformObject.PrimaryPart ~= nil), tostring(platformObject:FindFirstChild("Stand") ~= nil)),
 					warn
 				)
