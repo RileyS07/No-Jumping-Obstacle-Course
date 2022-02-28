@@ -9,10 +9,10 @@ function CoreModule.Initialize()
     CoreModule.Shared.Initialize()
 
     if CoreModule.Shared.GetObject("//Remotes.Server.IsReservedServer"):InvokeServer() then
-        CoreModule.LoadModule("Modules.GameplayManager.PlayerManager.UserInterfaceManager.VersionUpdates")
+        CoreModule.LoadModule("Modules.Gameplay.PlayerManager.UserInterfaceManager.VersionUpdates")
         return
     else
-        CoreModule.LoadModule("Modules/")
+        CoreModule.LoadModule("Modules.Gameplay/")
     end
 
     print("[Core]: Done loading " .. script.Parent.Name .. "!")

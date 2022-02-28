@@ -9,7 +9,7 @@ local runService: RunService = game:GetService("RunService")
 local teleportService: TeleportService = game:GetService("TeleportService")
 
 local coreModule = require(script:FindFirstAncestor("Core"))
-local teleportationManager = require(coreModule.GetObject("Modules.GameplayManager.MechanicsManager.TeleportationManager"))
+local teleportationManager = require(coreModule.GetObject("Modules.Gameplay.MechanicsManager.TeleportationManager"))
 local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
 
 local VersionUpdatesManager = {}

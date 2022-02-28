@@ -13,7 +13,7 @@ function CoreModule.Initialize()
 		return
 	else
 		CoreModule.LoadModule("Modules.ServerManager")
-		CoreModule.LoadModule("Modules.GameplayManager")
+		CoreModule.LoadModule("Modules.Gameplay/")
 	end
 
     print("[Core]: Done loading " .. script.Parent.Name .. "!")

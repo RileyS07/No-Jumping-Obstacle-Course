@@ -1,8 +1,8 @@
 -- Variables
 local specificClientAnimation = {}
 local coreModule = require(script:FindFirstAncestor("Core"))
-local userInterfaceManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.UserInterfaceManager"))
-local gameplayMusicManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.GameplayMusic"))
+local userInterfaceManager = require(coreModule.GetObject("Modules.Gameplay.PlayerManager.UserInterfaceManager"))
+local gameplayMusicManager = require(coreModule.GetObject("Modules.Gameplay.PlayerManager.GameplayMusic"))
 local clientAnimationsLibrary = require(coreModule.GetObject("Libraries.ClientAnimations"))
 local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
 

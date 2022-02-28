@@ -1,7 +1,7 @@
 -- Variables
 local specificClientAnimation = {}
 local coreModule = require(script:FindFirstAncestor("Core"))
-local soundEffectsManager = require(coreModule.GetObject("Modules.GameplayManager.PlayerManager.SoundEffects"))
+local soundEffectsManager = require(coreModule.GetObject("Modules.Gameplay.PlayerManager.SoundEffects"))
 
 -- Methods
 function specificClientAnimation.Play(basePart, smokeParticleEmittance)
