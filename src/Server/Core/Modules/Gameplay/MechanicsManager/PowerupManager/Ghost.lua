@@ -1,7 +1,7 @@
 -- Variables
 local specificPowerupManager = {}
 local coreModule = require(script:FindFirstAncestor("Core"))
-local powerupsManager = require(coreModule.GetObject("Modules.Gameplay.MechanicsManager.PowerupsManager"))
+local powerupsManager = require(coreModule.GetObject("Modules.Gameplay.MechanicsManager.PowerupManager"))
 local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
 local physicsService = require(coreModule.Shared.GetObject("Libraries.Services.PhysicsService"))
 
@@ -20,7 +20,7 @@ function specificPowerupManager.Initialize()
 		if not playerUtilities.IsPlayerAlive(player) then return end
 
         -- We have to do a special exception for Paint powerup.
-        if powerupsManager.GetPowerupInformation(player, "Paint") then
+        if powerupsManager.GetPowerupInformation(player, "Paint") and powerupsManager.GetPowerupInformation(player, "Paint").PlatformName then
             physicsService.SetCollectionsCollisionGroup(player.Character:GetChildren(), powerupsManager.GetPowerupInformation(player, "Paint").PlatformName)
         else
             physicsService.SetCollectionsCollisionGroup(player.Character:GetChildren(), "Players")

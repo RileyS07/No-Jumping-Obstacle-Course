@@ -2,6 +2,7 @@
 local specificInterfaceManager = {}
 specificInterfaceManager.Interface = {}
 specificInterfaceManager.TimerInformation = {}
+specificInterfaceManager.LastServerInformation = {}
 
 local coreModule = require(script:FindFirstAncestor("Core"))
 local userInterfaceManager = require(coreModule.GetObject("Modules.Gameplay.PlayerManager.UserInterfaceManager"))
@@ -19,8 +20,18 @@ function specificInterfaceManager.Initialize()
         if typeof(effectInformationArray) == "table" and next(effectInformationArray) ~= nil then
             for effectName, effectInformation in next, effectInformationArray do
                 if typeof(effectName) == "string" and typeof(effectInformation) == "table" then
+
+                    -- Trying to see if we should update the start time.
+                    local shouldWeUpdateStartTime: boolean = true
+
+                    if specificInterfaceManager.LastServerInformation[effectName] and effectInformationArray[effectName] then
+                        if specificInterfaceManager.LastServerInformation[effectName].Start == effectInformationArray[effectName].Start then
+                            shouldWeUpdateStartTime = false
+                        end
+                    end
+
                     specificInterfaceManager.TimerInformation[effectName] = {
-                        Start = os.clock(),
+                        Start = shouldWeUpdateStartTime and os.clock() or specificInterfaceManager.TimerInformation[effectName].Start,
                         Duration = effectInformation.Duration or math.huge,
                         IsFresh = not not effectInformation.IsFresh,
                         Color = effectInformation.Color
@@ -30,6 +41,8 @@ function specificInterfaceManager.Initialize()
         else
             specificInterfaceManager.TimerInformation = {}
         end
+
+        specificInterfaceManager.LastServerInformation = effectInformationArray
     end)
 
     -- Update loop.

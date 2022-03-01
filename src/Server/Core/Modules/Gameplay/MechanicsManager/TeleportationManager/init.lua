@@ -131,7 +131,7 @@ function teleportationManager.RestorePlayerConditions(player)
 	if not userDataManager.GetData(player) then return end
 
 	-- Local imports.
-	local powerupsManager = require(coreModule.GetObject("Modules.Gameplay.MechanicsManager.PowerupsManager"))
+	local powerupsManager = require(coreModule.GetObject("Modules.Gameplay.MechanicsManager.PowerupManager"))
 	local physicsService = require(coreModule.Shared.GetObject("Libraries.Services.PhysicsService"))
 
 	local userData = userDataManager.GetData(player)
