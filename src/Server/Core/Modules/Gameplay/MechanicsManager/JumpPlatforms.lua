@@ -1,5 +1,6 @@
 local coreModule = require(script:FindFirstAncestor("Core"))
 local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
+local spatialQueryUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.SpatialQueryUtilities"))
 local sharedConstants = require(coreModule.Shared.GetObject("Libraries.SharedConstants"))
 
 local playSoundEffectRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.PlaySoundEffect")
@@ -17,13 +18,25 @@ function ThisMechanicManager.Initialize()
 
             -- thisPlatform should be a BasePart that they can touch.
             if thisPlatform:IsA("BasePart") then
-                thisPlatform.Touched:Connect(function(hit: BasePart)
 
-                    local player: Player? = game:GetService("Players"):GetPlayerFromCharacter(hit.Parent)
-                    if not playerUtilities.IsPlayerAlive(player) then return end
-                    if ThisMechanicManager.IsMechanicEffectActiveFor(player, thisPlatform) then return end
+                -- We want to create a loop to catch any players within this box.
+                -- This is to avoid a bug where if you land on it before the debounce is finished it won't jump you again.
+                task.spawn(function()
+                    while true do
 
-                    task.spawn(ThisMechanicManager.StartMechanic, player :: Player, thisPlatform)
+                        debug.profilebegin("JumpPlatform")
+
+                        -- We want to check for players every frame.
+                        for _, player: Player in next, spatialQueryUtilities.GetPlayersWithinBox(thisPlatform.CFrame, thisPlatform.Size) do
+                            if not playerUtilities.IsPlayerAlive(player) then continue end
+                            if ThisMechanicManager.IsMechanicEffectActiveFor(player, thisPlatform) then continue end
+
+                            task.spawn(ThisMechanicManager.StartMechanic, player :: Player, thisPlatform)
+                        end
+
+                        debug.profileend()
+                        task.wait()
+                    end
                 end)
             end
         end
