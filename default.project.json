@@ -1,5 +1,5 @@
 {
-  "name": "No Jumping Obstacle Course",
+  "name": "Framework",
   "tree": {
       "$className": "DataModel",
       "$ignoreUnknownInstances": true,
