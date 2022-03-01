@@ -7,8 +7,7 @@ local coreModule = require(script:FindFirstAncestor("Core"))
 local userInterfaceManager = require(coreModule.GetObject("Modules.Gameplay.PlayerManager.UserInterfaceManager"))
 local cameraEssentialsLibrary = require(coreModule.GetObject("Libraries.CameraEssentials"))
 local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
---local clientAnimationsLibrary = require(coreModule.GetObject("Libraries.ClientAnimations"))
-local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries._Utilities"))
+local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
 
 -- Initialize
 function forceShiftLockManager.Initialize()
@@ -18,15 +17,15 @@ function forceShiftLockManager.Initialize()
     -- The actual shift lock logic.
     game:GetService("RunService"):BindToRenderStep("MobileShiftlock", Enum.RenderPriority.Camera.Value + 1, function()
         if not cameraEssentialsLibrary.IsCurrentCameraReadyForManipulation()  then return end
-        if not utilitiesLibrary.IsPlayerValid() then
-            game:GetService("RunService"):UnbindFromRenderStep("MobileShiftlock")
+        if not playerUtilities.IsPlayerValid(clientEssentialsLibrary.GetPlayer()) then
+            return
         end
 
         -- Reset the values.
         if not forceShiftLockManager.IsShiftLockActive or userInterfaceManager.GetPriorityInterface() or next(userInterfaceManager.ActiveContainers) then 
             game:GetService("UserInputService").MouseIconEnabled = true
 
-            if utilitiesLibrary.IsPlayerAlive() and clientEssentialsLibrary.GetPlayer().Character.PrimaryPart.LocalTransparencyModifier >= 0.8 then
+            if playerUtilities.IsPlayerAlive() and clientEssentialsLibrary.GetPlayer().Character.PrimaryPart.LocalTransparencyModifier >= 0.8 then
                 UserSettings():GetService("UserGameSettings").RotationType = Enum.RotationType.CameraRelative
                 game:GetService("UserInputService").MouseBehavior = Enum.MouseBehavior.LockCenter
             elseif game:GetService("UserInputService").MouseBehavior ~= Enum.MouseBehavior.Default then

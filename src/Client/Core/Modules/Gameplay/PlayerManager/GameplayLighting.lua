@@ -3,8 +3,8 @@ local gameplayLightingManager = {}
 gameplayLightingManager.Assets = {}
 
 local coreModule = require(script:FindFirstAncestor("Core"))
-local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries._Utilities"))
-local tableUtilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.TableUtilities"))
+local instanceUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.InstanceUtilities"))
+local tableUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.TableUtilities"))
 
 -- Initialize
 function gameplayLightingManager.Initialize()
@@ -50,7 +50,7 @@ function gameplayLightingManager.UpdateLighting(userData)
             return gameplayLightingManager.UpdateLightingPostTranslation(lightingContainer)
         end
     end
-    
+
 	-- Is there any for this specific stage?
 	local stageSpecificLightingContainer = gameplayLightingManager.Assets.LightingContainer:FindFirstChild("Stage "..tostring(userData.UserInformation.CurrentCheckpoint))
 	if stageSpecificLightingContainer then
@@ -77,35 +77,35 @@ function gameplayLightingManager.UpdateLightingPostTranslation(lightingInformati
 
     -- Replace the Sky.
     if lightingInformation:FindFirstChildOfClass("Sky") then
-        utilitiesLibrary.Destroy(game:GetService("Lighting"):FindFirstChildOfClass("Sky"))
+        instanceUtilities.SafeDestroy(game:GetService("Lighting"):FindFirstChildOfClass("Sky"))
         lightingInformation:FindFirstChildOfClass("Sky"):Clone().Parent = game:GetService("Lighting")
 
     elseif defaultLightingInformation:FindFirstChildOfClass("Sky") then
-        utilitiesLibrary.Destroy(game:GetService("Lighting"):FindFirstChildOfClass("Sky"))
+        instanceUtilities.SafeDestroy(game:GetService("Lighting"):FindFirstChildOfClass("Sky"))
         defaultLightingInformation:FindFirstChildOfClass("Sky"):Clone().Parent = game:GetService("Lighting")
     end
 
     -- Replace the Atmosphere.
 	if lightingInformation:FindFirstChildOfClass("Atmosphere") then
-		utilitiesLibrary.Destroy(game:GetService("Lighting"):FindFirstChildOfClass("Atmosphere"))
+		instanceUtilities.SafeDestroy(game:GetService("Lighting"):FindFirstChildOfClass("Atmosphere"))
 		lightingInformation:FindFirstChildOfClass("Atmosphere"):Clone().Parent = game:GetService("Lighting")
 
 	elseif defaultLightingInformation:FindFirstChildOfClass("Atmosphere") then
-		utilitiesLibrary.Destroy(game:GetService("Lighting"):FindFirstChildOfClass("Atmosphere"))
+		instanceUtilities.SafeDestroy(game:GetService("Lighting"):FindFirstChildOfClass("Atmosphere"))
 		defaultLightingInformation:FindFirstChildOfClass("Atmosphere"):Clone().Parent = game:GetService("Lighting")
 	end
 
 	-- Update the ColorCorrection.
 	if lightingInformation:FindFirstChildOfClass("ColorCorrectionEffect") then
-        utilitiesLibrary.Destroy(game:GetService("Lighting"):FindFirstChildOfClass("ColorCorrectionEffect"))
+        instanceUtilities.SafeDestroy(game:GetService("Lighting"):FindFirstChildOfClass("ColorCorrectionEffect"))
         lightingInformation:FindFirstChildOfClass("ColorCorrectionEffect").Parent = game:GetService("Lighting")
 	else
-        utilitiesLibrary.Destroy(game:GetService("Lighting"):FindFirstChildOfClass("ColorCorrectionEffect"))
+        instanceUtilities.SafeDestroy(game:GetService("Lighting"):FindFirstChildOfClass("ColorCorrectionEffect"))
 	end
 
     -- Updating the properties; We synchronize so we can fill in any gaps created.
-    local propertiesDictionary = tableUtilitiesLibrary.SynchronizeTables(
-        lightingInformation:FindFirstChild("Properties") and require(lightingInformation.Properties) or {}, 
+    local propertiesDictionary = tableUtilities.Sync(
+        lightingInformation:FindFirstChild("Properties") and require(lightingInformation.Properties) or {},
         require(gameplayLightingManager.Assets.LightingContainer.Default.Properties)
     )
 

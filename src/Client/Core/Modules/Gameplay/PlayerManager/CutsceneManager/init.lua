@@ -8,7 +8,7 @@ local coreModule = require(script:FindFirstAncestor("Core"))
 local userInterfaceManager = require(coreModule.GetObject("/Parent.UserInterfaceManager"))
 local soundEffectsManager = require(coreModule.GetObject("Modules.Gameplay.PlayerManager.SoundEffects"))
 local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
-local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries._Utilities"))
+local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
 
 -- Initialize
 function cutsceneManager.Initialize()
@@ -72,12 +72,12 @@ function cutsceneManager.UpdatePlayerBeingShownCutscene(newValue)
 	if not cutsceneManager.IsPlayerBeingShownCutsceneValue then
 		userInterfaceManager.DisableInterface("DialogInterface")
 
-		if utilitiesLibrary.IsPlayerAlive(clientEssentialsLibrary.GetPlayer()) then
+		if playerUtilities.IsPlayerAlive(clientEssentialsLibrary.GetPlayer()) then
 			clientEssentialsLibrary.GetPlayer().Character.PrimaryPart.Anchored = false
 		end
 
 	-- Cap. Freeze them.
-	elseif utilitiesLibrary.IsPlayerAlive(clientEssentialsLibrary.GetPlayer()) then
+	elseif playerUtilities.IsPlayerAlive(clientEssentialsLibrary.GetPlayer()) then
 		clientEssentialsLibrary.GetPlayer().Character.PrimaryPart.Anchored = true
 	end
 end

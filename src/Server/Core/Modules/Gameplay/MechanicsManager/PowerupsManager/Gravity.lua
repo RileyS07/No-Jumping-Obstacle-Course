@@ -1,13 +1,14 @@
 -- Variables
 local specificPowerupManager = {}
 local coreModule = require(script:FindFirstAncestor("Core"))
-local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries._Utilities"))
+local instanceUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.InstanceUtilities"))
+local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
 
 -- Initialize
 function specificPowerupManager.Initialize()
     game:GetService("CollectionService"):GetInstanceRemovedSignal(script.Name):Connect(function(character)
         local player = game:GetService("Players"):GetPlayerFromCharacter(character)
-		if not utilitiesLibrary.IsPlayerAlive(player) then return end
+		if not playerUtilities.IsPlayerAlive(player) then return end
         if not character.PrimaryPart:FindFirstChildOfClass("BodyForce") then return end
 
         character.PrimaryPart:FindFirstChildOfClass("BodyForce"):Destroy()
@@ -17,13 +18,13 @@ end
 
 -- Apply
 function specificPowerupManager.Apply(player, powerupPlatform)
-    if not utilitiesLibrary.IsPlayerAlive(player) then return end
-    
-    local bodyForceObject = player.Character.PrimaryPart:FindFirstChildOfClass("BodyForce") or utilitiesLibrary.Create("BodyForce", {Parent = player.Character.PrimaryPart})
+    if not playerUtilities.IsPlayerAlive(player) then return end
+
+    local bodyForceObject = player.Character.PrimaryPart:FindFirstChildOfClass("BodyForce") or instanceUtilities.Create("BodyForce", {Parent = player.Character.PrimaryPart})
     bodyForceObject.Force = Vector3.new(
-        0, 
+        0,
         -- CharacterMass*Gravity*GravityMultiplier; We do 1 - Force so you can do 1.5 thinking 1.5 times gravity and not really treat it was gravity + 1.5x gravity.
-        specificPowerupManager.GetCharacterMass(player.Character)*workspace.Gravity*((powerupPlatform:GetAttribute("Force") or script:GetAttribute("DefaultForce")) - 1), 
+        specificPowerupManager.GetCharacterMass(player.Character)*workspace.Gravity*((powerupPlatform:GetAttribute("Force") or script:GetAttribute("DefaultForce")) - 1),
         0
     )
 end

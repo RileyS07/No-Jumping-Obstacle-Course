@@ -6,7 +6,7 @@ gameplayMechanicManager.PlatformsBeingSimulated = {}
 local coreModule = require(script:FindFirstAncestor("Core"))
 local mechanicsManager = require(coreModule.GetObject("Modules.Gameplay.MechanicsManager"))
 local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
-local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries._Utilities"))
+local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
 
 -- Initialize
 function gameplayMechanicManager.Initialize()
@@ -44,7 +44,7 @@ function gameplayMechanicManager.SimulatePlatform(platformObject)
 		gameplayMechanicManager.SetupTrippingFunctionality(platformObject)
 
 		while true do
-			if not utilitiesLibrary.IsPlayerValid() then return end
+			if not playerUtilities.IsPlayerValid(game:GetService("Players").LocalPlayer) then return end
 			local deltaTime = game:GetService("RunService").RenderStepped:Wait()
 
 			-- This resets the position to the ideal center position.
@@ -137,7 +137,7 @@ function gameplayMechanicManager.SetupTrippingFunctionality(platformObject)
 		local player = game:GetService("Players"):GetPlayerFromCharacter(hit.Parent)
 
 		-- Guard clauses.
-		if player ~= clientEssentialsLibrary.GetPlayer() or not utilitiesLibrary.IsPlayerAlive(player) then return end
+		if player ~= clientEssentialsLibrary.GetPlayer() or not playerUtilities.IsPlayerAlive(player) then return end
 		if gameplayMechanicManager.IsPlatformBeingSimulated(platformObject) then return end
 		gameplayMechanicManager.UpdatePlatformBeingSimulated(platformObject, true)
 
@@ -149,7 +149,7 @@ function gameplayMechanicManager.SetupTrippingFunctionality(platformObject)
 		wait(script:GetAttribute("TripLength") or 3)
 
 		-- They might've died so we need to check just incase.
-		if utilitiesLibrary.IsPlayerAlive(player) then
+		if playerUtilities.IsPlayerAlive(player) then
 			humanoidObject.Sit = false
 			humanoidObject:SetStateEnabled(Enum.HumanoidStateType.GettingUp, true)
 		end

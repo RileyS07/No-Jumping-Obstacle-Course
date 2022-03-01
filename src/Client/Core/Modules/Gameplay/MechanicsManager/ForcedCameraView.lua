@@ -7,7 +7,7 @@ local coreModule = require(script:FindFirstAncestor("Core"))
 local mechanicsManager = require(coreModule.GetObject("Modules.Gameplay.MechanicsManager"))
 local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
 local clientAnimationsLibrary = require(coreModule.GetObject("Libraries.ClientAnimations"))
-local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries._Utilities"))
+local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
 
 -- Initialize
 function gameplayMechanicManager.Initialize()
@@ -20,7 +20,7 @@ function gameplayMechanicManager.Initialize()
             if platformObject:IsA("Model") and platformObject.PrimaryPart then
 				platformObject.PrimaryPart.Touched:Connect(function(hit)
 					local player = game:GetService("Players"):GetPlayerFromCharacter(hit.Parent)
-					if player ~= clientEssentialsLibrary.GetPlayer() or not utilitiesLibrary.IsPlayerAlive(player) then return end
+					if player ~= clientEssentialsLibrary.GetPlayer() or not playerUtilities.IsPlayerAlive(player) then return end
 
 					-- Update the camera.
 					gameplayMechanicManager.SimulateForcedCameraView(
@@ -43,7 +43,7 @@ function gameplayMechanicManager.Initialize()
             if resetCameraView:IsA("BasePart") then
 				resetCameraView.Touched:Connect(function(hit)
 					local player = game:GetService("Players"):GetPlayerFromCharacter(hit.Parent)
-					if player ~= clientEssentialsLibrary.GetPlayer() or not utilitiesLibrary.IsPlayerAlive() then return end
+					if player ~= clientEssentialsLibrary.GetPlayer() or not playerUtilities.IsPlayerAlive() then return end
 
 					gameplayMechanicManager.ResetForcedCameraView()
 				end)

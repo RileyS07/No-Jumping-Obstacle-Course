@@ -10,7 +10,7 @@ local soundEffectsManager = require(coreModule.GetObject("Modules.Gameplay.Playe
 local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
 local playerMouseLibrary = require(coreModule.GetObject("Libraries.UserInput.Mouse"))
 local clientAnimationsLibrary = require(coreModule.GetObject("Libraries.ClientAnimations"))
-local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries._Utilities"))
+local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
 
 -- Initialize
 function gameplayMechanicManager.Initialize()
@@ -18,14 +18,14 @@ function gameplayMechanicManager.Initialize()
     gameplayMechanicManager.CommonRaycastParameters = RaycastParams.new()
 	gameplayMechanicManager.CommonRaycastParameters.FilterType = Enum.RaycastFilterType.Whitelist
 	gameplayMechanicManager.CommonRaycastParameters.FilterDescendantsInstances = gameplayMechanicManager.MechanicContainer:GetDescendants()
-    
+
     -- Setting up the platform to be functional.
     playerMouseLibrary.SetInputListener({Enum.UserInputType.Touch, Enum.UserInputType.MouseButton1, Enum.KeyCode.ButtonX}, Enum.UserInputState.Begin):Connect(function()
         local raycastResult = playerMouseLibrary.Raycast(gameplayMechanicManager.CommonRaycastParameters)
-              
+
         -- Guard clauses.
         if not raycastResult then return end
-        if not utilitiesLibrary.IsPlayerAlive(clientEssentialsLibrary.GetPlayer()) then return end
+        if not playerUtilities.IsPlayerAlive(clientEssentialsLibrary.GetPlayer()) then return end
         if gameplayMechanicManager.IsPlatformBeingSimulated(raycastResult.Instance.Parent.Parent) then return end
         if clientEssentialsLibrary.GetPlayer():DistanceFromCharacter(raycastResult.Position) > (raycastResult.Instance:GetAttribute("MaxDistance") or script:GetAttribute("DefaultMaxDistance") or 50) then return end
 
@@ -37,7 +37,7 @@ end
 -- Methods
 function gameplayMechanicManager.SimulatePlatform(platformContainer, platformObject)
     if typeof(platformObject) ~= "Instance" or not platformObject:IsA("BasePart") then return end
-    if not utilitiesLibrary.IsPlayerAlive(clientEssentialsLibrary.GetPlayer()) then return end
+    if not playerUtilities.IsPlayerAlive(clientEssentialsLibrary.GetPlayer()) then return end
     if gameplayMechanicManager.IsPlatformBeingSimulated(platformContainer) then return end
     if clientEssentialsLibrary.GetPlayer():DistanceFromCharacter(platformObject.Position) > (platformObject:GetAttribute("MaxDistance") or script:GetAttribute("DefaultMaxDistance") or 50) then return end
 
@@ -52,7 +52,7 @@ function gameplayMechanicManager.SimulatePlatform(platformContainer, platformObj
             soundEffectsManager.PlaySoundEffect("SwitchClicked", {Parent = nestedPlatformObject})
         end
     end
-   
+
     gameplayMechanicManager.UpdatePlatformBeingSimulated(platformContainer, nil)
 end
 

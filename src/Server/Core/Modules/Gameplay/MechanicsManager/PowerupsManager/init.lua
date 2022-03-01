@@ -4,7 +4,7 @@ powerupsManager.PowerupsUpdated = Instance.new("BindableEvent")
 powerupsManager.PowerupInformation = {}
 
 local coreModule = require(script:FindFirstAncestor("Core"))
-local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries._Utilities"))
+local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
 
 local playSoundEffectRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.PlaySoundEffect")
 local timerInformationUpdatedRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.TimerInformationUpdated")
@@ -27,7 +27,7 @@ end
 
 -- Methods
 function powerupsManager.GetPowerupInformation(player, powerupName)
-    if not utilitiesLibrary.IsPlayerValid(player) then return end
+    if not playerUtilities.IsPlayerValid(player) then return end
 
     -- If you pass a string it's a specific one, if it's nil it's all.
     if typeof(powerupName) == "string" then
@@ -59,7 +59,7 @@ function powerupsManager.SetupPowerups()
                         )
 
                         -- We have to make sure they're valid and within a reasonable distance from the hitbox.
-                        if not utilitiesLibrary.IsPlayerAlive(player) then return end
+                        if not playerUtilities.IsPlayerAlive(player) then return end
                         if player:DistanceFromCharacter(teleportationManager.GetSeamlessCFrameAboveBasePart(player, powerupPlatformHitbox).Position) > maximumDistanceFromCenter then return end
 
                         -- You can reapply powerups but we want to add this so they don't spam and take up a lot of excessive resources.
@@ -98,7 +98,7 @@ end
 
 
 function powerupsManager.ApplyPowerup(player, powerupName, powerupPlatform)
-    if not utilitiesLibrary.IsPlayerAlive(player) then return end
+    if not playerUtilities.IsPlayerAlive(player) then return end
     if typeof(powerupPlatform) ~= "Instance" then return end
     if typeof(powerupName) ~= "string" or not script:FindFirstChild(powerupName) then return end
     if not script:FindFirstChild(powerupName):IsA("ModuleScript") then return end
@@ -109,9 +109,10 @@ function powerupsManager.ApplyPowerup(player, powerupName, powerupPlatform)
         coroutine.wrap(function()
 
             -- Yield till we can proceed to remove the powerup.
-            repeat game:GetService("RunService").Stepped:Wait()
+            repeat
+                task.wait()
             until
-            not utilitiesLibrary.IsPlayerAlive(player)
+            not playerUtilities.IsPlayerAlive(player)
             or not game:GetService("CollectionService"):HasTag(player.Character, powerupName)
             or not powerupsManager.GetPowerupInformation(player, powerupName)
             or os.clock() - powerupsManager.GetPowerupInformation(player, powerupName).Start >= powerupsManager.GetPowerupInformation(player, powerupName).Duration
@@ -129,11 +130,11 @@ end
 
 
 function powerupsManager.RemovePowerup(player, powerupName)
-    if not utilitiesLibrary.IsPlayerValid(player) then return end
+    if not playerUtilities.IsPlayerValid(player) then return end
     if typeof(powerupName) ~= "string" then return end
 
     -- Time to start the removal process.
-    if utilitiesLibrary.IsPlayerAlive(player) then
+    if playerUtilities.IsPlayerAlive(player) then
         game:GetService("CollectionService"):RemoveTag(player.Character, powerupName)
     end
 

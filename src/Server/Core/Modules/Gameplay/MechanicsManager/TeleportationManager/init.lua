@@ -6,7 +6,7 @@ teleportationManager.PlayerTeleported = Instance.new("BindableEvent")
 
 local coreModule = require(script:FindFirstAncestor("Core"))
 local userDataManager = require(coreModule.GetObject("Modules.Gameplay.PlayerManager.UserDataManager"))
-local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries._Utilities"))
+local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
 
 local teleportationStateUpdatedRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.TeleportationStateUpdated")
 local restoreDefaultPlayerConditionsRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.RestoreDefaultPlayerConditions")
@@ -38,7 +38,7 @@ function teleportationManager.TeleportPlayer(player, functionParamaters)
 	}})
 
 	-- Only two guard clauses here to see if they're alive and they have valid data; The individual specific sections will have their own guard clauses.
-	if not utilitiesLibrary.IsPlayerAlive(player) then return end
+	if not playerUtilities.IsPlayerAlive(player) then return end
 	if not userDataManager.GetData(player) then return end
 	local userData = userDataManager.GetData(player)
 
@@ -127,17 +127,18 @@ end
 
 -- This will restore the client to what it was like the second they joined with no modifiers.
 function teleportationManager.RestorePlayerConditions(player)
-	if not utilitiesLibrary.IsPlayerAlive(player) then return end
+	if not playerUtilities.IsPlayerAlive(player) then return end
 	if not userDataManager.GetData(player) then return end
 
 	-- Local imports.
 	local powerupsManager = require(coreModule.GetObject("Modules.Gameplay.MechanicsManager.PowerupsManager"))
-	local collisionsLibrary = require(coreModule.Shared.GetObject("Libraries.Collisions"))
+	local physicsService = require(coreModule.Shared.GetObject("Libraries.Services.PhysicsService"))
+
 	local userData = userDataManager.GetData(player)
 
 	-- Restoration.
 	powerupsManager.RemoveAllPowerups(player)
-	collisionsLibrary.SetDescendantsCollisionGroup(player.Character, "Players")
+	physicsService.SetCollectionsCollisionGroup(player.Character:GetChildren(), "Players")
 
 	player.Character.Humanoid.Health = player.Character.Humanoid.MaxHealth
 	player.Character.PrimaryPart.Velocity = Vector3.new()
@@ -167,7 +168,7 @@ end
 -- Private Methods
 -- TeleportPlayer translates the data given into a format this method/TeleportPlayerPostTranslationToPlace can use.
 function teleportationManager.TeleportPlayerPostTranslationToCFrame(player, goalCFrame, restorePlayerConditions, overlayColor: Color3?)
-	if not utilitiesLibrary.IsPlayerAlive(player) then return end
+	if not playerUtilities.IsPlayerAlive(player) then return end
 	if not typeof(goalCFrame) == "CFrame" then return end
 	if teleportationManager.IsPlayerBeingTeleported(player) then return end
 	teleportationManager.PlayersBeingTeleported[player] = true
@@ -178,7 +179,7 @@ function teleportationManager.TeleportPlayerPostTranslationToCFrame(player, goal
 	task.wait(teleportationAnimationLength)
 
 	-- We need to double check if they're still alive after yielding though.
-	if not utilitiesLibrary.IsPlayerAlive(player) then
+	if not playerUtilities.IsPlayerAlive(player) then
 		teleportationManager.PlayersBeingTeleported[player] = nil
 		teleportationStateUpdatedRemote:InvokeClient(player, false, teleportationAnimationLength, overlayColor or Color3.new(0, 0, 0))
 		return
@@ -200,7 +201,7 @@ end
 
 function teleportationManager.TeleportPlayerPostTranslationToPlaceId(player, goalPlaceId, teleportOptions)
 	if game:GetService("RunService"):IsStudio() then return end
-	if not utilitiesLibrary.IsPlayerValid(player) then return end
+	if not playerUtilities.IsPlayerValid(player) then return end
 	if not goalPlaceId or not tonumber(goalPlaceId) or tonumber(goalPlaceId) <= 0 then return end
 	if teleportationManager.IsPlayerBeingTeleported(player) then return end
 	teleportationManager.PlayersBeingTeleported[player] = true
@@ -230,7 +231,7 @@ function teleportationManager.TeleportPlayerListPostTranslationToPlaceId(players
 
 	-- We can start the effect.
 	for _, player in next, players do
-		if utilitiesLibrary.IsPlayerValid(player) and not teleportationManager.IsPlayerBeingTeleported(player) then
+		if playerUtilities.IsPlayerValid(player) and not teleportationManager.IsPlayerBeingTeleported(player) then
 
 			-- We can start the effect.
 			teleportationManager.PlayersBeingTeleported[player] = true
@@ -246,7 +247,7 @@ end
 
 -- Get the perfect CFrame above a basepart using a little math.
 function teleportationManager.GetSeamlessCFrameAboveBasePart(player, basePart)
-	if not utilitiesLibrary.IsPlayerAlive(player) then return end
+	if not playerUtilities.IsPlayerAlive(player) then return end
 	if typeof(basePart) ~= "Instance" or not basePart:IsA("BasePart") then return end
 
 	-- No need to yield just give a possible answer.

@@ -4,7 +4,7 @@ gameplayMechanicManager.MechanicContainer = nil
 
 local coreModule = require(script:FindFirstAncestor("Core"))
 local mechanicsManager = require(coreModule.GetObject("Modules.Gameplay.MechanicsManager"))
-local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries._Utilities"))
+local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
 
 -- Initialize
 function gameplayMechanicManager.Initialize()
@@ -14,17 +14,17 @@ function gameplayMechanicManager.Initialize()
     for _, platformContainer in next, gameplayMechanicManager.MechanicContainer:GetChildren() do
         for _, platformObject in next, platformContainer:GetChildren() do
             if platformObject:IsA("Model") and platformObject.PrimaryPart and platformObject:FindFirstChild("Nodes") and #platformObject.Nodes:GetChildren() > 0 then
-                
+
                 coroutine.wrap(function()
                     local weldOffsetValues = gameplayMechanicManager.GetWeldOffsetValues(platformObject)
                     local validNodesArray = gameplayMechanicManager.GetPlatformNodesArray(
-                        platformObject:FindFirstChild("Config") and require(platformObject.Config), 
+                        platformObject:FindFirstChild("Config") and require(platformObject.Config),
                         #platformObject.Nodes:GetChildren()
                     )
 
                     -- This is where the magic happens.
                     while true do
-                        if not utilitiesLibrary.IsPlayerValid() then return end
+                        if not playerUtilities.IsPlayerValid(game:GetService("Players").LocalPlayer) then return end
 
                         gameplayMechanicManager.SimulatePlatform(platformObject, validNodesArray, weldOffsetValues)
                         game:GetService("RunService").RenderStepped:Wait()
@@ -32,7 +32,7 @@ function gameplayMechanicManager.Initialize()
                 end)()
             elseif platformObject:IsA("Model") then
                 print(
-                    ("MovingPlatform: %s, has PrimaryPart: %s, has Nodes: %s, # of Nodes: %s"):format(platformObject:GetFullName(), tostring(platformObject.PrimaryPart ~= nil), tostring(platformObject:FindFirstChild("Nodes") ~= nil), tostring(platformObject:FindFirstChild("Nodes") and #platformObject.Nodes:GetChildren() or 0)), 
+                    ("MovingPlatform: %s, has PrimaryPart: %s, has Nodes: %s, # of Nodes: %s"):format(platformObject:GetFullName(), tostring(platformObject.PrimaryPart ~= nil), tostring(platformObject:FindFirstChild("Nodes") ~= nil), tostring(platformObject:FindFirstChild("Nodes") and #platformObject.Nodes:GetChildren() or 0)),
                     warn
                 )
             end
@@ -46,11 +46,11 @@ function gameplayMechanicManager.SimulatePlatform(platformObject, validNodesArra
     if typeof(platformObject) ~= "Instance" or not platformObject:IsA("Model") or not platformObject.PrimaryPart then return end
     if not platformObject:FindFirstChild("Nodes") or #platformObject.Nodes:GetChildren() == 0 then return end
     if typeof(validNodesArray) ~= "table" or #validNodesArray == 0 then return end
-    
+
     for index = 1, #platformObject.Nodes:GetChildren() do
-        if not platformObject.Nodes:FindFirstChild(index) then 
-            print("MovingPlatform: "..platformObject:GetFullName()..", has "..tostring(#platformObject.Nodes:GetChildren()).." children but is missing node: "..tostring(index)..".", warn) 
-            break 
+        if not platformObject.Nodes:FindFirstChild(index) then
+            print("MovingPlatform: "..platformObject:GetFullName()..", has "..tostring(#platformObject.Nodes:GetChildren()).." children but is missing node: "..tostring(index)..".", warn)
+            break
         end
 
         -- Common tween information.
@@ -98,7 +98,7 @@ function gameplayMechanicManager.GetWeldOffsetValues(platformObject)
 
         return weldOffsetValues
     end
-end 
+end
 
 
 function gameplayMechanicManager.GetPlatformNodesArray(possibleNodesArray, minimumNumberOfSequencesNeeded)

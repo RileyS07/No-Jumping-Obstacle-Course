@@ -4,7 +4,7 @@ teleporterObjectsManager.WaitingForPlayerConsent = {}
 teleporterObjectsManager.Remotes = {}
 
 local coreModule = require(script:FindFirstAncestor("Core"))
-local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries._Utilities"))
+local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
 
 -- Initialize
 function teleporterObjectsManager.Initialize()
@@ -21,7 +21,7 @@ end
 
 -- Methods
 function teleporterObjectsManager.GetTeleportationConsent(player, title, description, imageContent)
-    if not utilitiesLibrary.IsPlayerAlive(player) then return end
+    if not playerUtilities.IsPlayerAlive(player) then return end
     if teleporterObjectsManager.IsWaitingOnPlayerConsent(player) then return end
     teleporterObjectsManager.WaitingForPlayerConsent[player] = true
 

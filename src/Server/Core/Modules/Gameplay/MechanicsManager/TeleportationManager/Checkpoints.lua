@@ -6,8 +6,8 @@ checkpointsManager.CurrentCheckpointUpdated = Instance.new("BindableEvent")
 local coreModule = require(script:FindFirstAncestor("Core"))
 local userDataManager = require(coreModule.GetObject("Modules.Gameplay.PlayerManager.UserDataManager"))
 local teleportationManager = require(coreModule.GetObject("Modules.Gameplay.MechanicsManager.TeleportationManager"))
-local badgeLibrary = require(coreModule.GetObject("Libraries.BadgeLibrary"))
-local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries._Utilities"))
+local badgeService = require(coreModule.Shared.GetObject("Libraries.Services.BadgeService"))
+local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
 local badgeStorageLibrary = require(coreModule.Shared.GetObject("Libraries.BadgeStorage"))
 
 -- Initialize
@@ -26,7 +26,7 @@ function checkpointsManager.Initialize()
 		if checkpointPlatform:IsA("BasePart") and tonumber(checkpointPlatform.Name) then
 			checkpointPlatform.Touched:Connect(function(hit)
 				local player = game:GetService("Players"):GetPlayerFromCharacter(hit.Parent)
-				if not utilitiesLibrary.IsPlayerAlive(player) then return end
+				if not playerUtilities.IsPlayerAlive(player) then return end
 
 				-- Update their Farthest and Current checkpoints.
 				checkpointsManager.UpdateFarthestCheckpoint(player, tonumber(checkpointPlatform.Name))
@@ -39,7 +39,7 @@ function checkpointsManager.Initialize()
 	coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.TeleportToStage").OnServerEvent:Connect(function(player, checkpointNumber)
 		if typeof(checkpointNumber) ~= "number" then return end
 		if not workspace.Map.Gameplay.LevelStorage.Checkpoints:FindFirstChild(checkpointNumber) then return end
-		if not utilitiesLibrary.IsPlayerAlive(player) then return end
+		if not playerUtilities.IsPlayerAlive(player) then return end
 		if not userDataManager.GetData(player) then return end
 		if userDataManager.GetData(player).UserInformation.FarthestCheckpoint < checkpointNumber then return end
 
@@ -54,7 +54,7 @@ end
 -- Methods
 -- Updates the farthest checkpoint a user has ever reached is possible.
 function checkpointsManager.UpdateFarthestCheckpoint(player, checkpointNumber)
-	if not utilitiesLibrary.IsPlayerValid(player) then return end
+	if not playerUtilities.IsPlayerValid(player) then return end
 	if not userDataManager.GetData(player) then return end
 
 	-- FarthestCheckpoint cannot regress.
@@ -74,7 +74,7 @@ end
 
 -- Updates the current checkpoint the user is at as long as everything is valid.
 function checkpointsManager.UpdateCurrentCheckpoint(player, checkpointNumber)
-	if not utilitiesLibrary.IsPlayerValid(player) then return end
+	if not playerUtilities.IsPlayerValid(player) then return end
 	if not userDataManager.GetData(player) then return end
 
 	-- This should be impossible but I still have it here just in case.
@@ -95,7 +95,7 @@ function checkpointsManager.UpdateCurrentCheckpoint(player, checkpointNumber)
 		-- Backwards compatibility for award trial badges.
 		if checkpointNumber > 1 and checkpointNumber%10 == 1 then
 			if badgeStorageLibrary.GetBadgeList("Trials") then
-				badgeLibrary.AwardBadge(player, badgeStorageLibrary.GetBadgeList("Trials")[math.floor(checkpointNumber/10)])
+				badgeService.AwardBadge(player, badgeStorageLibrary.GetBadgeList("Trials")[math.floor(checkpointNumber/10)])
 			end
 
 			-- Fixing their data.

@@ -8,7 +8,7 @@ local coreModule = require(script:FindFirstAncestor("Core"))
 local mechanicsManager = require(coreModule.GetObject("Modules.Gameplay.MechanicsManager"))
 local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
 local clientAnimationsLibrary = require(coreModule.GetObject("Libraries.ClientAnimations"))
-local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries._Utilities"))
+local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
 
 -- Initialize
 function gameplayMechanicManager.Initialize()
@@ -33,12 +33,12 @@ function gameplayMechanicManager.Initialize()
                     game:GetService("ProximityPromptService").PromptTriggered:Connect(function(proximityPrompt, player)
                         if proximityPrompt ~= platformObject.PrimaryPart[gameplayMechanicManager.Assets.CodeDoorProximityPrompt.Name] then return end
                         if player ~= clientEssentialsLibrary.GetPlayer() then return end
-                        if not utilitiesLibrary.IsPlayerAlive(player) then return end
+                        if not playerUtilities.IsPlayerAlive(player) then return end
                         if gameplayMechanicManager.IsPlatformBeingSimulated(platformObject) then return end
 
                         -- So this long and confusing math just checks if they're in front of the door or not.
                         if math.round(platformObject.PrimaryPart.CFrame.LookVector:Dot(CFrame.lookAt(player.Character:GetPrimaryPartCFrame().Position, platformObject:GetPrimaryPartCFrame().Position).LookVector)) ~= -1 then return end
-                        
+
                         doorInterfaceManager.OpenInterface(platformObject)
                     end)
                 end
@@ -57,7 +57,7 @@ end
 -- Methods
 function gameplayMechanicManager.SimulatePlatform(platformObject)
     if typeof(platformObject) ~= "Instance" or not platformObject:IsA("Model") or not platformObject.PrimaryPart then return end
-    if not utilitiesLibrary.IsPlayerAlive() then return end
+    if not playerUtilities.IsPlayerAlive() then return end
     if gameplayMechanicManager.IsPlatformBeingSimulated(platformObject) then return end
 
     -- So this long and confusing math just checks if they're in front of the door or not.

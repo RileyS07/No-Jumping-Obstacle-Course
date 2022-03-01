@@ -4,9 +4,7 @@ respawnPlatformsManager.MechanicContainer = nil
 
 local coreModule = require(script:FindFirstAncestor("Core"))
 local teleportationManager = require(coreModule.GetObject("Modules.Gameplay.MechanicsManager.TeleportationManager"))
---local userDataManager = require(coreModule.GetObject("Modules.Gameplay.PlayerManager.UserDataManager"))
---local badgeLibrary = require(coreModule.GetObject("Libraries.BadgeLibrary"))
-local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries._Utilities"))
+local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
 
 -- Initialize
 function respawnPlatformsManager.Initialize()
@@ -22,7 +20,7 @@ function respawnPlatformsManager.Initialize()
 
 				-- Guard clauses to make sure the player is alive and doesn't have an exception tag.
 				local player = game:GetService("Players"):GetPlayerFromCharacter(hit.Parent)
-				if not utilitiesLibrary.IsPlayerAlive(player) then return end
+				if not playerUtilities.IsPlayerAlive(player) then return end
 				if game:GetService("CollectionService"):HasTag(player.Character, "Forcefield") then return end
 
 				--[[

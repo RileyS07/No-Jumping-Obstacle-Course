@@ -2,11 +2,11 @@
 local specificClientAnimation = {}
 local coreModule = require(script:FindFirstAncestor("Core"))
 local cameraEssentialsLibrary = require(coreModule.GetObject("Libraries.CameraEssentials"))
-local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries._Utilities"))
+local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
 
 -- Methods
 function specificClientAnimation.Play(goalCFrame, goalFOV)
-    if not utilitiesLibrary.IsPlayerAlive() then return end
+    if not playerUtilities.IsPlayerAlive() then return end
     cameraEssentialsLibrary.YieldTillCurrentCameraIsReadyForManipulation()
 
     -- Force the camera to a certain view.

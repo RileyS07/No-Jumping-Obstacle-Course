@@ -11,7 +11,7 @@ local soundEffectsManager = require(coreModule.GetObject("Modules.Gameplay.Playe
 local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
 local playerMouseLibrary = require(coreModule.GetObject("Libraries.UserInput.Mouse"))
 local clientAnimationsLibrary = require(coreModule.GetObject("Libraries.ClientAnimations"))
-local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries._Utilities"))
+local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
 
 -- Initialize
 function gameplayMechanicManager.Initialize()
@@ -26,7 +26,7 @@ function gameplayMechanicManager.Initialize()
 
         -- Guard clauses.
         if not raycastResult then return end
-        if not utilitiesLibrary.IsPlayerAlive(clientEssentialsLibrary.GetPlayer()) then return end
+        if not playerUtilities.IsPlayerAlive(clientEssentialsLibrary.GetPlayer()) then return end
         if gameplayMechanicManager.IsPlatformBeingSimulated(raycastResult.Instance) then return end
         if clientEssentialsLibrary.GetPlayer():DistanceFromCharacter(raycastResult.Position) > (raycastResult.Instance:GetAttribute("MaxDistance") or script:GetAttribute("DefaultMaxDistance") or 50) then return end
 
@@ -41,7 +41,7 @@ end
 -- Methods
 function gameplayMechanicManager.SimulatePlatform(platformObject)
     if typeof(platformObject) ~= "Instance" or not platformObject:IsA("BasePart") then return end
-    if not utilitiesLibrary.IsPlayerAlive(clientEssentialsLibrary.GetPlayer()) then return end
+    if not playerUtilities.IsPlayerAlive(clientEssentialsLibrary.GetPlayer()) then return end
     if gameplayMechanicManager.IsPlatformBeingSimulated(platformObject) then return end
     if clientEssentialsLibrary.GetPlayer():DistanceFromCharacter(platformObject.Position) > (platformObject:GetAttribute("MaxDistance") or script:GetAttribute("DefaultMaxDistance") or 50) then return end
 
@@ -89,9 +89,9 @@ function gameplayMechanicManager.SetupKeybindFunctionality()
     -- The functionality will only be avaliable if the player is within x studs of the platform.
     coroutine.wrap(function()
         while true do
-            if not utilitiesLibrary.IsPlayerValid() then return end
+            if not playerUtilities.IsPlayerValid(game:GetService("Players").LocalPlayer) then return end
 
-            if utilitiesLibrary.IsPlayerAlive(clientEssentialsLibrary.GetPlayer()) and not userInterfaceManager.GetPriorityInterface() then
+            if playerUtilities.IsPlayerAlive(clientEssentialsLibrary.GetPlayer()) and not userInterfaceManager.GetPriorityInterface() then
                 local isPlayerNearAnySwitchPlatforms = false
 
                 for _, platformObject in next, gameplayMechanicManager.MechanicContainer:GetDescendants() do

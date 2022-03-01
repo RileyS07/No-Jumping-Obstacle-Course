@@ -6,7 +6,7 @@ local coreModule = require(script:FindFirstAncestor("Core"))
 local mechanicsManager = require(coreModule.GetObject("Modules.Gameplay.MechanicsManager"))
 local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
 local clientAnimationsLibrary = require(coreModule.GetObject("Libraries.ClientAnimations"))
-local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries._Utilities"))
+local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
 
 -- Initialize
 function gameplayMechanicManager.Initialize()
@@ -24,9 +24,9 @@ function gameplayMechanicManager.Initialize()
 					)
 
 					while true do
-						if not utilitiesLibrary.IsPlayerValid() then return end
+						if not playerUtilities.IsPlayerValid(game:GetService("Players").LocalPlayer) then return end
 
-						if utilitiesLibrary.IsPlayerAlive() and clientEssentialsLibrary.GetPlayer():DistanceFromCharacter(platformObject:GetBoundingBox().Position) <= 1000 then
+						if playerUtilities.IsPlayerAlive() and clientEssentialsLibrary.GetPlayer():DistanceFromCharacter(platformObject:GetBoundingBox().Position) <= 1000 then
 							gameplayMechanicManager.SimulatePlatform(platformObject, validBeatMap)
 						end
 

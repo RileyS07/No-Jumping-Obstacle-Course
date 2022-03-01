@@ -3,7 +3,7 @@ local locationTeleporterManager = {}
 local coreModule = require(script:FindFirstAncestor("Core"))
 local teleporterObjectsManager = require(coreModule.GetObject("Modules.Gameplay.MechanicsManager.TeleportationManager.TeleporterObjectsManager"))
 local teleportationManager = require(coreModule.GetObject("Modules.Gameplay.MechanicsManager.TeleportationManager"))
-local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries._Utilities"))
+local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
 
 -- Initialize
 function locationTeleporterManager.Initialize()
@@ -32,7 +32,7 @@ function locationTeleporterManager.Initialize()
 				local player = game:GetService("Players"):GetPlayerFromCharacter(hit.Parent)
 
 				-- Guard clauses to make sure everything is valid.
-				if not utilitiesLibrary.IsPlayerAlive(player) then return end
+				if not playerUtilities.IsPlayerAlive(player) then return end
 				if teleporterObjectsManager.IsWaitingOnPlayerConsent(player) then return end
 
 				locationTeleporterManager.SimulateTeleportation(player, teleporterObject)
@@ -43,7 +43,7 @@ end
 
 -- This method was copied straight from BonusStages.lua; Just teleports them if possible.
 function locationTeleporterManager.SimulateTeleportation(player: Player, teleporterObject: Model)
-	if not utilitiesLibrary.IsPlayerAlive(player) then return end
+	if not playerUtilities.IsPlayerAlive(player) then return end
 	if typeof(teleporterObject) ~= "Instance" or not teleporterObject.PrimaryPart then return end
 
 	-- Now that we have the guard clauses we have to get consent to teleport them.

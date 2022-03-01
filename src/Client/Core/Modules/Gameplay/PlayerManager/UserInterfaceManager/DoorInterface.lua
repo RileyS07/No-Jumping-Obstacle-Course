@@ -7,7 +7,7 @@ local coreModule = require(script:FindFirstAncestor("Core"))
 local userInterfaceManager = require(coreModule.GetObject("Modules.Gameplay.PlayerManager.UserInterfaceManager"))
 local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
 local soundEffectsManager = require(coreModule.GetObject("Modules.Gameplay.PlayerManager.SoundEffects"))
-local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries._Utilities"))
+local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
 
 -- Initialize
 function specificInterfaceManager.Initialize()
@@ -22,7 +22,7 @@ function specificInterfaceManager.Initialize()
 	-- Attempting to open the door.
 	specificInterfaceManager.Interface.Buttons:WaitForChild("Yes").Activated:Connect(function()
 		if not specificInterfaceManager.CurrentPlatformObject then return end
-		
+
 		-- The code was valid?
 		if specificInterfaceManager.Interface.CodeOutputText.Text == (specificInterfaceManager.CurrentPlatformObject:GetAttribute("Code") or "1234") then
 			soundEffectsManager.PlaySoundEffect("Success")
@@ -75,7 +75,7 @@ function specificInterfaceManager.OpenInterface(platformObject)
 			while true do
 				if not userInterfaceManager.IsActiveContainer(specificInterfaceManager.Interface.Container) then return end
 				if specificInterfaceManager.CurrentPlatformObject ~= platformObject then return end
-				if not utilitiesLibrary.IsPlayerAlive(clientEssentialsLibrary.GetPlayer()) then return end
+				if not playerUtilities.IsPlayerAlive(clientEssentialsLibrary.GetPlayer()) then return end
 
 				-- Close it.
 				if clientEssentialsLibrary.GetPlayer():DistanceFromCharacter(platformObject:GetPrimaryPartCFrame().Position) > 25 then
