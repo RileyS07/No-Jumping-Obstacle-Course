@@ -1,4 +1,5 @@
 local collectionService: CollectionService = game:GetService("CollectionService")
+local players: Players = game:GetService("Players")
 
 local coreModule = require(script:FindFirstAncestor("Core"))
 local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
@@ -13,7 +14,7 @@ function ThisPowerupManager.Initialize()
     collectionService:GetInstanceRemovedSignal(script.Name):Connect(function(character: Model)
 
         -- There might be a situation where the ForceField was already destroyed somehow.
-        local player: Player? = game:GetService("Players"):GetPlayerFromCharacter(character)
+        local player: Player? = players:GetPlayerFromCharacter(character)
 
 		if not playerUtilities.IsPlayerAlive(player) then return end
         if not character:FindFirstChildOfClass("ForceField") then return end

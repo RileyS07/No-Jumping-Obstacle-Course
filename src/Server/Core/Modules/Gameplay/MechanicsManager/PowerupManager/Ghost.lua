@@ -1,4 +1,5 @@
 local collectionService: CollectionService = game:GetService("CollectionService")
+local players: Players = game:GetService("Players")
 
 local coreModule = require(script:FindFirstAncestor("Core"))
 local powerupsManager = require(coreModule.GetObject("Modules.Gameplay.MechanicsManager.PowerupManager"))
@@ -24,9 +25,9 @@ function ThisPowerupManager.Initialize()
 
     -- This will be called when the powerup is removed from a character.
     -- The main powerup system handles all of this.
-    collectionService:GetInstanceRemovedSignal(script.Name):Connect(function(character)
+    collectionService:GetInstanceRemovedSignal(script.Name):Connect(function(character: Model)
 
-        local player: Player? = game:GetService("Players"):GetPlayerFromCharacter(character)
+        local player: Player? = players:GetPlayerFromCharacter(character)
 		if not playerUtilities.IsPlayerAlive(player) then return end
 
         -- We have to do a special exception for Paint powerup.

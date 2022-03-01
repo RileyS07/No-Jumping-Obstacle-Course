@@ -1,73 +1,109 @@
--- Variables
-local specificPowerupManager = {}
+local collectionService: CollectionService = game:GetService("CollectionService")
+local players: Players = game:GetService("Players")
+
 local coreModule = require(script:FindFirstAncestor("Core"))
 local powerupsManager = require(coreModule.GetObject("Modules.Gameplay.MechanicsManager.PowerupManager"))
 local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
 local physicsService = require(coreModule.Shared.GetObject("Libraries.Services.PhysicsService"))
+local sharedConstants = require(coreModule.Shared.GetObject("Libraries.SharedConstants"))
+
+local thisPowerupStorage: Instance = workspace.Map.Gameplay.PlatformerMechanics.Powerups[script.Name]
+
+local ThisPowerupManager = {}
 
 -- Initialize
-function specificPowerupManager.Initialize()
+function ThisPowerupManager.Initialize()
 
-    -- We need to setup A LOT of collision group stuff here.
-    for _, powerupContainer in next, workspace.Map.Gameplay.PlatformerMechanics.Powerups[script.Name]:GetChildren() do
-        physicsService.CollisionGroupSetCollidable(powerupContainer.Name, powerupContainer.Name.."Part", false)
-		physicsService.CollisionGroupSetCollidable(powerupContainer.Name, "Players", false)
-		physicsService.CollisionGroupSetCollidable(powerupContainer.Name, "Ghosts", false)
+    --[[
+        We need to do a lot of setup for collisions here.
+        - paintType x paintType
+        - paintType x painTypePart
+        - paintType x Players
+        - paintType x Ghosts
+        - paintTypeGhost x paintTypeGhost
+        - paintTypeGhost x Ghosts
+        - paintTypeGhost x Players
+        - paintTypeGhost x paintTypePart
+        - paintTypeGhost x GhostsNoCollide
+        - paintType x otherPaintType
+        - paintTypeGhost x otherPaintTypeGhost
+    ]]
 
-        physicsService.CollisionGroupSetCollidable(powerupContainer.Name.."Ghost", "Ghosts", false)
-        physicsService.CollisionGroupSetCollidable(powerupContainer.Name.."Ghost", "Players", false)
-        physicsService.CollisionGroupSetCollidable(powerupContainer.Name.."Ghost", powerupContainer.Name.."Part", false)
+    for _, thisPowerup: Instance in next, thisPowerupStorage:GetChildren() do
 
-        -- BluePaint shouldn't collide with RedPaint.
-        for _, nestedPowerupContainer in next, workspace.Map.Gameplay.PlatformerMechanics.Powerups[script.Name]:GetChildren() do
-            physicsService.CollisionGroupSetCollidable(powerupContainer.Name, nestedPowerupContainer.Name, false)
-            physicsService.CollisionGroupSetCollidable(powerupContainer.Name.."Ghost", nestedPowerupContainer.Name.."Ghost", false)
-            physicsService.CollisionGroupSetCollidable(powerupContainer.Name.."Ghost", "GhostsNoCollide", false)
+        -- paintType collisions.
+        physicsService.CollisionGroupSetCollidable(thisPowerup.Name, thisPowerup.Name, false)
+        physicsService.CollisionGroupSetCollidable(thisPowerup.Name, thisPowerup.Name .. "Part", false)
+		physicsService.CollisionGroupSetCollidable(thisPowerup.Name, "Players", false)
+		physicsService.CollisionGroupSetCollidable(thisPowerup.Name, "Ghosts", false)
+
+        -- paintTypeGhost collisions.
+        physicsService.CollisionGroupSetCollidable(thisPowerup.Name .. "Ghost", thisPowerup.Name .. "Ghost", false)
+        physicsService.CollisionGroupSetCollidable(thisPowerup.Name .. "Ghost", "Ghosts", false)
+        physicsService.CollisionGroupSetCollidable(thisPowerup.Name .. "Ghost", "Players", false)
+        physicsService.CollisionGroupSetCollidable(thisPowerup.Name .. "Ghost", thisPowerup.Name .. "Part", false)
+        physicsService.CollisionGroupSetCollidable(thisPowerup.Name .. "Ghost", "GhostsNoCollide", false)
+
+        -- otherPaintType collisions.
+        for _, otherPowerup: Instance in next, thisPowerupStorage:GetChildren() do
+            physicsService.CollisionGroupSetCollidable(thisPowerup.Name, otherPowerup.Name, false)
+            physicsService.CollisionGroupSetCollidable(thisPowerup.Name .. "Ghost", otherPowerup.Name .. "Ghost", false)
         end
     end
 
     -- This is the actual functionality behind the paint powerup.
-    if workspace.Map.Gameplay.PlatformerMechanics.Powerups[script.Name]:FindFirstChild("AccessableParts") then
-        for _, accessablePart in next, workspace.Map.Gameplay.PlatformerMechanics.Powerups[script.Name].AccessableParts:GetChildren() do
-            physicsService.SetCollectionsCollisionGroup({accessablePart}, accessablePart.Name.."Part")
+    if thisPowerupStorage:FindFirstChild("AccessableParts") then
+        for _, accessablePart: Instance in next, thisPowerupStorage.AccessableParts:GetChildren() do
+            physicsService.SetCollectionsCollisionGroup(
+                {accessablePart},
+                accessablePart.Name .. "Part"
+            )
         end
     end
 
-    game:GetService("CollectionService"):GetInstanceRemovedSignal(script.Name):Connect(function(character)
-        local player = game:GetService("Players"):GetPlayerFromCharacter(character)
+    -- This will be called when the powerup is removed from a character.
+    -- The main powerup system handles all of this.
+    collectionService:GetInstanceRemovedSignal(script.Name):Connect(function(character: Model)
+
+        local player: Player? = players:GetPlayerFromCharacter(character)
 		if not playerUtilities.IsPlayerAlive(player) then return end
 		if not character.Humanoid:FindFirstChild("HumanoidDescription") then return end
 
         -- We have to do a special exception for Ghost powerup.
+        -- If they have the ghost powerup after the paint powerup is finished we just set it back to the paint collision.
         if powerupsManager.GetPowerupInformation(player, "Ghost") then
             physicsService.SetCollectionsCollisionGroup(player.Character:GetChildren(), "Ghosts")
         else
             physicsService.SetCollectionsCollisionGroup(player.Character:GetChildren(), "Players")
         end
 
+        -- We use their HumanoidDescription to reapply their normal look.
         character.Humanoid:ApplyDescription(character.Humanoid.HumanoidDescription)
     end)
 end
 
+-- Applies the powerup, this is where we put any effects into play.
+function ThisPowerupManager.Apply(player: Player, thisPowerup: Instance)
 
--- Apply
-function specificPowerupManager.Apply(player, powerupPlatform)
     if not playerUtilities.IsPlayerAlive(player) then return end
 
     -- We have to do a special exception for Ghost powerup.
+    -- If they have the ghost powerup after the paint powerup is finished we just set it back to the paint collision.
     if powerupsManager.GetPowerupInformation(player, "Ghost") then
-        physicsService.SetCollectionsCollisionGroup(player.Character:GetChildren(), powerupPlatform.Name.."Ghost")
+        physicsService.SetCollectionsCollisionGroup(
+            player.Character:GetChildren(),
+            thisPowerup.Name .. "Ghost"
+        )
     else
-        physicsService.SetCollectionsCollisionGroup(player.Character:GetChildren(), powerupPlatform.Name)
+        physicsService.SetCollectionsCollisionGroup(player.Character:GetChildren(), thisPowerup.Name)
     end
 
-	for _, basePart in next, player.Character:GetChildren() do
+    -- We want to color them the same as the paint.
+	for _, basePart: Instance in next, player.Character:GetChildren() do
 		if basePart:IsA("BasePart") then
-			basePart.Color = powerupPlatform:GetAttribute("Color") or Color3.new()
+			basePart.Color = thisPowerup:GetAttribute("Color") or sharedConstants.MECHANICS.PAINT_POWERUP_DEFAULT_COLOR
 		end
 	end
 end
 
-
---
-return specificPowerupManager
+return ThisPowerupManager

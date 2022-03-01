@@ -1,31 +1,38 @@
--- Variables
-local specificPowerupManager = {}
-specificPowerupManager.Remotes = {}
+local collectionService: CollectionService = game:GetService("CollectionService")
+local players: Players = game:GetService("Players")
 
 local coreModule = require(script:FindFirstAncestor("Core"))
 local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
 
+local radarStatusUpdatedRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.RadarStatusUpdated")
+
+local ThisPowerupManager = {}
+
 -- Initialize
-function specificPowerupManager.Initialize()
-    game:GetService("CollectionService"):GetInstanceRemovedSignal(script.Name):Connect(function(character)
-        local player = game:GetService("Players"):GetPlayerFromCharacter(character)
+function ThisPowerupManager.Initialize()
+
+    -- This will be called when the powerup is removed from a character.
+    -- The main powerup system handles all of this.
+    collectionService:GetInstanceRemovedSignal(script.Name):Connect(function(character: Model)
+
+        local player: Player? = players:GetPlayerFromCharacter(character)
 		if not playerUtilities.IsPlayerAlive(player) then return end
 
-        specificPowerupManager.Remotes.RadarStatusUpdated:FireClient(player)
+        -- We tell the client to update the radar to clear any parts.
+        radarStatusUpdatedRemote:FireClient(player)
     end)
-
-    specificPowerupManager.Remotes.RadarStatusUpdated = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.RadarStatusUpdated")
 end
 
+-- Applies the powerup, this is where we put any effects into play.
+function ThisPowerupManager.Apply(player: Player, thisPowerup: Instance)
 
--- Apply
-function specificPowerupManager.Apply(player, powerupPlatform)
     if not playerUtilities.IsPlayerAlive(player) then return end
-    if not powerupPlatform:FindFirstChild("AccessableParts") then return end
 
-    specificPowerupManager.Remotes.RadarStatusUpdated:FireClient(player, powerupPlatform.AccessableParts:GetChildren())
+    -- We can't render anything if these collection doesn't exist.
+    if not thisPowerup:FindFirstChild("AccessableParts") then return end
+
+    -- We tell the client to update the radar to show these parts.
+    radarStatusUpdatedRemote:FireClient(player, thisPowerup.AccessableParts:GetChildren())
 end
 
-
---
-return specificPowerupManager
+return ThisPowerupManager

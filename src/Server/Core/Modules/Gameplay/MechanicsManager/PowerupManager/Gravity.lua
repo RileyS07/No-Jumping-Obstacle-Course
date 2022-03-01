@@ -1,49 +1,54 @@
--- Variables
-local specificPowerupManager = {}
+local collectionService: CollectionService = game:GetService("CollectionService")
+local players: Players = game:GetService("Players")
+
 local coreModule = require(script:FindFirstAncestor("Core"))
 local instanceUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.InstanceUtilities"))
 local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
+local sharedConstants = require(coreModule.Shared.GetObject("Libraries.SharedConstants"))
+
+local ThisPowerupManager = {}
 
 -- Initialize
-function specificPowerupManager.Initialize()
-    game:GetService("CollectionService"):GetInstanceRemovedSignal(script.Name):Connect(function(character)
-        local player = game:GetService("Players"):GetPlayerFromCharacter(character)
+function ThisPowerupManager.Initialize()
+
+    -- This will be called when the powerup is removed from a character.
+    -- The main powerup system handles all of this.
+    collectionService:GetInstanceRemovedSignal(script.Name):Connect(function(character: Model)
+
+        local player: Player? = players:GetPlayerFromCharacter(character)
 		if not playerUtilities.IsPlayerAlive(player) then return end
         if not character.PrimaryPart:FindFirstChildOfClass("BodyForce") then return end
 
+        -- We destroy it if it exists!
         character.PrimaryPart:FindFirstChildOfClass("BodyForce"):Destroy()
     end)
 end
 
+-- Applies the powerup, this is where we put any effects into play.
+function ThisPowerupManager.Apply(player: Player, thisPowerup: Instance)
 
--- Apply
-function specificPowerupManager.Apply(player, powerupPlatform)
     if not playerUtilities.IsPlayerAlive(player) then return end
 
-    local bodyForceObject = player.Character.PrimaryPart:FindFirstChildOfClass("BodyForce") or instanceUtilities.Create("BodyForce", {Parent = player.Character.PrimaryPart})
-    bodyForceObject.Force = Vector3.new(
+    -- We need to either find it or create it.
+    local thisBodyForce: BodyForce = player.Character.PrimaryPart:FindFirstChildOfClass("BodyForce")
+
+    if not thisBodyForce then
+        thisBodyForce = Instance.new("BodyForce")
+        thisBodyForce.Parent = player.Character.PrimaryPart
+    end
+
+    -- Now we need to assign a force to it.
+    -- The amount of force it applies it based on the gravity in workspace and the user's mass.
+    -- Do keep in mind that the force is not constant the entire way up, it will work towards it's terminal velocity.
+    -- https://en.wikipedia.org/wiki/Terminal_velocity
+    -- Gravity * Multiplier * CharacterMass.
+    thisBodyForce.Force = Vector3.new(
         0,
-        -- CharacterMass*Gravity*GravityMultiplier; We do 1 - Force so you can do 1.5 thinking 1.5 times gravity and not really treat it was gravity + 1.5x gravity.
-        specificPowerupManager.GetCharacterMass(player.Character)*workspace.Gravity*((powerupPlatform:GetAttribute("Force") or script:GetAttribute("DefaultForce")) - 1),
+        workspace.Gravity
+            * (thisPowerup:GetAttribute("Force") or sharedConstants.MECHANICS.GRAVITY_POWERUP_DEFAULT_FORCE)
+            * instanceUtilities.GetMass(player.Character),
         0
     )
 end
 
-
--- Methods
-function specificPowerupManager.GetCharacterMass(character)
-    if typeof(character) ~= "Instance" or not character:IsA("Model") then return end
-
-    -- We add up all of the individual masses of the limbs.
-    local totalCharacterMass = 0
-    for _, basePart in next, character:GetChildren() do
-        if basePart:IsA("BasePart") then
-            totalCharacterMass += basePart:GetMass()
-        end
-    end
-
-    return totalCharacterMass
-end
-
---
-return specificPowerupManager
+return ThisPowerupManager

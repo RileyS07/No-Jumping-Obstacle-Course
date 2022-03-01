@@ -152,6 +152,7 @@ function gameplayMechanicManager.SetupTrippingFunctionality(platformObject)
 		if playerUtilities.IsPlayerAlive(player) then
 			humanoidObject.Sit = false
 			humanoidObject:SetStateEnabled(Enum.HumanoidStateType.GettingUp, true)
+			humanoidObject:SetStateEnabled(Enum.HumanoidStateType.Jumping, true)
 		end
 
 		gameplayMechanicManager.UpdatePlatformBeingSimulated(platformObject, nil)

@@ -1,7 +1,7 @@
-local InstaceUtilities = {}
+local InstanceUtilities = {}
 
 -- An extension of Instance.new to support all properties.
-function InstaceUtilities.Create(className: string, properties: {[string]: any}?) : Instance
+function InstanceUtilities.Create(className: string, properties: {[string]: any}?) : Instance
     assert(typeof(className) == "string", "Argument #1 expected string. Got " .. typeof(className))
     assert(typeof(properties) == "table" or typeof(properties) == "nil", "Argument #2 expected dictionary. Got " .. typeof(properties))
 
@@ -20,14 +20,14 @@ function InstaceUtilities.Create(className: string, properties: {[string]: any}?
 end
 
 -- A function to replace the common scheme of 'if ... then (...):Destroy() end'
-function InstaceUtilities.SafeDestroy(instance: Instance?)
+function InstanceUtilities.SafeDestroy(instance: Instance?)
     if typeof(instance) == "Instance" then
         instance:Destroy()
     end
 end
 
 -- An extension of Instance:GetChildren() to only get certain children with a filter.
-function InstaceUtilities.GetChildren(instance: Instance, filterFunction: (Instance) -> boolean) : {Instance}
+function InstanceUtilities.GetChildren(instance: Instance, filterFunction: (Instance) -> boolean) : {Instance}
 
     local children = instance:GetChildren()
 
@@ -42,7 +42,7 @@ function InstaceUtilities.GetChildren(instance: Instance, filterFunction: (Insta
 end
 
 -- An extension of Instance:GetChildren() to only get certain children of a class type.
-function InstaceUtilities.GetChildrenWhichAre(instance: Instance, className: string) : {Instance}
+function InstanceUtilities.GetChildrenWhichAre(instance: Instance, className: string) : {Instance}
 
     local children = instance:GetChildren()
 
@@ -57,7 +57,7 @@ function InstaceUtilities.GetChildrenWhichAre(instance: Instance, className: str
 end
 
 -- An extension of Instance:GetDescendants() to only get certain descendants.
-function InstaceUtilities.GetDescendants(instance: Instance, filterFunction: (Instance) -> boolean) : {Instance}
+function InstanceUtilities.GetDescendants(instance: Instance, filterFunction: (Instance) -> boolean) : {Instance}
 
     local descendants = instance:GetDescendants()
 
@@ -71,4 +71,19 @@ function InstaceUtilities.GetDescendants(instance: Instance, filterFunction: (In
     return descendants
 end
 
-return InstaceUtilities
+-- This function returns the total mass of an instances parts.
+function InstanceUtilities.GetMass(thisInstance: Instance) : number
+
+    local finalMassAmount: number = 0
+
+    -- We want to check all of it's descendants.
+    for _, descendant: Instance in next, thisInstance:GetDescendants() do
+        if descendant:IsA("BasePart") then
+            finalMassAmount += (descendant :: BasePart):GetMass()
+        end
+    end
+
+    return finalMassAmount
+end
+
+return InstanceUtilities
