@@ -1,79 +1,84 @@
--- Variables
-local gameplayMechanicManager = {}
-gameplayMechanicManager.Remotes = {}
-gameplayMechanicManager.PlatformsBeingSimulated = {}
-
 local coreModule = require(script:FindFirstAncestor("Core"))
-local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries._Utilities"))
+local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
+local sharedConstants = require(coreModule.Shared.GetObject("Libraries.SharedConstants"))
+
+local playSoundEffectRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.PlaySoundEffect")
+
+local ThisMechanicManager = {}
+ThisMechanicManager.ActivePlatforms = {}
 
 -- Initialize
-function gameplayMechanicManager.Initialize()
+function ThisMechanicManager.Initialize()
     if not workspace.Map.Gameplay.PlatformerMechanics:FindFirstChild("HealingPlatforms") then return end
 
-    -- Setting up the HealingPlatforms to be functional.
-    for _, healingPlatformContainer in next, workspace.Map.Gameplay.PlatformerMechanics.HealingPlatforms:GetChildren() do
-        for _, healingPlatform in next, healingPlatformContainer:GetChildren() do
+    -- Setting up this platform to be functional.
+    for _, platformContainer: Instance in next, workspace.Map.Gameplay.PlatformerMechanics.HealingPlatforms:GetChildren() do
+        for _, thisPlatform: Instance in next, platformContainer:GetChildren() do
 
-            -- PrimaryPart is what the players will touch to heal themselves.
-            if healingPlatform:IsA("Model") and healingPlatform.PrimaryPart then
-                healingPlatform.PrimaryPart.Touched:Connect(function(hit)
-                    local player = game:GetService("Players"):GetPlayerFromCharacter(hit.Parent)
-                    if not utilitiesLibrary.IsPlayerAlive(player) then return end
-                    if gameplayMechanicManager.IsPlatformBeingSimulated(player, healingPlatform) then return end
+            -- thisPlatform should be a Model with a PrimaryPart that they can touch.
+            if thisPlatform:IsA("Model") and thisPlatform.PrimaryPart then
+                thisPlatform.PrimaryPart.Touched:Connect(function(hit: BasePart)
 
-                    gameplayMechanicManager.SimulateHealingPlatform(player, healingPlatform)
+                    local player: Player? = game:GetService("Players"):GetPlayerFromCharacter(hit.Parent)
+                    if not playerUtilities.IsPlayerAlive(player) then return end
+                    if ThisMechanicManager.IsMechanicEffectActiveFor(player, thisPlatform) then return end
+
+                    task.spawn(ThisMechanicManager.StartMechanic, player :: Player, thisPlatform)
                 end)
-
-            elseif healingPlatform:IsA("Model") then
-                print(
-					("HealingPlatform: %s, has PrimaryPart: %s."):format(healingPlatform:GetFullName(), tostring(healingPlatform.PrimaryPart ~= nil)),
-					warn
-				)
             end
         end
     end
-
-    gameplayMechanicManager.Remotes.PlaySoundEffect = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.PlaySoundEffect")
 end
 
+-- Activates the effects that this platform does.
+function ThisMechanicManager.StartMechanic(player: Player, thisPlatform: Instance)
 
--- Methods
-function gameplayMechanicManager.SimulateHealingPlatform(player, healingPlatform)
-    if not utilitiesLibrary.IsPlayerAlive(player) then return end
+    -- We need to make sure that we can apply the effect.
     if player.Character.Humanoid.Health == player.Character.Humanoid.MaxHealth then return end
-    if typeof(healingPlatform) ~= "Instance" or not healingPlatform:IsA("Model") or not healingPlatform.PrimaryPart then return end
-    if gameplayMechanicManager.IsPlatformBeingSimulated(player, healingPlatform) then return end
-
-    gameplayMechanicManager.PlatformsBeingSimulated[healingPlatform] = gameplayMechanicManager.PlatformsBeingSimulated[healingPlatform] or {}
-    gameplayMechanicManager.PlatformsBeingSimulated[healingPlatform][player] = true
-
-    -- Healing time.
-    gameplayMechanicManager.Remotes.PlaySoundEffect:FireClient(player, "Healing", {Parent = healingPlatform.PrimaryPart})
-    for _ = 1, (healingPlatform:GetAttribute("Duration") or script:GetAttribute("DefaultDuration") or 1)*(healingPlatform:GetAttribute("Speed") or script:GetAttribute("DefaultSpeed") or 1) do
-        if not utilitiesLibrary.IsPlayerAlive(player) then break end
-        if player.Character.Humanoid.Health == player.Character.Humanoid.MaxHealth then break end
-
-        player.Character.Humanoid.Health = math.clamp(
-            player.Character.Humanoid.Health + (healingPlatform:GetAttribute("Amount") or script:GetAttribute("DefaultAmount") or 100),
-            player.Character.Humanoid.Health,
-            player.Character.Humanoid.MaxHealth
-        )
-
-        task.wait(1/(healingPlatform:GetAttribute("Duration") or script:GetAttribute("DefaultDuration") or 1))
+    if ThisMechanicManager.IsMechanicEffectActiveFor(player, thisPlatform) then return end
+    if not playerUtilities.IsPlayerAlive(player) then
+        ThisMechanicManager.SetMechanicEffectActiveFor(player, thisPlatform, false)
+        return
     end
 
-    task.wait(script:GetAttribute("Delay") or 1)
-    gameplayMechanicManager.PlatformsBeingSimulated[healingPlatform][player] = nil
+    -- We can apply it!
+    ThisMechanicManager.SetMechanicEffectActiveFor(player, thisPlatform, true)
+    playSoundEffectRemote:FireClient(player, "Healing", {Parent = thisPlatform.PrimaryPart})
+
+    local humanoid: Humanoid = player.Character.Humanoid
+    local thisDuration: number = thisPlatform:GetAttribute("Duration") or sharedConstants.MECHANICS.ANY_PLATFORM_DEFAULT_DURATION
+
+    -- We want to heal them a certain amount of times.
+    -- The duration is how many seconds the healing process will take.
+    for _ = 1, math.max(thisDuration, 1) do
+
+        if not playerUtilities.IsPlayerAlive(player) then break end
+        if player.Character.Humanoid.Health == player.Character.Humanoid.MaxHealth then break end
+
+        -- Updating their health!
+        humanoid.Health = math.clamp(
+            humanoid.Health + (thisPlatform:GetAttribute("Amount") or sharedConstants.MECHANICS.HEALING_PLATFORM_DEFAULT_HEAL_AMOUNT),
+            humanoid.Health,
+            humanoid.MaxHealth
+        )
+
+        -- Waiting till the next step.
+        task.wait(math.min(1, thisDuration))
+    end
+
+    task.wait(1)
+    ThisMechanicManager.SetMechanicEffectActiveFor(player, thisPlatform, false)
 end
 
-
-function gameplayMechanicManager.IsPlatformBeingSimulated(player, healingPlatform)
-    if typeof(player) ~= "Instance" then return end
-    if typeof(healingPlatform) ~= "Instance" then return end
-
-    return gameplayMechanicManager.PlatformsBeingSimulated[healingPlatform] and gameplayMechanicManager.PlatformsBeingSimulated[healingPlatform][player]
+-- Returns whether or not that this player has an active effect for this platform.
+function ThisMechanicManager.IsMechanicEffectActiveFor(player: Player, thisPlatform: Instance)
+    return ThisMechanicManager.ActivePlatforms[thisPlatform] and ThisMechanicManager.ActivePlatforms[thisPlatform][player]
 end
 
+-- Sets the active value for this mechanic effect for this platform.
+function ThisMechanicManager.SetMechanicEffectActiveFor(player: Player, thisPlatform: Instance, isActive: boolean)
+    ThisMechanicManager.ActivePlatforms[thisPlatform] = ThisMechanicManager.ActivePlatforms[thisPlatform] or {}
+    ThisMechanicManager.ActivePlatforms[thisPlatform][player] = if isActive then true else nil
+end
 
---
-return gameplayMechanicManager
+return ThisMechanicManager

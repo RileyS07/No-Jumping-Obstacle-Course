@@ -1,82 +1,84 @@
--- Variables
-local gameplayMechanicManager = {}
-gameplayMechanicManager.Remotes = {}
-gameplayMechanicManager.PlatformsBeingSimulated = {}
-
 local coreModule = require(script:FindFirstAncestor("Core"))
-local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries._Utilities"))
+local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
+local sharedConstants = require(coreModule.Shared.GetObject("Libraries.SharedConstants"))
+
+local playSoundEffectRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.PlaySoundEffect")
+
+local ThisMechanicManager = {}
+ThisMechanicManager.ActivePlatforms = {}
 
 -- Initialize
-function gameplayMechanicManager.Initialize()
+function ThisMechanicManager.Initialize()
     if not workspace.Map.Gameplay.PlatformerMechanics:FindFirstChild("JumpPlatforms") then return end
 
-    -- Setting up the JumpPlatforms to be functional.
-    for _, jumpPlatformContainer in next, workspace.Map.Gameplay.PlatformerMechanics.JumpPlatforms:GetChildren() do
-        for _, jumpPlatform in next, jumpPlatformContainer:GetChildren() do
+    -- Setting up this platform to be functional.
+    for _, platformContainer: Instance in next, workspace.Map.Gameplay.PlatformerMechanics.JumpPlatforms:GetChildren() do
+        for _, thisPlatform: Instance in next, platformContainer:GetChildren() do
 
-            -- jumpPlatform should be a BasePart that they can touch.
-            if jumpPlatform:IsA("BasePart") then
-                jumpPlatform.Touched:Connect(function(hit)
-                    local player = game:GetService("Players"):GetPlayerFromCharacter(hit.Parent)
-                    if not utilitiesLibrary.IsPlayerAlive(player) then return end
-                    if gameplayMechanicManager.IsPlatformBeingSimulated(player, jumpPlatform) then return end
+            -- thisPlatform should be a BasePart that they can touch.
+            if thisPlatform:IsA("BasePart") then
+                thisPlatform.Touched:Connect(function(hit: BasePart)
 
-                    gameplayMechanicManager.SimulateJumpPlatform(player, jumpPlatform)
+                    local player: Player? = game:GetService("Players"):GetPlayerFromCharacter(hit.Parent)
+                    if not playerUtilities.IsPlayerAlive(player) then return end
+                    if ThisMechanicManager.IsMechanicEffectActiveFor(player, thisPlatform) then return end
+
+                    task.spawn(ThisMechanicManager.StartMechanic, player :: Player, thisPlatform)
                 end)
             end
         end
     end
-
-    gameplayMechanicManager.Remotes.PlaySoundEffect = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.PlaySoundEffect")
 end
 
+-- Activates the effects that this platform does.
+function ThisMechanicManager.StartMechanic(player: Player, thisPlatform: Instance)
 
--- Methods
-function gameplayMechanicManager.SimulateJumpPlatform(player, jumpPlatform)
-    if not utilitiesLibrary.IsPlayerAlive(player) then return end
-    if typeof(jumpPlatform) ~= "Instance" then return end
-    if gameplayMechanicManager.IsPlatformBeingSimulated(player, jumpPlatform) then return end
+    -- We need to make sure that we can apply the effect.
+    if ThisMechanicManager.IsMechanicEffectActiveFor(player, thisPlatform) then return end
+    if not playerUtilities.IsPlayerAlive(player) then
+        ThisMechanicManager.SetMechanicEffectActiveFor(player, thisPlatform, false)
+        return
+    end
 
-    gameplayMechanicManager.PlatformsBeingSimulated[jumpPlatform] = gameplayMechanicManager.PlatformsBeingSimulated[jumpPlatform] or {}
-    gameplayMechanicManager.PlatformsBeingSimulated[jumpPlatform][player] = true
+    -- We can apply it!
+    ThisMechanicManager.SetMechanicEffectActiveFor(player, thisPlatform, true)
+    playSoundEffectRemote:FireClient(player, "JumpPowerup", {Parent = thisPlatform})
 
     -- Make them jump once then revert.
-    local humanoid = player.Character.Humanoid
-    local previousJumpHeight = humanoid.JumpHeight
-    local goalJumpHeight = jumpPlatform:GetAttribute("JumpHeight") or script:GetAttribute("DefaultJumpHeight") or 20
+    local humanoid: Humanoid = player.Character.Humanoid
+    local previousJumpHeight: number = humanoid.JumpHeight
+    local goalJumpHeight: number = thisPlatform:GetAttribute("JumpHeight") or sharedConstants.MECHANICS.JUMP_PLATFORM_DEFAULT_JUMP_HEIGHT
 
     humanoid.JumpHeight = goalJumpHeight
     humanoid.Jump = true
 
-    gameplayMechanicManager.Remotes.PlaySoundEffect:FireClient(player, "JumpPowerup", {Parent = jumpPlatform})
-
     -- Revert it; The time is ambigious but is just some delay to give physics time to actually let them jump.
-    delay(0.5, function()
-        if not gameplayMechanicManager.IsPlatformBeingSimulated(player, jumpPlatform) then return end
-        if not utilitiesLibrary.IsPlayerAlive(player) then
-            gameplayMechanicManager.PlatformsBeingSimulated[jumpPlatform][player] = nil
+    task.delay(0.5, function()
+        if not ThisMechanicManager.IsMechanicEffectActiveFor(player, thisPlatform) then return end
+        if not playerUtilities.IsPlayerAlive(player) then
+            ThisMechanicManager.SetMechanicEffectActiveFor(player, thisPlatform, false)
             return
         end
 
         if player.Character.Humanoid.JumpHeight ~= goalJumpHeight then
-            gameplayMechanicManager.PlatformsBeingSimulated[jumpPlatform][player] = nil
+            ThisMechanicManager.SetMechanicEffectActiveFor(player, thisPlatform, false)
             return
         end
 
         player.Character.Humanoid.JumpHeight = previousJumpHeight
-        task.wait(0.5)
-        gameplayMechanicManager.PlatformsBeingSimulated[jumpPlatform][player] = nil
+        task.delay(0.5, ThisMechanicManager.SetMechanicEffectActiveFor, player, thisPlatform, false)
     end)
 end
 
-
-function gameplayMechanicManager.IsPlatformBeingSimulated(player, jumpPlatform)
-    if typeof(player) ~= "Instance" then return end
-    if typeof(jumpPlatform) ~= "Instance" then return end
-
-    return gameplayMechanicManager.PlatformsBeingSimulated[jumpPlatform] and gameplayMechanicManager.PlatformsBeingSimulated[jumpPlatform][player]
+-- Returns whether or not that this player has an active effect for this platform.
+function ThisMechanicManager.IsMechanicEffectActiveFor(player: Player, thisPlatform: Instance)
+    return ThisMechanicManager.ActivePlatforms[thisPlatform] and ThisMechanicManager.ActivePlatforms[thisPlatform][player]
 end
 
+-- Sets the active value for this mechanic effect for this platform.
+function ThisMechanicManager.SetMechanicEffectActiveFor(player: Player, thisPlatform: Instance, isActive: boolean)
+    ThisMechanicManager.ActivePlatforms[thisPlatform] = ThisMechanicManager.ActivePlatforms[thisPlatform] or {}
+    ThisMechanicManager.ActivePlatforms[thisPlatform][player] = if isActive then true else nil
+end
 
---
-return gameplayMechanicManager
+return ThisMechanicManager

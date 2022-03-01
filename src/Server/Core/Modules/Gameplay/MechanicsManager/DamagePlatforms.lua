@@ -1,140 +1,152 @@
--- Variables
-local gameplayMechanicManager = {}
-gameplayMechanicManager.Assets = {}
-gameplayMechanicManager.Remotes = {}
-gameplayMechanicManager.PlatformsBeingSimulated = {}
-gameplayMechanicManager.ValidDamageTypes = { Poison = true, Instant = true }
+local collectionService: CollectionService = game:GetService("CollectionService")
 
 local coreModule = require(script:FindFirstAncestor("Core"))
 local teleportationManager = require(coreModule.GetObject("Modules.Gameplay.MechanicsManager.TeleportationManager"))
-local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries._Utilities"))
+local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
+local spatialQueryUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.SpatialQueryUtilities"))
+local sharedConstants = require(coreModule.Shared.GetObject("Libraries.SharedConstants"))
+
+local poisonParticleEmitter: ParticleEmitter = coreModule.Shared.GetObject("//Assets.Objects.ParticleEmitters.Poison")
+local poisonGlowParticleEmitter: ParticleEmitter = coreModule.Shared.GetObject("//Assets.Objects.ParticleEmitters.PoisonGlow")
+local playSoundEffectRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.PlaySoundEffect")
+
+local ThisMechanicManager = {}
+ThisMechanicManager.ActivePlatforms = {}
 
 -- Initialize
-function gameplayMechanicManager.Initialize()
+function ThisMechanicManager.Initialize()
     if not workspace.Map.Gameplay.PlatformerMechanics:FindFirstChild("DamagePlatforms") then return end
-    gameplayMechanicManager.Assets.Poison = coreModule.Shared.GetObject("//Assets.Objects.ParticleEmitters.Poison")
-    gameplayMechanicManager.Assets.PoisonGlow = coreModule.Shared.GetObject("//Assets.Objects.ParticleEmitters.PoisonGlow")
 
-    -- Setting up the DamagePlatforms to be functional.
-    for _, damageTypeContainer in next, workspace.Map.Gameplay.PlatformerMechanics.DamagePlatforms:GetChildren() do
-        for _, damagePlatformContainer in next, damageTypeContainer:GetChildren() do
-            if gameplayMechanicManager.ValidDamageTypes[damageTypeContainer.Name] then
-                for _, damagePlatform in next, damagePlatformContainer:GetChildren() do
+    -- Setting up this platform to be functional.
+    for _, platformContainer: Instance in next, workspace.Map.Gameplay.PlatformerMechanics.DamagePlatforms:GetChildren() do
+        for _, thisPlatform: Instance in next, platformContainer:GetChildren() do
 
-                    -- The platform itself is what the players will touch to be damaged.
-                    if damagePlatform:IsA("BasePart") then
-                        damagePlatform.Touched:Connect(function(hit)
-                            local player = game:GetService("Players"):GetPlayerFromCharacter(hit.Parent)
-                            if not utilitiesLibrary.IsPlayerAlive(player) then return end
-                            if gameplayMechanicManager.IsPlatformBeingSimulated(player, damagePlatform) then return end
-                            
-                            coroutine.wrap(gameplayMechanicManager.SimulateDamagePlatform)(player, damagePlatform)
-                        end)
-                    end
-                end
+            -- thisPlatform should be a BasePart that they can touch.
+            if thisPlatform:IsA("BasePart") then
+                thisPlatform.Touched:Connect(function(hit: BasePart)
+
+                    local player: Player? = game:GetService("Players"):GetPlayerFromCharacter(hit.Parent)
+                    if not playerUtilities.IsPlayerAlive(player) then return end
+                    if ThisMechanicManager.IsMechanicEffectActiveFor(player, thisPlatform) then return end
+
+                    task.spawn(ThisMechanicManager.StartMechanic, player :: Player, thisPlatform)
+                end)
             end
         end
     end
-
-    gameplayMechanicManager.Remotes.PlaySoundEffect = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.PlaySoundEffect")
 end
 
+-- Activates the effects that this platform does.
+function ThisMechanicManager.StartMechanic(player: Player, thisPlatform: Instance)
 
--- Methods
-function gameplayMechanicManager.SimulateDamagePlatform(player, damagePlatform)
-    if not utilitiesLibrary.IsPlayerAlive(player) then return end
-    if typeof(damagePlatform) ~= "Instance" then return end
-    if gameplayMechanicManager.IsPlatformBeingSimulated(player, damagePlatform) then return end
-    if not gameplayMechanicManager.ValidDamageTypes[damagePlatform.Parent.Parent.Name] then return end
-    if game:GetService("CollectionService"):HasTag(player.Character, "Forcefield") then return end
-    if damagePlatform.Parent.Name == "Poison" and game:GetService("CollectionService"):HasTag(player.Character, "Poisoned") then return end
-    
-    gameplayMechanicManager.PlatformsBeingSimulated[damagePlatform] = gameplayMechanicManager.PlatformsBeingSimulated[damagePlatform] or {}
-    gameplayMechanicManager.PlatformsBeingSimulated[damagePlatform][player] = true
-    
+    -- We need to make sure that we can apply the effect.
+    if collectionService:HasTag(player.Character, "Forcefield") then return end
+    if ThisMechanicManager.IsMechanicEffectActiveFor(player, thisPlatform) then return end
+    if thisPlatform.Parent.Name == "Poison" and collectionService:HasTag(player.Character, "Poisoned") then return end
+    if not playerUtilities.IsPlayerAlive(player) then
+        ThisMechanicManager.SetMechanicEffectActiveFor(player, thisPlatform, false)
+        return
+    end
+
+    -- We can apply it!
+    ThisMechanicManager.SetMechanicEffectActiveFor(player, thisPlatform, true)
+
     -- How do we apply the damage?
-    if damagePlatform.Parent.Parent.Name == "Poison" then
-        game:GetService("CollectionService"):AddTag(player.Character, "Poisoned")
-        gameplayMechanicManager.Assets.Poison:Clone().Parent = player.Character.Head
-        gameplayMechanicManager.Assets.PoisonGlow:Clone().Parent = player.Character.HumanoidRootPart
-
-        for _ = 1, (damagePlatform:GetAttribute("Duration") or script:GetAttribute("DefaultDuration") or 1)*(damagePlatform:GetAttribute("Speed") or script:GetAttribute("DefaultSpeed") or 1) do
-            if not utilitiesLibrary.IsPlayerAlive(player) then break end
-            if not game:GetService("CollectionService"):HasTag(player.Character, "Poisoned") then break end
-            gameplayMechanicManager.Remotes.PlaySoundEffect:FireClient(player, damagePlatform.Parent.Name.."Damage", {Parent = damagePlatform})
-
-            -- Can they survive this?
-            local damageAmount = damagePlatform:GetAttribute("Damage") or script:GetAttribute("DefaultDamage") or 10
-            if player.Character.Humanoid.Health - damageAmount > 0 then
-                player.Character.Humanoid:TakeDamage(damageAmount)
-            else
-                teleportationManager.TeleportPlayer(player)
-                break
-            end
-
-            task.wait(1/(damagePlatform:GetAttribute("Speed") or script:GetAttribute("DefaultSpeed") or 1))
-        end
-
-        -- Clean up.
-        if utilitiesLibrary.IsPlayerAlive(player) then
-            game:GetService("CollectionService"):RemoveTag(player.Character, "Poisoned")
-
-            -- Get rid of the effects.
-            if player.Character.Head:FindFirstChild(gameplayMechanicManager.Assets.Poison.Name) then
-                player.Character.Head:FindFirstChild(gameplayMechanicManager.Assets.Poison.Name):Destroy()
-            end
-
-            if player.Character.HumanoidRootPart:FindFirstChild(gameplayMechanicManager.Assets.PoisonGlow.Name) then
-                player.Character.HumanoidRootPart:FindFirstChild(gameplayMechanicManager.Assets.PoisonGlow.Name):Destroy()
-            end
-        end
-
-    -- Instant damage is a little more complicated.
-    elseif damagePlatform.Parent.Parent.Name == "Instant" then
-        while true do
-            if not utilitiesLibrary.IsPlayerAlive(player) then break end
-		    if game:GetService("CollectionService"):HasTag(player.Character, "Forcefield") then break end
-            if not gameplayMechanicManager.IsInstancesDescendantsInArray(player.Character, damagePlatform:GetTouchingParts()) then break end
-            gameplayMechanicManager.Remotes.PlaySoundEffect:FireClient(player, damagePlatform.Parent.Name.."Damage", {Parent = damagePlatform})
-
-            -- Can they survive this?
-            local damageAmount = damagePlatform:GetAttribute("Damage") or script:GetAttribute("DefaultDamage") or 10
-            if player.Character.Humanoid.Health - damageAmount > 0 then
-                player.Character.Humanoid:TakeDamage(damageAmount)
-            else
-                teleportationManager.TeleportPlayer(player)
-                break
-            end
-
-            task.wait(1/(damagePlatform:GetAttribute("Speed") or script:GetAttribute("DefaultSpeed") or 1))
-        end
+    if thisPlatform:GetAttribute("IsPoison") then
+        ThisMechanicManager._ApplyPoisonEffect(player, thisPlatform)
+    else
+        ThisMechanicManager._ApplyInstantDamageEffect(player, thisPlatform)
     end
 
-    task.wait(script:GetAttribute("Delay") or 1)
-    gameplayMechanicManager.PlatformsBeingSimulated[damagePlatform][player] = nil
+    task.wait(1)
+    ThisMechanicManager.SetMechanicEffectActiveFor(player, thisPlatform, false)
 end
 
-
-function gameplayMechanicManager.IsPlatformBeingSimulated(player, damagePlatform)
-    if typeof(player) ~= "Instance" then return end
-    if typeof(damagePlatform) ~= "Instance" then return end
-    
-    return gameplayMechanicManager.PlatformsBeingSimulated[damagePlatform] and gameplayMechanicManager.PlatformsBeingSimulated[damagePlatform][player]
+-- Returns whether or not that this player has an active effect for this platform.
+function ThisMechanicManager.IsMechanicEffectActiveFor(player: Player, thisPlatform: Instance)
+    return ThisMechanicManager.ActivePlatforms[thisPlatform] and ThisMechanicManager.ActivePlatforms[thisPlatform][player]
 end
 
+-- Sets the active value for this mechanic effect for this platform.
+function ThisMechanicManager.SetMechanicEffectActiveFor(player: Player, thisPlatform: Instance, isActive: boolean)
+    ThisMechanicManager.ActivePlatforms[thisPlatform] = ThisMechanicManager.ActivePlatforms[thisPlatform] or {}
+    ThisMechanicManager.ActivePlatforms[thisPlatform][player] = if isActive then true else nil
+end
 
--- Private Methods
-function gameplayMechanicManager.IsInstancesDescendantsInArray(instanceObject, array)
-    if typeof(instanceObject) ~= "Instance" then return end
-    if typeof(array) ~= "table" then return end
+-- Applies the poison effects and handles all logic.
+function ThisMechanicManager._ApplyPoisonEffect(player: Player, thisPlatform: Instance)
 
-    for _, descendant in next, array do
-        if descendant:IsDescendantOf(instanceObject) then
-            return true
+    -- We give them the tag 'Poisoned' so the system can easily track it.
+    -- It also has the benefit of being able to be removed by TeleportationManager.RestoreConditions.
+    collectionService:AddTag(player.Character, "Poisoned")
+
+    local humanoid: Humanoid = player.Character.Humanoid
+    local damageAmount: number = thisPlatform:GetAttribute("Damage") or sharedConstants.MECHANICS.DAMAGE_PLATFORM_DEFAULT_DAMAGE
+    local thisDuration: number = thisPlatform:GetAttribute("Duration") or sharedConstants.MECHANICS.ANY_PLATFORM_DEFAULT_DURATION
+
+    local clonedPosionParticleEmitter: ParticleEmitter = poisonParticleEmitter:Clone()
+    local clonedPoisonGlowParticleEmitter: ParticleEmitter = poisonGlowParticleEmitter:Clone()
+    clonedPosionParticleEmitter.Parent = player.Character.Head
+    clonedPoisonGlowParticleEmitter.Parent = player.Character.HumanoidRootPart
+
+    -- We want to damagee them a certain amount of times.
+    -- The duration is how many seconds the poison process will take.
+    for _ = 1, math.max(thisDuration, 1) do
+
+        if not playerUtilities.IsPlayerAlive(player) then break end
+        if not collectionService:HasTag(player.Character, "Poisoned") then break end
+        playSoundEffectRemote:FireClient(player, "PoisonDamage")
+
+        -- If they can't survive this we want to teleport them back to the start.
+        if humanoid.Health - damageAmount > 0 then
+            humanoid:TakeDamage(damageAmount)
+        else
+            teleportationManager.TeleportPlayer(player)
+            break
         end
+
+        task.wait(math.min(1, thisDuration))
+    end
+
+    -- We want to get rid of our particle emitters and the `Poisoned` tag.
+    if playerUtilities.IsPlayerAlive(player) then
+        clonedPosionParticleEmitter.Enabled = false
+        clonedPoisonGlowParticleEmitter.Enabled = false
+        collectionService:RemoveTag(player.Character, "Poisoned")
+
+        task.delay(1, function()
+            clonedPosionParticleEmitter:Destroy()
+            clonedPoisonGlowParticleEmitter:Destroy()
+        end)
     end
 end
 
+-- Applies the instance damage effect and handles all logic.
+function ThisMechanicManager._ApplyInstantDamageEffect(player: Player, thisPlatform: Instance)
+    while true do
 
---
-return gameplayMechanicManager
+        -- We need to make sure we can keep doing damage.
+        if not playerUtilities.IsPlayerAlive(player) then return end
+        if collectionService:HasTag(player.Character, "Forcefield") then return end
+        if not table.find(spatialQueryUtilities.GetPlayersWithinParts(thisPlatform), player) then return end
+
+        -- We can do this so let's go forward.
+        local humanoid: Humanoid = player.Character.Humanoid
+        local damageAmount: number = thisPlatform:GetAttribute("Damage") or sharedConstants.MECHANICS.DAMAGE_PLATFORM_DEFAULT_DAMAGE
+        local thisDuration: number = thisPlatform:GetAttribute("Duration") or sharedConstants.MECHANICS.ANY_PLATFORM_DEFAULT_DURATION
+
+        playSoundEffectRemote:FireClient(player, "InstantDamage")
+
+        -- If they can't survive this we want to teleport them back to the start.
+        if humanoid.Health - damageAmount > 0 then
+            humanoid:TakeDamage(damageAmount)
+        else
+            teleportationManager.TeleportPlayer(player)
+            break
+        end
+
+        task.wait(thisDuration)
+    end
+end
+
+return ThisMechanicManager
