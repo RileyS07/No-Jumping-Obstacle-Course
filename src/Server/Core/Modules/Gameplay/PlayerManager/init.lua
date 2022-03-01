@@ -12,6 +12,7 @@ local PlayerManager = {}
 -- Initialize
 function PlayerManager.Initialize()
 	coreModule.LoadModule("/UserDataManager")
+	coreModule.LoadModule("/SettingsUpdater")
 
 	-- This is for PlayerAdded and PlayerRemoving neatness.
 	PlayerManager.SetupJoiningConnections()
