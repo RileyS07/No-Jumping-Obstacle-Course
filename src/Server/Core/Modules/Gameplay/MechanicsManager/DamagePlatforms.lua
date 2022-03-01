@@ -42,7 +42,7 @@ function ThisMechanicManager.StartMechanic(player: Player, thisPlatform: Instanc
     -- We need to make sure that we can apply the effect.
     if collectionService:HasTag(player.Character, "Forcefield") then return end
     if ThisMechanicManager.IsMechanicEffectActiveFor(player, thisPlatform) then return end
-    if thisPlatform.Parent.Name == "Poison" and collectionService:HasTag(player.Character, "Poisoned") then return end
+    if thisPlatform:GetAttribute("IsPoison") and collectionService:HasTag(player.Character, "Poisoned") then return end
     if not playerUtilities.IsPlayerAlive(player) then
         ThisMechanicManager.SetMechanicEffectActiveFor(player, thisPlatform, false)
         return
