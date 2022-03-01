@@ -1,40 +1,31 @@
--- Variables
-local leaderstatsManager = {}
 local coreModule = require(script:FindFirstAncestor("Core"))
 local userDataManager = require(coreModule.GetObject("Modules.Gameplay.PlayerManager.UserDataManager"))
 local checkpointsManager = require(coreModule.GetObject("Modules.Gameplay.MechanicsManager.TeleportationManager.Checkpoints"))
 
+local LeaderstatsManager = {}
+
 -- Initialize
-function leaderstatsManager.Initialize(player: Player)
-    leaderstatsManager.Update(player)
+function LeaderstatsManager.Initialize(player: Player)
+    LeaderstatsManager.Update(player)
 
     checkpointsManager.CurrentCheckpointUpdated.Event:Connect(function(thisPlayer: Player)
-        leaderstatsManager.Update(thisPlayer)
+        LeaderstatsManager.Update(thisPlayer)
     end)
 end
 
--- Public Methods
-
 -- Updates a user's leaderstats.
-function leaderstatsManager.Update(player: Player)
+function LeaderstatsManager.Update(player: Player)
 
     -- Do we need to create the leaderstats?
     if not player:FindFirstChild("leaderstats") then
-        local leaderstatsFolder = Instance.new("Folder")
-        leaderstatsFolder.Name = "leaderstats"
-
-        local stageValue = Instance.new("IntValue")
-        stageValue.Name = "Stage"
-        stageValue.Parent = leaderstatsFolder
-        leaderstatsFolder.Parent = player
+        script.leaderstats:Clone().Parent = player
     end
 
     -- Updating the leaderstats values.
-    local leaderstatsFolder = player.leaderstats
-    local userData = userDataManager.GetData(player)
+    local leaderstatsFolder: Folder = player.leaderstats
+    local userData: {} = userDataManager.GetData(player)
 
     leaderstatsFolder.Stage.Value = userData.UserInformation.FarthestCheckpoint
 end
 
---
-return leaderstatsManager
+return LeaderstatsManager

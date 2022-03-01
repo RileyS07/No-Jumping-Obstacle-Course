@@ -2,10 +2,12 @@
 local powerupsManager = {}
 powerupsManager.PowerupsUpdated = Instance.new("BindableEvent")
 powerupsManager.PowerupInformation = {}
-powerupsManager.Remotes = {}
 
 local coreModule = require(script:FindFirstAncestor("Core"))
 local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries._Utilities"))
+
+local playSoundEffectRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.PlaySoundEffect")
+local timerInformationUpdatedRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.TimerInformationUpdated")
 
 -- Initialize
 function powerupsManager.Initialize()
@@ -39,8 +41,6 @@ end
 -- Private methods
 function powerupsManager.SetupPowerups()
     local teleportationManager = require(coreModule.GetObject("Modules.Gameplay.MechanicsManager.TeleportationManager"))
-    powerupsManager.Remotes.PlaySoundEffect = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.PlaySoundEffect")
-    powerupsManager.Remotes.TimerInformationUpdated = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.TimerInformationUpdated")
 
     -- Let's start this long process of making them functional.
     for _, powerupContainer in next, workspace.Map.Gameplay.PlatformerMechanics.Powerups:GetChildren() do
@@ -75,7 +75,7 @@ function powerupsManager.SetupPowerups()
                             })
 
                             game:GetService("CollectionService"):AddTag(player.Character, powerupContainer.Name)
-                            powerupsManager.Remotes.PlaySoundEffect:FireClient(player, powerupContainer.Name.."Powerup")
+                            playSoundEffectRemote:FireClient(player, powerupContainer.Name.."Powerup")
                             powerupsManager.ApplyPowerup(player, powerupContainer.Name, powerupPlatform)
 
                         -- We do want to reset it.
@@ -93,7 +93,7 @@ end
 function powerupsManager.UpdatePowerup(player, powerupName, powerupInformation)
     powerupsManager.PowerupInformation[player] = powerupsManager.PowerupInformation[player] or {}
     powerupsManager.PowerupInformation[player][powerupName] = powerupInformation
-    powerupsManager.Remotes.TimerInformationUpdated:FireClient(player, powerupsManager.GetPowerupInformation(player))
+    timerInformationUpdatedRemote:FireClient(player, powerupsManager.GetPowerupInformation(player))
 end
 
 
@@ -141,14 +141,14 @@ function powerupsManager.RemovePowerup(player, powerupName)
         powerupsManager.GetPowerupInformation(player)[powerupName] = nil
     end
 
-    powerupsManager.Remotes.TimerInformationUpdated:FireClient(player, powerupsManager.GetPowerupInformation(player))
-    powerupsManager.Remotes.PlaySoundEffect:FireClient(player, powerupName.."PowerupRemoved")
+    timerInformationUpdatedRemote:FireClient(player, powerupsManager.GetPowerupInformation(player))
+    playSoundEffectRemote:FireClient(player, powerupName.."PowerupRemoved")
 end
 
 
 function powerupsManager.RemoveAllPowerups(player)
     powerupsManager.PowerupInformation[player] = nil
-    powerupsManager.Remotes.TimerInformationUpdated:FireClient(player, powerupsManager.GetPowerupInformation(player))
+    timerInformationUpdatedRemote:FireClient(player, powerupsManager.GetPowerupInformation(player))
 end
 
 

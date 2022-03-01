@@ -9,13 +9,11 @@ local userDataManager = require(coreModule.GetObject("Modules.Gameplay.PlayerMan
 local utilitiesLibrary = require(coreModule.Shared.GetObject("Libraries._Utilities"))
 
 local teleportationStateUpdatedRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.TeleportationStateUpdated")
-
+local restoreDefaultPlayerConditionsRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.RestoreDefaultPlayerConditions")
 
 -- Initialize
 function teleportationManager.Initialize()
 	if not workspace.Map.Gameplay:FindFirstChild("LevelStorage") then return end
-	teleportationManager.Remotes.TeleportationStateUpdated = coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.TeleportationStateUpdated")
-	teleportationManager.Remotes.RestoreDefaultPlayerConditions = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.RestoreDefaultPlayerConditions")
 
 	-- Loading modules.
 	coreModule.LoadModule("/Checkpoints")
@@ -146,7 +144,7 @@ function teleportationManager.RestorePlayerConditions(player)
 	player.Character.Humanoid.Sit = false
 	player.Character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.GettingUp, true)
 
-	teleportationManager.Remotes.RestoreDefaultPlayerConditions:FireClient(player, userData)
+	restoreDefaultPlayerConditionsRemote:FireClient(player, userData)
 
 	-- Remove tags.
 	for _, collectionServiceTagName in next, game:GetService("CollectionService"):GetTags(player.Character) do
@@ -213,7 +211,7 @@ function teleportationManager.TeleportPlayerPostTranslationToPlaceId(player, goa
 	validTeleportOptions.ShouldReserveServer = teleportOptions and teleportOptions.ShouldReserveServer or false
 
 	-- We can start the effect.
-	teleportationManager.Remotes.TeleportationStateUpdated:InvokeClient(player, true)
+	teleportationStateUpdatedRemote:InvokeClient(player, true)
 	pcall(game:GetService("TeleportService").TeleportAsync, game:GetService("TeleportService"), goalPlaceId, {player}, validTeleportOptions)
 end
 
@@ -236,8 +234,8 @@ function teleportationManager.TeleportPlayerListPostTranslationToPlaceId(players
 
 			-- We can start the effect.
 			teleportationManager.PlayersBeingTeleported[player] = true
-			if teleportationManager.Remotes.TeleportationStateUpdated then
-				teleportationManager.Remotes.TeleportationStateUpdated:InvokeClient(player, true)
+			if teleportationStateUpdatedRemote then
+				teleportationStateUpdatedRemote:InvokeClient(player, true)
 			end
 
 			pcall(game:GetService("TeleportService").TeleportAsync, game:GetService("TeleportService"), goalPlaceId, {player}, validTeleportOptions)

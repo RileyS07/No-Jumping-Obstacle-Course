@@ -1,4 +1,8 @@
 return {
+    BADGES = {
+
+    },
+
     EVENTS = {
         TROPHIES = {
             BOBBING_DISTANCE = 1,   -- How far the trophy bobs from the center.

@@ -3,6 +3,7 @@ local players: Players = game:GetService("Players")
 local coreModule = require(script:FindFirstAncestor("Core"))
 local userDataManager = require(coreModule.GetObject("/UserDataManager"))
 local eventsManager = require(coreModule.GetObject("Modules.Gameplay.EventsManager"))
+local commonPlayerBadges = require(coreModule.GetObject("Libraries.CommonPlayerBadges"))
 local physicsService = require(coreModule.Shared.GetObject("Libraries.Services.PhysicsService"))
 local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
 
@@ -31,7 +32,7 @@ function PlayerManager.SetupJoiningConnections()
 		PlayerManager.SetupCharacterConnections(player)
 
 		-- Misc modules.
-		coreModule.LoadModule("/JoiningBadges", player)
+		commonPlayerBadges.AwardBadges(player)
 		coreModule.LoadModule("/Leaderstats", player)
 	end)
 end
