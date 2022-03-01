@@ -1,28 +1,35 @@
--- Variables
-local specificPowerupManager = {}
+local collectionService: CollectionService = game:GetService("CollectionService")
+
 local coreModule = require(script:FindFirstAncestor("Core"))
 local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
 
+local ThisPowerupManager = {}
+
 -- Initialize
-function specificPowerupManager.Initialize()
-    game:GetService("CollectionService"):GetInstanceRemovedSignal(script.Name):Connect(function(character)
-        local player = game:GetService("Players"):GetPlayerFromCharacter(character)
+function ThisPowerupManager.Initialize()
+
+    -- This will be called when the powerup is removed from a character.
+    -- The main powerup system handles all of this.
+    collectionService:GetInstanceRemovedSignal(script.Name):Connect(function(character: Model)
+
+        -- There might be a situation where the ForceField was already destroyed somehow.
+        local player: Player? = game:GetService("Players"):GetPlayerFromCharacter(character)
+
 		if not playerUtilities.IsPlayerAlive(player) then return end
         if not character:FindFirstChildOfClass("ForceField") then return end
 
+        -- It exists so we want to remove it when the powerup is removed.
         character:FindFirstChildOfClass("ForceField"):Destroy()
     end)
 end
 
+-- Applies the powerup, this is where we put any effects into play.
+function ThisPowerupManager.Apply(player: Player)
 
--- Apply
-function specificPowerupManager.Apply(player)
     if not playerUtilities.IsPlayerAlive(player) then return end
     if player.Character:FindFirstChild("ForceField") then return end
 
     Instance.new("ForceField").Parent = player.Character
 end
 
-
---
-return specificPowerupManager
+return ThisPowerupManager
