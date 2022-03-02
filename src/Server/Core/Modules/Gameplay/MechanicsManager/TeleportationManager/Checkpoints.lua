@@ -3,6 +3,11 @@ local checkpointsManager = {}
 checkpointsManager.Remotes = {}
 checkpointsManager.CurrentCheckpointUpdated = Instance.new("BindableEvent")
 
+--[[
+
+		-- Quick fix 2/3/2022. Just clamps their current checkpoint to their furthest.
+		userData.UserInformation.CurrentCheckpoint = math.clamp(userData.UserInformation.CurrentCheckpoint, 1, userData.UserInformation.FarthestCheckpoint)
+]]
 local coreModule = require(script:FindFirstAncestor("Core"))
 local userDataManager = require(coreModule.GetObject("Modules.Gameplay.PlayerManager.UserDataManager"))
 local teleportationManager = require(coreModule.GetObject("Modules.Gameplay.MechanicsManager.TeleportationManager"))

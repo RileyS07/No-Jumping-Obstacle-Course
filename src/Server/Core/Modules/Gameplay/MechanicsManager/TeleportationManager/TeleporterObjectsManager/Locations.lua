@@ -50,10 +50,11 @@ function locationTeleporterManager.SimulateTeleportation(player: Player, telepor
 	if teleporterObjectsManager.GetTeleportationConsent(player, teleporterObject.Name, "Are you sure you want to teleport to <font color=\"#5352ed\"><b>"..teleporterObject.Name.."</b></font>?", teleporterObject:GetAttribute("BackgroundImage")) then
 
 		-- Now that we updated the data we can actually teleport them.
-		teleportationManager.TeleportPlayer(player, {
-            ManualTeleportationLocation = teleportationManager.GetSeamlessCFrameAboveBasePart(player, teleporterObject.Destination.Value),
-            OverlayColor = Color3.new(1, 1, 1)
-        })
+		teleportationManager.TeleportPlayerToPart(
+			player,
+			teleporterObject.Destination.Value,
+			Color3.new(1, 1, 1)
+		)
 	end
 end
 

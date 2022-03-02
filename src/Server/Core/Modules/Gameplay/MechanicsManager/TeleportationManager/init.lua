@@ -1,268 +1,237 @@
--- Variables
-local teleportationManager = {}
-teleportationManager.PlayersBeingTeleported = {}
-teleportationManager.Remotes = {}
-teleportationManager.PlayerTeleported = Instance.new("BindableEvent")
+local starterPlayer: StarterPlayer = game:GetService("StarterPlayer")
 
 local coreModule = require(script:FindFirstAncestor("Core"))
 local userDataManager = require(coreModule.GetObject("Modules.Gameplay.PlayerManager.UserDataManager"))
 local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
+local instanceUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.InstanceUtilities"))
+local physicsService = require(coreModule.Shared.GetObject("Libraries.Services.PhysicsService"))
+local sharedConstants = require(coreModule.Shared.GetObject("Libraries.SharedConstants"))
+local signal = require(coreModule.Shared.GetObject("Libraries.Signal"))
+local powerupsManager	-- This is required in Initialize to avoid cyclic behavior.
 
 local teleportationStateUpdatedRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.TeleportationStateUpdated")
 local restoreDefaultPlayerConditionsRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.RestoreDefaultPlayerConditions")
+local levelStorage: Instance = workspace.Map.Gameplay.LevelStorage
+local bonusStageStorage: Instance? = workspace.Map.Gameplay.LevelStorage:FindFirstChild("BonusStages")
+
+local TeleportationManager = {}
+TeleportationManager.DebuggingEnabled = true
+TeleportationManager.PlayersBeingTeleported = {}
+TeleportationManager.PlayerTeleported = signal.new()
 
 -- Initialize
-function teleportationManager.Initialize()
+function TeleportationManager.Initialize()
 	if not workspace.Map.Gameplay:FindFirstChild("LevelStorage") then return end
 
-	-- Loading modules.
-	coreModule.LoadModule("/Checkpoints")
-	coreModule.LoadModule("/RespawnPlatforms")
-	coreModule.LoadModule("/TeleporterObjectsManager")
+	-- This is required in Initialize to avoid cyclic behavior.
+	powerupsManager = require(coreModule.GetObject("Modules.Gameplay.MechanicsManager.PowerupManager"))
 
 	-- Client wants to respawn.
-	coreModule.Shared.GetObject("//Remotes.RespawnUser").OnServerEvent:Connect(function(player: Player)
-		teleportationManager.TeleportPlayer(player)
-	end)
+	coreModule.Shared.GetObject("//Remotes.RespawnUser").OnServerEvent:Connect(TeleportationManager.TeleportPlayer)
+
+	-- Loading modules.
+	coreModule.LoadModule("/")
 end
 
-
--- Methods
 -- This translates the user's information + given data into a format that the private functions can utilize.
-function teleportationManager.TeleportPlayer(player, functionParamaters)
-	functionParamaters = setmetatable(functionParamaters or {}, {__index = {
-		ManualTeleportationLocation = nil,	-- This can be a Vector3/CFrame or a PlaceId.
-		RestoreConditions = true,
-		TeleportOptions = {},
-		OverlayColor = nil
-	}})
+function TeleportationManager.TeleportPlayer(player: Player, overlayColor: Color3?) : boolean
 
-	-- Only two guard clauses here to see if they're alive and they have valid data; The individual specific sections will have their own guard clauses.
-	if not playerUtilities.IsPlayerAlive(player) then return end
+	-- If these aren't true something bad has gone down.
+	if not playerUtilities.IsPlayerAlive(player) then return false end
+	if TeleportationManager.GetIsPlayerBeingTeleported(player) then return false end
 	if not userDataManager.GetData(player) then return end
-	local userData = userDataManager.GetData(player)
 
-	-- If ManualTeleportationLocation is nil that means we assume they want to be teleported based on their userdata.
-	if typeof(functionParamaters.ManualTeleportationLocation) == "nil" then
-
-		-- Bonus Stages.
-		if userData.UserInformation.CurrentBonusStage ~= "" then
-
-			-- BonusStages doesn't exist.
-			if not workspace.Map.Gameplay.LevelStorage:FindFirstChild("BonusStages") then
-				print("Workspace.Map.Gameplay.LevelStorage.BonusStages doesn't exist.", nil, warn)
-				userData.UserInformation.CurrentBonusStage = ""
-				teleportationManager.TeleportPlayer(player, functionParamaters)
-				return
-
-			-- CurrentBonusStage doesn't exist as a child of BonusStages.
-			elseif not workspace.Map.Gameplay.LevelStorage.BonusStages:FindFirstChild(userData.UserInformation.CurrentBonusStage) then
-				print("Workspace.Map.Gameplay.LevelStorage.BonusStages[\""..userData.UserInformation.CurrentBonusStage.."\"] doesn't exist.", nil, warn)
-				userData.UserInformation.CurrentBonusStage = ""
-				teleportationManager.TeleportPlayer(player, functionParamaters)
-				return
-
-			-- Checkpoints doesn't exist in the currentBonusStage
-			elseif not workspace.Map.Gameplay.LevelStorage.BonusStages[userData.UserInformation.CurrentBonusStage]:FindFirstChild("Checkpoints") then
-				print("Workspace.Map.Gameplay.LevelStorage.BonusStages[\""..userData.UserInformation.CurrentBonusStage.."\"].Checkpoints doesn't exist.", nil, warn)
-				userData.UserInformation.CurrentBonusStage = ""
-				teleportationManager.TeleportPlayer(player, functionParamaters)
-				return
-
-			-- The SPECIFIC checkpoint doesn't exist.
-			elseif not workspace.Map.Gameplay.LevelStorage.BonusStages[userData.UserInformation.CurrentBonusStage].Checkpoints:FindFirstChild(userData.UserInformation.CurrentBonusStageCheckpoint) then
-				print("Workspace.Map.Gameplay.LevelStorage.BonusStages[\""..userData.UserInformation.CurrentBonusStage.."\"].Checkpoints[\""..userData.UserInformation.CurrentBonusStageCheckpoint.."\"] doesn't exist.", nil, warn)
-				userData.UserInformation.CurrentBonusStage = ""
-				teleportationManager.TeleportPlayer(player, functionParamaters)
-				return
-			end
-
-			-- If it reached this point all is good.
-			return teleportationManager.TeleportPlayerPostTranslationToCFrame(
-				player,
-				teleportationManager.GetSeamlessCFrameAboveBasePart(player, workspace.Map.Gameplay.LevelStorage.BonusStages[userData.UserInformation.CurrentBonusStage].Checkpoints[userData.UserInformation.CurrentBonusStageCheckpoint]),
-				functionParamaters.RestoreConditions
-			)
-		end
-
-		-- If the code reaches this point it assumes that they are nowhere special and not in a bonus stage, so it goes to their current checkpoint.
-
-		-- Checkpoints doesn't exist.
-		if not workspace.Map.Gameplay.LevelStorage:FindFirstChild("Checkpoints") then
-			print("Workspace.Map.Gameplay.LevelStorage.Checkpoints doesn't exist.", nil, warn)
-			return
-
-		-- CurrentCheckpoint doesn't exist as a child of Checkpoints.
-		elseif not workspace.Map.Gameplay.LevelStorage.Checkpoints:FindFirstChild(userData.UserInformation.CurrentCheckpoint) then
-			print("Workspace.Map.Gameplay.LevelStorage.Checkpoints[\""..userData.UserInformation.CurrentCheckpoint.."\"] doesn't exist.", nil, warn)
-			return
-		end
-
-		-- Quick fix 2/3/2022. Just clamps their current checkpoint to their furthest.
-		userData.UserInformation.CurrentCheckpoint = math.clamp(userData.UserInformation.CurrentCheckpoint, 1, userData.UserInformation.FarthestCheckpoint)
-
-		-- If it reached this point all is good.
-		return teleportationManager.TeleportPlayerPostTranslationToCFrame(
-			player,
-			teleportationManager.GetSeamlessCFrameAboveBasePart(player, workspace.Map.Gameplay.LevelStorage.Checkpoints[userData.UserInformation.CurrentCheckpoint]),
-			functionParamaters.RestoreConditions,
-			functionParamaters.OverlayColor
-		)
-
-	-- CFrame/Vector3 manually passed.
-	elseif typeof(functionParamaters.ManualTeleportationLocation) == "CFrame" or typeof(functionParamaters.ManualTeleportationLocation) == "Vector3" then
-		return teleportationManager.TeleportPlayerPostTranslationToCFrame(
-			player,
-			typeof(functionParamaters.ManualTeleportationLocation) == "Vector3" and CFrame.new(functionParamaters.ManualTeleportationLocation) or functionParamaters.ManualTeleportationLocation,
-			functionParamaters.RestoreConditions,
-			functionParamaters.OverlayColor
-		)
-
-	-- PlaceId.
-	elseif tonumber(functionParamaters.ManualTeleportationLocation) then
-		return teleportationManager.TeleportPlayerPostTranslationToPlaceId(player, functionParamaters.ManualTeleportationLocation, functionParamaters.TeleportOptions)
-	end
+	-- We can start teleporting them then!
+	return TeleportationManager._StartTeleportingPlayer(
+		player,
+		TeleportationManager._DetermineTeleportationCFrameFromUserData(player),
+		overlayColor
+	)
 end
 
+-- This method teleports the user to be ontop of a specific BasePart.
+-- Returns whether or not it was successful.
+function TeleportationManager.TeleportPlayerToPart(player: Player, part: BasePart, overlayColor: Color3?) : boolean
 
--- This will restore the client to what it was like the second they joined with no modifiers.
-function teleportationManager.RestorePlayerConditions(player)
+	-- If these aren't true something bad has gone down.
+	if not playerUtilities.IsPlayerAlive(player) then return false end
+	if TeleportationManager.GetIsPlayerBeingTeleported(player) then return false end
+
+	-- We can start teleporting them then!
+	return TeleportationManager._StartTeleportingPlayer(
+		player,
+		playerUtilities.GetSeamlessCFrameAbovePart(player, part),
+		overlayColor
+	)
+end
+
+-- This will restore the users conditions to be the default conditions.
+-- Removing any effects, powerups, etc.
+function TeleportationManager.RestorePlayerConditions(player: Player)
+
+	-- If these are wrong something has gone horribly wrong.
 	if not playerUtilities.IsPlayerAlive(player) then return end
 	if not userDataManager.GetData(player) then return end
 
-	-- Local imports.
-	local powerupsManager = require(coreModule.GetObject("Modules.Gameplay.MechanicsManager.PowerupManager"))
-	local physicsService = require(coreModule.Shared.GetObject("Libraries.Services.PhysicsService"))
+	local userData: {} = userDataManager.GetData(player)
+	local character: Model = player.Character
+	local humanoid: Humanoid = character.Humanoid
 
-	local userData = userDataManager.GetData(player)
+	-- First we start by removing all of their tags and updating the collisions.
+	instanceUtilities.RemoveTags(player.Character)
+	physicsService.SetCollectionsCollisionGroup(
+		player.Character:GetChildren(),
+		"Players"
+	)
 
-	-- Restoration.
-	powerupsManager.RemoveAllPowerups(player)
-	physicsService.SetCollectionsCollisionGroup(player.Character:GetChildren(), "Players")
+	-- Theres a chance that this method is called before this module is initialized.
+	if powerupsManager then
+		powerupsManager.RemoveAllPowerups(player)
+	end
 
-	player.Character.Humanoid.Health = player.Character.Humanoid.MaxHealth
-	player.Character.PrimaryPart.Velocity = Vector3.new()
-	player.Character.Humanoid.Sit = false
-	player.Character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.GettingUp, true)
+	-- Then we go into the nitty gritty and change tiny things.
+	humanoid.Sit = false												-- SpinningPlatforms.
+	humanoid.Health = humanoid.MaxHealth								-- DamagePlatforms.
+	character.PrimaryPart.Velocity = Vector3.new()						-- Speed Powerup.
+	humanoid.WalkSpeed = starterPlayer.CharacterWalkSpeed				-- Speed Powerup.
+	humanoid:SetStateEnabled(Enum.HumanoidStateType.GettingUp, true)	-- SpinningPlatforms.
+	humanoid:SetStateEnabled(Enum.HumanoidStateType.Jumping, true)		-- SpinningPlatforms.
 
+	-- We want the client to know that everyone was just restored.
 	restoreDefaultPlayerConditionsRemote:FireClient(player, userData)
 
-	-- Remove tags.
-	for _, collectionServiceTagName in next, game:GetService("CollectionService"):GetTags(player.Character) do
-		game:GetService("CollectionService"):RemoveTag(player.Character, collectionServiceTagName)
-	end
-
-	-- Should we allow them to keep jumping?
+	-- Therapy Zone is a special bonus level where they are allowed to jump.
 	if userData.UserInformation.CurrentBonusStage ~= "Therapy Zone" then
-		player.Character.Humanoid.JumpHeight = 0
-		player.Character.Humanoid.JumpPower = 0
+		humanoid.JumpHeight = starterPlayer.CharacterJumpHeight
 	end
 end
 
-
-function teleportationManager.IsPlayerBeingTeleported(player)
-	return teleportationManager.PlayersBeingTeleported[player]
+-- Returns whether or not this player is in the process of being teleported.
+function TeleportationManager.GetIsPlayerBeingTeleported(player: Player) : boolean
+	return not not TeleportationManager.PlayersBeingTeleported[player]
 end
 
+-- Sets whether or not this player is in the process of being teleported.
+function TeleportationManager.SetIsPlayerBeingTeleported(player: Player, isPlayerBeingTeleported: boolean?)
+	TeleportationManager.PlayersBeingTeleported[player] = if isPlayerBeingTeleported then true else nil
+end
 
--- Private Methods
--- TeleportPlayer translates the data given into a format this method/TeleportPlayerPostTranslationToPlace can use.
-function teleportationManager.TeleportPlayerPostTranslationToCFrame(player, goalCFrame, restorePlayerConditions, overlayColor: Color3?)
-	if not playerUtilities.IsPlayerAlive(player) then return end
-	if not typeof(goalCFrame) == "CFrame" then return end
-	if teleportationManager.IsPlayerBeingTeleported(player) then return end
-	teleportationManager.PlayersBeingTeleported[player] = true
+-- This method is what all of the other teleportation methods eventually call.
+-- It handles the animations and all of the logic involved with teleportation.
+function TeleportationManager._StartTeleportingPlayer(player: Player, cframe: CFrame, overlayColor: Color3?) : boolean
 
-	-- We can start the effect.
-	local teleportationAnimationLength: number = script:GetAttribute("TeleportationAnimationLength") or 0.25
-	teleportationStateUpdatedRemote:InvokeClient(player, true, teleportationAnimationLength, overlayColor or Color3.new(0, 0, 0))
+	-- Something horrible went wrong!
+	if not playerUtilities.IsPlayerAlive(player) then return false end
+	if TeleportationManager.GetIsPlayerBeingTeleported(player) then return false end
+
+	TeleportationManager.SetIsPlayerBeingTeleported(player, true)
+
+	-- We need to figure out these before we can move forward with the animation.
+	local teleportationAnimationLength: number = sharedConstants.MECHANICS.TELEPORTATION_OVERLAY_ANIMATION_LENGTH / 2
+	local finalOverlayColor: Color3 = overlayColor or sharedConstants.MECHANICS.TELEPORTATION_DEFAULT_OVERLAY_COLOR
+
+	-- We want to first start the overlay animation.
+	teleportationStateUpdatedRemote:InvokeClient(player, true, teleportationAnimationLength, finalOverlayColor)
 	task.wait(teleportationAnimationLength)
 
 	-- We need to double check if they're still alive after yielding though.
 	if not playerUtilities.IsPlayerAlive(player) then
-		teleportationManager.PlayersBeingTeleported[player] = nil
-		teleportationStateUpdatedRemote:InvokeClient(player, false, teleportationAnimationLength, overlayColor or Color3.new(0, 0, 0))
-		return
+		TeleportationManager.SetIsPlayerBeingTeleported(player, false)
+		teleportationStateUpdatedRemote:InvokeClient(player, false, teleportationAnimationLength, finalOverlayColor)
+		return false
 	end
 
-	player.Character:SetPrimaryPartCFrame(goalCFrame)
+	-- We need to restore their conditions and then move them.
+	TeleportationManager.RestorePlayerConditions(player)
+	player.Character:SetPrimaryPartCFrame(cframe)
 
-	teleportationStateUpdatedRemote:InvokeClient(player, false, teleportationAnimationLength, overlayColor or Color3.new(0, 0, 0))
+	-- Now we want to finish the overlay animation.
+	teleportationStateUpdatedRemote:InvokeClient(player, false, teleportationAnimationLength, finalOverlayColor)
 	task.wait(teleportationAnimationLength)
-	teleportationManager.PlayersBeingTeleported[player] = nil
-	teleportationManager.PlayerTeleported:Fire(player)
 
-	-- Do we restore player conditions?
-	if restorePlayerConditions then
-		teleportationManager.RestorePlayerConditions(player)
-	end
+	-- Now the player can teleport again!
+	TeleportationManager.SetIsPlayerBeingTeleported(player, false)
+	TeleportationManager.PlayerTeleported:Fire(player)
+
+	return true
 end
 
+-- This method will determine where the exact cframe a player should be teleported to
+-- based on their userdata.
+function TeleportationManager._DetermineTeleportationCFrameFromUserData(player: Player) : CFrame
 
-function teleportationManager.TeleportPlayerPostTranslationToPlaceId(player, goalPlaceId, teleportOptions)
-	if game:GetService("RunService"):IsStudio() then return end
-	if not playerUtilities.IsPlayerValid(player) then return end
-	if not goalPlaceId or not tonumber(goalPlaceId) or tonumber(goalPlaceId) <= 0 then return end
-	if teleportationManager.IsPlayerBeingTeleported(player) then return end
-	teleportationManager.PlayersBeingTeleported[player] = true
+	-- If these aren't true something bad has gone down.
+	if not playerUtilities.IsPlayerAlive(player) then return false end
+	if not userDataManager.GetData(player) then return end
 
-	-- Setting up TeleportOptions.
-	local validTeleportOptions = Instance.new("TeleportOptions")
-	validTeleportOptions.ReservedServerAccessCode = teleportOptions and teleportOptions.ReservedServerAccessCode
-	validTeleportOptions.ShouldReserveServer = teleportOptions and teleportOptions.ShouldReserveServer or false
+	-- This is where all the important stuff is at.
+	local userData: {} = userDataManager.GetData(player)
+	local currentBonusStageName: string = userData.UserInformation.CurrentBonusStage
+	local currentBonusStageCheckpoint: number = userData.UserInformation.CurrentBonusStageCheckpoint
+	local currentCheckpoint: number = userData.UserInformation.CurrentCheckpoint
 
-	-- We can start the effect.
-	teleportationStateUpdatedRemote:InvokeClient(player, true)
-	pcall(game:GetService("TeleportService").TeleportAsync, game:GetService("TeleportService"), goalPlaceId, {player}, validTeleportOptions)
-end
+	-- First we want to check for bonus stages.
+	if userData.UserInformation.CurrentBonusStage ~= "" then
 
+		-- Bonus stages don't exist?
+		if not bonusStageStorage then
 
--- This is less secure than TeleportPlayerPostTranslationToPlaceId.
-function teleportationManager.TeleportPlayerListPostTranslationToPlaceId(players, goalPlaceId, teleportOptions)
-	if game:GetService("RunService"):IsStudio() then return end
-	if typeof(players) ~= "table" then return end
-	if not goalPlaceId or not tonumber(goalPlaceId) or tonumber(goalPlaceId) <= 0 then return end
-	if typeof(teleportOptions) ~= "table" and typeof(teleportOptions) ~= "nil" then return end
+			userData.UserInformation.CurrentBonusStage = ""
+			TeleportationManager._Debug(levelStorage:GetFullName() .. ".BonusStages")
+			return TeleportationManager._DetermineTeleportationCFrameFromUserData(player)
 
-	-- Setting up TeleportOptions.
-	local validTeleportOptions = Instance.new("TeleportOptions")
-	validTeleportOptions.ReservedServerAccessCode = teleportOptions and teleportOptions.ReservedServerAccessCode or ""
-	validTeleportOptions.ShouldReserveServer = teleportOptions and teleportOptions.ShouldReserveServer or false
+		-- This bonus stage doesn't exist?
+		elseif not bonusStageStorage:FindFirstChild(currentBonusStageName) then
 
-	-- We can start the effect.
-	for _, player in next, players do
-		if playerUtilities.IsPlayerValid(player) and not teleportationManager.IsPlayerBeingTeleported(player) then
+			userData.UserInformation.CurrentBonusStage = ""
+			TeleportationManager._Debug(bonusStageStorage:GetFullName() .. "[\"" .. currentBonusStageName .. "\"]")
+			return TeleportationManager._DetermineTeleportationCFrameFromUserData(player)
 
-			-- We can start the effect.
-			teleportationManager.PlayersBeingTeleported[player] = true
-			if teleportationStateUpdatedRemote then
-				teleportationStateUpdatedRemote:InvokeClient(player, true)
-			end
+		-- This bonus stage has no checkpoints?
+		elseif not bonusStageStorage[currentBonusStageName]:FindFirstChild("Checkpoints") then
 
-			pcall(game:GetService("TeleportService").TeleportAsync, game:GetService("TeleportService"), goalPlaceId, {player}, validTeleportOptions)
+			userData.UserInformation.CurrentBonusStage = ""
+			TeleportationManager._Debug(bonusStageStorage[currentBonusStageName]:GetFullName() .. ".Checkpoints")
+			return TeleportationManager._DetermineTeleportationCFrameFromUserData(player)
+
+		-- The SPECIFIC checkpoint doesn't exist.
+		elseif not bonusStageStorage[currentBonusStageName].Checkpoints:FindFirstChild(currentBonusStageCheckpoint) then
+
+			userData.UserInformation.CurrentBonusStage = ""
+			TeleportationManager._Debug(bonusStageStorage[currentBonusStageName].Checkpoints:GetFullName() .. "[\"" .. currentBonusStageCheckpoint .. "\"]")
+			return TeleportationManager._DetermineTeleportationCFrameFromUserData(player)
 		end
-	end
-end
 
-
--- Get the perfect CFrame above a basepart using a little math.
-function teleportationManager.GetSeamlessCFrameAboveBasePart(player, basePart)
-	if not playerUtilities.IsPlayerAlive(player) then return end
-	if typeof(basePart) ~= "Instance" or not basePart:IsA("BasePart") then return end
-
-	-- No need to yield just give a possible answer.
-	if player.Character:FindFirstChild("Left Leg") then
-		return basePart.CFrame * CFrame.new(0, 5, 0)
+		-- If it reached this point all is good.
+		return playerUtilities.GetSeamlessCFrameAbovePart(
+			player,
+			bonusStageStorage[currentBonusStageName].Checkpoints[currentBonusStageCheckpoint]
+		)
 	end
 
-	-- sizeY/2 + legY + rootPartY + hipHeight
-	return basePart.CFrame * CFrame.new(
-		0,
-		basePart.Size.Y/2 + player.Character["Left Leg"].Size.Y + player.Character.HumanoidRootPart.Size.Y + player.Character.Humanoid.HipHeight,
-		0
+	-- If they aren't at a bonus stage they must be at a normal stage.
+	-- So we need to account for designer issues with that.
+
+	-- CurrentCheckpoint doesn't exist as a child of Checkpoints.
+	if not levelStorage.Checkpoints:FindFirstChild(currentCheckpoint) then
+
+		userData.UserInformation.CurrentCheckpoint = 1
+		TeleportationManager._Debug(levelStorage.Checkpoints:GetFullName() .. "[\"" .. currentCheckpoint .. "\"]")
+		return TeleportationManager._DetermineTeleportationCFrameFromUserData(player)
+	end
+
+	-- We can teleport them to the correct checkpoint now.
+	return playerUtilities.GetSeamlessCFrameAbovePart(
+		player,
+		levelStorage.Checkpoints[currentCheckpoint]
 	)
 end
 
+-- A small debug function that will only print if TeleportationManager.DebuggingEnabled is true.
+function TeleportationManager._Debug(debugMessage: string)
+	if TeleportationManager.DebuggingEnabled then
+		warn(debugMessage)
+	end
+end
 
---
-return teleportationManager
+return TeleportationManager

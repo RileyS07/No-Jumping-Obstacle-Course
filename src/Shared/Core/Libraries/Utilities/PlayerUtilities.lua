@@ -63,6 +63,37 @@ function PlayerUtilities.IsPlayerValid(player: Player?) : boolean
 	return true
 end
 
+-- Returns the seamless CFrame the character needs to be at above the given BasePart.
+function PlayerUtilities.GetSeamlessCFrameAbovePart(player: Player, part: BasePart) : CFrame
+    if not PlayerUtilities.IsPlayerAlive(player) then return CFrame.identity end
+
+    -- There is different math we have to do depending the rig type.
+    local character: Model = player.Character
+    local humanoid: Humanoid = character.Humanoid
+
+    -- In both cases we have to work our way up one of the legs.
+    if humanoid.RigType == Enum.HumanoidRigType.R6 then
+        return part.CFrame * CFrame.new(
+            0,
+            part.Size.Y / 2 + character["Left Leg"].Size.Y + character.HumanoidRootPart.Size.Y + humanoid.HipHeight,
+            0
+        )
+    elseif humanoid.RigType == Enum.HumanoidRigType.R15 then
+        return part.CFrame * CFrame.new(
+            0,
+            part.Size.Y / 2
+                + character.LeftFoot.Size.Y
+                + character.LeftLowerLeg.Size.Y
+                + character.LeftUpperLeg.Size.Y
+                + character.HumanoidRootPart.Size.Y
+                + humanoid.HipHeight,
+            0
+        )
+    else
+        return part.CFrame * CFrame.new(0, 5, 0)
+    end
+end
+
 -- Reliably calls SetCore;
 -- SetCore has a chance to not go through if the core was not registered yet.
 function PlayerUtilities.SetCore(...)

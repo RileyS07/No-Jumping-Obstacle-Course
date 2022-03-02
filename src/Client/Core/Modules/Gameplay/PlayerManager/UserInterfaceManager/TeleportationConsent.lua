@@ -13,10 +13,10 @@ function specificInterfaceManager.Initialize()
 	specificInterfaceManager.Interface.Buttons = specificInterfaceManager.Interface.Content:WaitForChild("Buttons")
 
     -- GetTeleportationConsent shows a gui on their screen and waits for a yes/no.
-    coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.GetTeleportationConsent").OnClientInvoke = function(title, description, imageContent)
+    coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.GetTeleportationConsent").OnClientInvoke = function(title, description)
 
 		-- Update the visuals on the ui.
-		specificInterfaceManager.Interface.Container:WaitForChild("BackgroundImage"):WaitForChild("ImageLabel").Image = imageContent or "rbxassetid://5632265938"
+		--specificInterfaceManager.Interface.Container:WaitForChild("BackgroundImage"):WaitForChild("ImageLabel").Image = imageContent or "rbxassetid://5632265938"
 		specificInterfaceManager.Interface.Container:WaitForChild("BackgroundImage"):WaitForChild("Title").Text = title or "???"
 		specificInterfaceManager.Interface.Content:WaitForChild("Description").Text = description or "???"
 

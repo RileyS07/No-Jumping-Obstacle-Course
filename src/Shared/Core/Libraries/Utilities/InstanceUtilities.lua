@@ -1,9 +1,9 @@
+local collectionService: CollectionService = game:GetService("CollectionService")
+
 local InstanceUtilities = {}
 
 -- An extension of Instance.new to support all properties.
 function InstanceUtilities.Create(className: string, properties: {[string]: any}?) : Instance
-    assert(typeof(className) == "string", "Argument #1 expected string. Got " .. typeof(className))
-    assert(typeof(properties) == "table" or typeof(properties) == "nil", "Argument #2 expected dictionary. Got " .. typeof(properties))
 
     local newInstance = Instance.new(className)
     properties = properties or {}
@@ -20,16 +20,16 @@ function InstanceUtilities.Create(className: string, properties: {[string]: any}
 end
 
 -- A function to replace the common scheme of 'if ... then (...):Destroy() end'
-function InstanceUtilities.SafeDestroy(instance: Instance?)
-    if typeof(instance) == "Instance" then
-        instance:Destroy()
+function InstanceUtilities.SafeDestroy(thisInstance: Instance?)
+    if typeof(thisInstance) == "Instance" then
+        thisInstance:Destroy()
     end
 end
 
 -- An extension of Instance:GetChildren() to only get certain children with a filter.
-function InstanceUtilities.GetChildren(instance: Instance, filterFunction: (Instance) -> boolean) : {Instance}
+function InstanceUtilities.GetChildren(thisInstance: Instance, filterFunction: (Instance) -> boolean) : {Instance}
 
-    local children = instance:GetChildren()
+    local children = thisInstance:GetChildren()
 
     -- Sorting them out.
     for index = #children, 1, -1 do
@@ -42,9 +42,9 @@ function InstanceUtilities.GetChildren(instance: Instance, filterFunction: (Inst
 end
 
 -- An extension of Instance:GetChildren() to only get certain children of a class type.
-function InstanceUtilities.GetChildrenWhichAre(instance: Instance, className: string) : {Instance}
+function InstanceUtilities.GetChildrenWhichAre(thisInstance: Instance, className: string) : {Instance}
 
-    local children = instance:GetChildren()
+    local children = thisInstance:GetChildren()
 
     -- Sorting them out.
     for index = #children, 1, -1 do
@@ -57,9 +57,9 @@ function InstanceUtilities.GetChildrenWhichAre(instance: Instance, className: st
 end
 
 -- An extension of Instance:GetDescendants() to only get certain descendants.
-function InstanceUtilities.GetDescendants(instance: Instance, filterFunction: (Instance) -> boolean) : {Instance}
+function InstanceUtilities.GetDescendants(thisInstance: Instance, filterFunction: (Instance) -> boolean) : {Instance}
 
-    local descendants = instance:GetDescendants()
+    local descendants = thisInstance:GetDescendants()
 
     -- Sorting them out.
     for index = #descendants, 1, -1 do
@@ -84,6 +84,15 @@ function InstanceUtilities.GetMass(thisInstance: Instance) : number
     end
 
     return finalMassAmount
+end
+
+
+-- This function will remove all tags from this given instance.
+function InstanceUtilities.RemoveTags(thisInstance: Instance)
+
+	for _, collectionServiceTagName: string in next, collectionService:GetTags(thisInstance) do
+		collectionService:RemoveTag(thisInstance, collectionServiceTagName)
+	end
 end
 
 return InstanceUtilities

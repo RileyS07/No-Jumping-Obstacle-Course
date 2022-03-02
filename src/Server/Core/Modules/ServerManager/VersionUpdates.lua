@@ -6,11 +6,10 @@
 
 local players: Players = game:GetService("Players")
 local runService: RunService = game:GetService("RunService")
-local teleportService: TeleportService = game:GetService("TeleportService")
 
 local coreModule = require(script:FindFirstAncestor("Core"))
-local teleportationManager = require(coreModule.GetObject("Modules.Gameplay.MechanicsManager.TeleportationManager"))
 local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
+local teleportService = require(coreModule.Shared.GetObject("Libraries.Services.TeleportService"))
 
 local VersionUpdatesManager = {}
 VersionUpdatesManager.ReservedServerCode = ""
@@ -23,7 +22,8 @@ function VersionUpdatesManager.Initialize()
     -- So we send them back to the original game.
     if VersionUpdatesManager.IsReservedServer() then
         playerUtilities.CreatePlayerAddedWrapper(function(player: Player)
-            teleportationManager.TeleportPlayerListPostTranslationToPlaceId({player}, game.PlaceId)
+            if not playerUtilities.IsPlayerValid(player) then return end
+            teleportService.TeleportAsync(game.PlaceId, {player})
         end)
 
         return
@@ -47,15 +47,20 @@ function VersionUpdatesManager.ShutdownServer()
 
     -- We only want to create one reserved server if possible so that all players can stick together.
     if VersionUpdatesManager.ReservedServerCode == "" then
-        VersionUpdatesManager.ReservedServerCode = teleportService:ReserveServer(game.PlaceId)
+        VersionUpdatesManager.ReservedServerCode = teleportService.ReserveServer(game.PlaceId)
     end
 
     -- We want to update the clients to tell them that they're leaving and also teleport them away.
     playerUtilities.CreatePlayerAddedWrapper(function(player: Player)
+        if not playerUtilities.IsPlayerValid(player) then return end
+
+        -- There are players we need to teleport
         coreModule.Shared.GetObject("//Remotes.Server.VersionUpdated"):FireClient(player)
 
-        teleportationManager.TeleportPlayerListPostTranslationToPlaceId(
-            {player}, game.PlaceId, {ReservedServerAccessCode = VersionUpdatesManager.ReservedServerCode}
+        teleportService.TeleportAsync(
+            game.PlaceId,
+            {player},
+            teleportService.CreateTeleportOptions(VersionUpdatesManager.ReservedServerCode)
         )
     end)
 end
