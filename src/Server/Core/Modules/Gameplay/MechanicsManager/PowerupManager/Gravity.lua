@@ -17,10 +17,10 @@ function ThisPowerupManager.Initialize()
 
         local player: Player? = players:GetPlayerFromCharacter(character)
 		if not playerUtilities.IsPlayerAlive(player) then return end
-        if not character.PrimaryPart:FindFirstChildOfClass("BodyForce") then return end
+        if not character.PrimaryPart:FindFirstChildOfClass("VectorForce") then return end
 
         -- We destroy it if it exists!
-        character.PrimaryPart:FindFirstChildOfClass("BodyForce"):Destroy()
+        character.PrimaryPart:FindFirstChildOfClass("VectorForce"):Destroy()
     end)
 end
 
@@ -30,11 +30,12 @@ function ThisPowerupManager.Apply(player: Player, thisPowerup: Instance)
     if not playerUtilities.IsPlayerAlive(player) then return end
 
     -- We need to either find it or create it.
-    local thisBodyForce: BodyForce = player.Character.PrimaryPart:FindFirstChildOfClass("BodyForce")
+    local thisVectorForce: VectorForce = player.Character.PrimaryPart:FindFirstChildOfClass("VectorForce")
 
-    if not thisBodyForce then
-        thisBodyForce = Instance.new("BodyForce")
-        thisBodyForce.Parent = player.Character.PrimaryPart
+    if not thisVectorForce then
+        thisVectorForce = Instance.new("VectorForce")
+        thisVectorForce.Attachment0 = player.Character.HumanoidRootPart.RootAttachment
+        thisVectorForce.Parent = player.Character.PrimaryPart
     end
 
     -- Now we need to assign a force to it.
@@ -42,7 +43,7 @@ function ThisPowerupManager.Apply(player: Player, thisPowerup: Instance)
     -- Do keep in mind that the force is not constant the entire way up, it will work towards it's terminal velocity.
     -- https://en.wikipedia.org/wiki/Terminal_velocity
     -- Gravity * Multiplier * CharacterMass.
-    thisBodyForce.Force = Vector3.new(
+    thisVectorForce.Force = Vector3.new(
         0,
         workspace.Gravity
             * (thisPowerup:GetAttribute("Force") or sharedConstants.MECHANICS.GRAVITY_POWERUP_DEFAULT_FORCE)

@@ -26,7 +26,7 @@ end
 function PlayerManager.SetupJoiningConnections()
 
 	-- We want to handle anything involving user data first.
-	playerUtilities.CreatePlayerAddedWrapper(function(player: Player)
+	task.defer(playerUtilities.CreatePlayerAddedWrapper, function(player: Player)
 
 		userDataManager.LoadData(player)
 		eventsManager.ValidateAllEventData(player)
