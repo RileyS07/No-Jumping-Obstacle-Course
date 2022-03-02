@@ -13,7 +13,7 @@ local userDataManager = require(coreModule.GetObject("Modules.Gameplay.PlayerMan
 local teleportationManager = require(coreModule.GetObject("Modules.Gameplay.MechanicsManager.TeleportationManager"))
 local badgeService = require(coreModule.Shared.GetObject("Libraries.Services.BadgeService"))
 local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
-local badgeStorageLibrary = require(coreModule.Shared.GetObject("Libraries.BadgeStorage"))
+local badgeList = require(coreModule.Shared.GetObject("Libraries.BadgeList"))
 
 -- Initialize
 function checkpointsManager.Initialize()
@@ -99,12 +99,9 @@ function checkpointsManager.UpdateCurrentCheckpoint(player, checkpointNumber)
 
 		-- Backwards compatibility for award trial badges.
 		if checkpointNumber > 1 and checkpointNumber%10 == 1 then
-			if badgeStorageLibrary.GetBadgeList("Trials") then
-				badgeService.AwardBadge(player, badgeStorageLibrary.GetBadgeList("Trials")[math.floor(checkpointNumber/10)])
+			if badgeList.Trials[math.floor(checkpointNumber/10)] then
+				badgeService.AwardBadge(player, badgeList.Trials[math.floor(checkpointNumber/10)])
 			end
-
-			-- Fixing their data.
-			userData.UserInformation.CompletedStages = checkpointsManager._CorrectCompletedStagesArray(userData.UserInformation.CompletedStages)
 
 			if not table.find(userData.UserInformation.CompletedStages, checkpointNumber) then
 				table.insert(userData.UserInformation.CompletedStages, checkpointNumber)
@@ -120,25 +117,6 @@ function checkpointsManager.UpdateCurrentCheckpoint(player, checkpointNumber)
 	if not table.find(userData.UserInformation.CompletedStages, checkpointNumber) then
 		table.insert(userData.UserInformation.CompletedStages, checkpointNumber)
 	end
-end
-
--- Corrects CompletedStages.
-function checkpointsManager._CorrectCompletedStagesArray(completedStagesArray: {}) : {}
-
-	local newCompletedStagesArray: {} = {}
-
-	for _, stageNumber: number in next, completedStagesArray do
-		if tonumber(stageNumber) and not table.find(newCompletedStagesArray, tonumber(stageNumber)) then
-			table.insert(newCompletedStagesArray, tonumber(stageNumber))
-		end
-	end
-
-	-- Sorting it.
-	table.sort(newCompletedStagesArray, function(stageNumberA: number, stageNumberB: number)
-		return stageNumberA < stageNumberB
-	end)
-
-	return newCompletedStagesArray
 end
 
 --

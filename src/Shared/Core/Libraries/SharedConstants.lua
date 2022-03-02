@@ -22,5 +22,14 @@ return {
         TELEPORTATION_DEFAULT_OVERLAY_COLOR = Color3.new(),     -- The default color that the overlay frame will be.
         TELEPORTATION_OVERLAY_ANIMATION_LENGTH = 0.5,             -- The total length of time that it will take for the overlay animation to finish.
         SPEED_POWERUP_DEFAULT_MULTIPLIER = 2,                     -- The default multiplier that will be used if there is no `Multiplier` attribute.
+    },
+
+    TELEPORTERS = {
+        ANY_TELEPORTER_DEFAULT_OVERLAY_COLOR = Color3.new(1, 1, 1), -- The default color that the overlay frame will be.
+        ANY_TELEPORTER_DEFAULT_AUTHOR = "???",  -- The default author that is shown when there is no 'Author' attribute.
+        ANY_TELEPORTER_DEFAULT_DIFFICULTY = 1,  -- The default difficulty the teleporter will show.
+        ANY_TELEPORTER_MAXIMUM_DIFFICULTY = 5,  -- The maxmimum difficulty rating supported.
+        BONUS_STAGE_TELEPORTER_CONSENT_FORMAT = "Are you sure you want to teleport to <font color=\"#5352ed\"><b>%s</b></font> bonus level?",
+        LOCATION_TELEPORTER_CONSENT_FORMAT = "Are you sure you want to teleport to <font color=\"#5352ed\"><b>%s</b></font>?",
     }
 }

@@ -35,6 +35,7 @@ function PlayerManager.SetupJoiningConnections()
 		-- Misc modules.
 		commonPlayerBadges.AwardBadges(player)
 		coreModule.LoadModule("/Leaderstats", player)
+		coreModule.LoadModule("/CorruptionRepair", player)
 	end)
 end
 
