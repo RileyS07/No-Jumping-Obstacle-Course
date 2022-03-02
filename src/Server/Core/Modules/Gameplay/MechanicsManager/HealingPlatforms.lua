@@ -1,3 +1,5 @@
+local players: Players = game:GetService("Players")
+
 local coreModule = require(script:FindFirstAncestor("Core"))
 local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
 local sharedConstants = require(coreModule.Shared.GetObject("Libraries.SharedConstants"))
@@ -19,7 +21,7 @@ function ThisMechanicManager.Initialize()
             if thisPlatform:IsA("Model") and thisPlatform.PrimaryPart then
                 thisPlatform.PrimaryPart.Touched:Connect(function(hit: BasePart)
 
-                    local player: Player? = game:GetService("Players"):GetPlayerFromCharacter(hit.Parent)
+                    local player: Player? = players:GetPlayerFromCharacter(hit.Parent)
                     if not playerUtilities.IsPlayerAlive(player) then return end
                     if ThisMechanicManager.IsMechanicEffectActiveFor(player, thisPlatform) then return end
 

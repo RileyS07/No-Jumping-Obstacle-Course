@@ -8,6 +8,13 @@ return {
         }
     },
 
+    FORMATS = {
+        BONUS_STAGE_TELEPORTER_CONSENT_FORMAT = "Are you sure you want to teleport to <font color=\"#5352ed\"><b>%s</b></font> bonus level?",
+        EXPERIENCE_COMPLETION_MESSAGE_FORMAT = "%s has just beat No Jumping Zone!",
+        LOCATION_TELEPORTER_CONSENT_FORMAT = "Are you sure you want to teleport to <font color=\"#5352ed\"><b>%s</b></font>?",
+        TRIAL_COMPLETION_MESSAGE_FORMAT = "%s has just finished %s!",
+    },
+
     MECHANICS = {
         ANY_PLATFORM_DEFAULT_DURATION = 1,          -- The default amount of time a platform will take to finish its effect.
         ANY_POWERUP_DEFAULT_DURATION = 30,          -- The default amount of time a powerup will be applied for.
@@ -29,7 +36,5 @@ return {
         ANY_TELEPORTER_DEFAULT_AUTHOR = "???",  -- The default author that is shown when there is no 'Author' attribute.
         ANY_TELEPORTER_DEFAULT_DIFFICULTY = 1,  -- The default difficulty the teleporter will show.
         ANY_TELEPORTER_MAXIMUM_DIFFICULTY = 5,  -- The maxmimum difficulty rating supported.
-        BONUS_STAGE_TELEPORTER_CONSENT_FORMAT = "Are you sure you want to teleport to <font color=\"#5352ed\"><b>%s</b></font> bonus level?",
-        LOCATION_TELEPORTER_CONSENT_FORMAT = "Are you sure you want to teleport to <font color=\"#5352ed\"><b>%s</b></font>?",
     }
 }

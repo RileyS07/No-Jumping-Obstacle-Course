@@ -1,4 +1,5 @@
 local collectionService: CollectionService = game:GetService("CollectionService")
+local players: Players = game:GetService("Players")
 
 local coreModule = require(script:FindFirstAncestor("Core"))
 local teleportationManager = require(coreModule.GetObject("Modules.Gameplay.MechanicsManager.TeleportationManager"))
@@ -25,7 +26,7 @@ function ThisMechanicManager.Initialize()
             if thisPlatform:IsA("BasePart") then
                 thisPlatform.Touched:Connect(function(hit: BasePart)
 
-                    local player: Player? = game:GetService("Players"):GetPlayerFromCharacter(hit.Parent)
+                    local player: Player? = players:GetPlayerFromCharacter(hit.Parent)
                     if not playerUtilities.IsPlayerAlive(player) then return end
                     if ThisMechanicManager.IsMechanicEffectActiveFor(player, thisPlatform) then return end
 

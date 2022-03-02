@@ -8,7 +8,7 @@ local LeaderstatsManager = {}
 function LeaderstatsManager.Initialize(player: Player)
     LeaderstatsManager.Update(player)
 
-    checkpointsManager.CurrentCheckpointUpdated.Event:Connect(function(thisPlayer: Player)
+    checkpointsManager.CurrentCheckpointUpdated:Connect(function(thisPlayer: Player)
         LeaderstatsManager.Update(thisPlayer)
     end)
 end

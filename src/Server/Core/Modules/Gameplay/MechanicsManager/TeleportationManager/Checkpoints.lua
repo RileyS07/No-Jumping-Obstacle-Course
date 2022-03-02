@@ -1,64 +1,140 @@
--- Variables
-local checkpointsManager = {}
-checkpointsManager.Remotes = {}
-checkpointsManager.CurrentCheckpointUpdated = Instance.new("BindableEvent")
+local players: Players = game:GetService("Players")
 
---[[
-
-		-- Quick fix 2/3/2022. Just clamps their current checkpoint to their furthest.
-		userData.UserInformation.CurrentCheckpoint = math.clamp(userData.UserInformation.CurrentCheckpoint, 1, userData.UserInformation.FarthestCheckpoint)
-]]
 local coreModule = require(script:FindFirstAncestor("Core"))
 local userDataManager = require(coreModule.GetObject("Modules.Gameplay.PlayerManager.UserDataManager"))
 local teleportationManager = require(coreModule.GetObject("Modules.Gameplay.MechanicsManager.TeleportationManager"))
 local badgeService = require(coreModule.Shared.GetObject("Libraries.Services.BadgeService"))
 local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
 local badgeList = require(coreModule.Shared.GetObject("Libraries.BadgeList"))
+local zoneNames = require(coreModule.Shared.GetObject("Libraries.ZoneNames"))
+local sharedConstants = require(coreModule.Shared.GetObject("Libraries.SharedConstants"))
+local signal = require(coreModule.Shared.GetObject("Libraries.Signal"))
+
+local checkpointInformationUpdatedRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.CheckpointInformationUpdated")
+local playSoundEffectRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.PlaySoundEffect")
+local makeSystemMessageRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.MakeSystemMessage")
+local teleportToStageRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.TeleportToStage")
+local thisPlatformContainer: Instance? = workspace.Map.Gameplay.LevelStorage:FindFirstChild("Checkpoints")
+
+local CheckpointsManager = {}
+CheckpointsManager.CurrentCheckpointUpdated = signal.new()
 
 -- Initialize
-function checkpointsManager.Initialize()
-	if not workspace.Map.Gameplay.LevelStorage:FindFirstChild("Checkpoints") then return end
+function CheckpointsManager.Initialize()
+	if not thisPlatformContainer then return end
 
-	-- Setting up remotes + assets.
-	checkpointsManager.Remotes.CheckpointInformationUpdated = coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.CheckpointInformationUpdated")
-	checkpointsManager.Remotes.PlaySoundEffect = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.PlaySoundEffect")
-	checkpointsManager.Remotes.MakeSystemMessage = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.MakeSystemMessage")
+	-- Every descendant that is a BasePart of this collection will respawn them.
+	for _, thisPlatform: Instance in next, (thisPlatformContainer :: Instance):GetDescendants() do
 
-	-- Setting up the checkpoints to be functional.
-	for _, checkpointPlatform in next, workspace.Map.Gameplay.LevelStorage.Checkpoints:GetChildren() do
+		if thisPlatform:IsA("BasePart") and tonumber(thisPlatform.Name) then
+			thisPlatform.Touched:Connect(function(hit: BasePart)
 
-		-- Checkpoints have to be numbers or else they do not matter.
-		if checkpointPlatform:IsA("BasePart") and tonumber(checkpointPlatform.Name) then
-			checkpointPlatform.Touched:Connect(function(hit)
-				local player = game:GetService("Players"):GetPlayerFromCharacter(hit.Parent)
+				local player: Player? = players:GetPlayerFromCharacter(hit.Parent)
 				if not playerUtilities.IsPlayerAlive(player) then return end
 
 				-- Update their Farthest and Current checkpoints.
-				checkpointsManager.UpdateFarthestCheckpoint(player, tonumber(checkpointPlatform.Name))
-				checkpointsManager.UpdateCurrentCheckpoint(player, tonumber(checkpointPlatform.Name))
+				CheckpointsManager.UpdateFarthestCheckpoint(player, tonumber(thisPlatform.Name))
+				CheckpointsManager.UpdateCurrentCheckpoint(player, tonumber(thisPlatform.Name))
 			end)
 		end
 	end
 
 	-- The client wants to teleport to a specific stage.
-	coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.TeleportToStage").OnServerEvent:Connect(function(player, checkpointNumber)
-		if typeof(checkpointNumber) ~= "number" then return end
-		if not workspace.Map.Gameplay.LevelStorage.Checkpoints:FindFirstChild(checkpointNumber) then return end
+	-- We need make sure they've even reached this point.
+	teleportToStageRemote.OnServerEvent:Connect(function(player: Player, checkpointNumber: number?)
+
+		-- If these are invalid something has gone horrible wrong.
 		if not playerUtilities.IsPlayerAlive(player) then return end
 		if not userDataManager.GetData(player) then return end
+
+		-- We need to make sure the number is correct.
+		if typeof(checkpointNumber) ~= "number" then return end
+		if math.floor(checkpointNumber) ~= checkpointNumber then return end
+
+		-- Does this checkpoint even exist and have they reached this point?
+		if not thisPlatformContainer:FindFirstChild(checkpointNumber) then return end
 		if userDataManager.GetData(player).UserInformation.FarthestCheckpoint < checkpointNumber then return end
 
 		-- Update their Farthest and Current checkpoints.
-		checkpointsManager.UpdateFarthestCheckpoint(player, checkpointNumber)
-		checkpointsManager.UpdateCurrentCheckpoint(player, checkpointNumber)
+		CheckpointsManager.UpdateFarthestCheckpoint(player, checkpointNumber)
+		CheckpointsManager.UpdateCurrentCheckpoint(player, checkpointNumber)
 		teleportationManager.TeleportPlayer(player)
 	end)
 end
 
+-- Updates the current checkpoint the user is at as long as everything is valid.
+-- This is the checkpoint they will teleport to when they respawn.
+function CheckpointsManager.UpdateCurrentCheckpoint(player: Player, checkpointNumber: number)
 
--- Methods
+	if not playerUtilities.IsPlayerValid(player) then return end
+	if not userDataManager.GetData(player) then return end
+
+	-- This should be impossible but I still have it here just in case.
+	if userDataManager.GetData(player).UserInformation.FarthestCheckpoint < checkpointNumber then return end
+
+	-- We keep track of this so we aren't spamming remotes and such.
+	local userData: {} = userDataManager.GetData(player)
+	local originalCurrentCheckpoint: number = userData.UserInformation.CurrentCheckpoint
+
+	-- Update their data to match their new current checkpoint.
+	userData.UserInformation.CurrentCheckpoint = checkpointNumber
+	userData.UserInformation.CurrentBonusStage = ""
+
+	-- Backwards compatibility for things like badges and CompletedStages.
+	if originalCurrentCheckpoint ~= userData.UserInformation.CurrentCheckpoint then
+
+		-- We can fire the bindable and try to play any sound effects related.
+		CheckpointsManager.CurrentCheckpointUpdated:Fire(player, originalCurrentCheckpoint, userData.UserInformation.CurrentCheckpoint)
+		playSoundEffectRemote:FireClient(player, "CheckpointTouched")
+		playSoundEffectRemote:FireClient(player, "Stage" .. tostring(checkpointNumber))
+
+		-- Backwards compatibility for award trial badges.
+		if checkpointNumber > 1 and checkpointNumber % 10 == 1 then
+
+			local trialNumber: number = math.floor(checkpointNumber / 10)
+
+			-- Can we award a badge for this?
+			if badgeList.Trials[trialNumber] then
+				badgeService.AwardBadge(player, badgeList.Trials[trialNumber])
+			end
+
+			-- We add this to the list so we only show the message once.
+			if not table.find(userData.UserInformation.CompletedStages, checkpointNumber) then
+
+				table.insert(userData.UserInformation.CompletedStages, checkpointNumber)
+
+				-- We want the clapping to play for just them and then the message for everyone.
+				playSoundEffectRemote:FireClient(player, "Clapping")
+				makeSystemMessageRemote:FireAllClients(string.format(
+					sharedConstants.FORMATS.TRIAL_COMPLETION_MESSAGE_FORMAT,
+					player.Name,
+					zoneNames[trialNumber] or "???"
+				))
+			end
+		end
+
+		-- Informing the client we have updated their data.
+		checkpointInformationUpdatedRemote:FireClient(player, userData)
+	end
+
+	-- Backwards compatability for CompletedStages.
+	-- Apparently we need to make sure it isn't a trial or else it'll be overwritten and our effects won't show.
+	if checkpointNumber == 1 or checkpointNumber % 10 ~= 1 then
+		if not table.find(userData.UserInformation.CompletedStages, checkpointNumber) then
+			table.insert(userData.UserInformation.CompletedStages, checkpointNumber)
+		end
+	end
+
+	-- Backwards compatability for No-Jumping-Zone-Completionist.
+	if checkpointNumber == 101 then
+		badgeService.AwardBadge(player, 2125036729)
+	end
+end
+
 -- Updates the farthest checkpoint a user has ever reached is possible.
-function checkpointsManager.UpdateFarthestCheckpoint(player, checkpointNumber)
+-- This is mainly used for visual purposes.
+function CheckpointsManager.UpdateFarthestCheckpoint(player: Player, checkpointNumber: number)
+
 	if not playerUtilities.IsPlayerValid(player) then return end
 	if not userDataManager.GetData(player) then return end
 
@@ -66,58 +142,21 @@ function checkpointsManager.UpdateFarthestCheckpoint(player, checkpointNumber)
 	if userDataManager.GetData(player).UserInformation.FarthestCheckpoint >= checkpointNumber then return end
 
 	-- Update their data to match their new farthest checkpoint.
-	local userData = userDataManager.GetData(player)
+	local userData: {} = userDataManager.GetData(player)
 	userData.UserInformation.FarthestCheckpoint = checkpointNumber
-	checkpointsManager.Remotes.CheckpointInformationUpdated:FireClient(player, userData)
+	checkpointInformationUpdatedRemote:FireClient(player, userData)
 
 	-- Did they just finish the game???
 	if checkpointNumber == 101 then
-		checkpointsManager.Remotes.MakeSystemMessage:FireAllClients(player.Name .. " has just beat No Jumping Zone!")
+
+		-- We want a little delay so it shows up after the trial completion message,
+		task.delay(0.5, function()
+			makeSystemMessageRemote:FireAllClients(string.format(
+				sharedConstants.FORMATS.EXPERIENCE_COMPLETION_MESSAGE_FORMAT,
+				player.Name
+			))
+		end)
 	end
 end
 
-
--- Updates the current checkpoint the user is at as long as everything is valid.
-function checkpointsManager.UpdateCurrentCheckpoint(player, checkpointNumber)
-	if not playerUtilities.IsPlayerValid(player) then return end
-	if not userDataManager.GetData(player) then return end
-
-	-- This should be impossible but I still have it here just in case.
-	if userDataManager.GetData(player).UserInformation.FarthestCheckpoint < checkpointNumber then return end
-
-	-- Update their data to match their new current checkpoint.
-	local userData = userDataManager.GetData(player)
-	local originalCurrentCheckpoint = userData.UserInformation.CurrentCheckpoint
-	userData.UserInformation.CurrentCheckpoint = checkpointNumber
-	userData.UserInformation.CurrentBonusStage = ""
-
-	-- Backwards compatibility for things like badges and CompletedStages.
-	if originalCurrentCheckpoint ~= userData.UserInformation.CurrentCheckpoint then
-		checkpointsManager.CurrentCheckpointUpdated:Fire(player, originalCurrentCheckpoint, userData.UserInformation.CurrentCheckpoint)
-		checkpointsManager.Remotes.PlaySoundEffect:FireClient(player, "CheckpointTouched")--, {Parent = workspace.Map.Gameplay.LevelStorage.Checkpoints[checkpointNumber]})
-		checkpointsManager.Remotes.PlaySoundEffect:FireClient(player, "Stage"..tostring(checkpointNumber))
-
-		-- Backwards compatibility for award trial badges.
-		if checkpointNumber > 1 and checkpointNumber%10 == 1 then
-			if badgeList.Trials[math.floor(checkpointNumber/10)] then
-				badgeService.AwardBadge(player, badgeList.Trials[math.floor(checkpointNumber/10)])
-			end
-
-			if not table.find(userData.UserInformation.CompletedStages, checkpointNumber) then
-				table.insert(userData.UserInformation.CompletedStages, checkpointNumber)
-				checkpointsManager.Remotes.PlaySoundEffect:FireClient(player, "Clapping")
-				checkpointsManager.Remotes.MakeSystemMessage:FireAllClients(player.Name.." has completed Trial "..tostring(math.floor(checkpointNumber/10)).."!")
-			end
-		end
-
-		checkpointsManager.Remotes.CheckpointInformationUpdated:FireClient(player, userData)
-	end
-
-	-- Backwards compatability for CompletedStages.
-	if not table.find(userData.UserInformation.CompletedStages, checkpointNumber) then
-		table.insert(userData.UserInformation.CompletedStages, checkpointNumber)
-	end
-end
-
---
-return checkpointsManager
+return CheckpointsManager

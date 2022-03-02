@@ -1,4 +1,5 @@
 local collectionService: CollectionService = game:GetService("CollectionService")
+local players: Players = game:GetService("Players")
 
 local coreModule = require(script:FindFirstAncestor("Core"))
 local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
@@ -133,7 +134,7 @@ function PowerupManager._SetupPowerups()
             -- We have confirmed everything is valid so we can now go from here.
             (thisHitbox :: BasePart).Touched:Connect(function(hit: BasePart)
 
-                local player: Player? = game:GetService("Players"):GetPlayerFromCharacter(hit.Parent)
+                local player: Player? = players:GetPlayerFromCharacter(hit.Parent)
 
                 -- We have to make sure they're alive and still within the powerup box.
                 -- The last part is needed because of a bug where if a player touches a powerup

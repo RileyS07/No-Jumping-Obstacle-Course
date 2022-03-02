@@ -1,3 +1,5 @@
+local players: Players = game:GetService("Players")
+
 local coreModule = require(script:FindFirstAncestor("Core"))
 local teleportersManager = require(coreModule.GetObject("Modules.Gameplay.MechanicsManager.TeleportationManager.Teleporters"))
 local teleportationManager = require(coreModule.GetObject("Modules.Gameplay.MechanicsManager.TeleportationManager"))
@@ -36,7 +38,7 @@ function ThisTeleporterManager.Initialize()
 			-- So we want to ask them if they want to go to it's destination.
 			teleporterObject.PrimaryPart.Touched:Connect(function(hit: BasePart)
 
-				local player: Player? = game:GetService("Players"):GetPlayerFromCharacter(hit.Parent)
+				local player: Player? = players:GetPlayerFromCharacter(hit.Parent)
 
 				if not playerUtilities.IsPlayerAlive(player) then return end
 				if teleportersManager.GetIsWaitingOnPlayerConsent(player :: Player) then return end
@@ -45,7 +47,7 @@ function ThisTeleporterManager.Initialize()
 				local doesPlayerConsent: boolean = teleportersManager.GetTeleportationConsent(
 					player,
 					teleporterObject.Name,
-					string.format(sharedConstants.TELEPORTERS.LOCATION_TELEPORTER_CONSENT_FORMAT, teleporterObject.Name)
+					string.format(sharedConstants.FORMATS.LOCATION_TELEPORTER_CONSENT_FORMAT, teleporterObject.Name)
 				)
 
 				-- Well do they?

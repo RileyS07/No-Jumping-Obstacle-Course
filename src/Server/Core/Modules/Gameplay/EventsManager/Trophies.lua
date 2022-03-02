@@ -1,3 +1,5 @@
+local players: Players = game:GetService("Players")
+
 local coreModule = require(script:FindFirstAncestor("Core"))
 local userDataManager = require(coreModule.GetObject("Modules.Gameplay.PlayerManager.UserDataManager"))
 local badgeService = require(coreModule.Shared.GetObject("Libraries.Services.BadgeService"))
@@ -21,7 +23,7 @@ function ThisEventManager.Initialize()
 		trophy.Touched:Connect(function(hit: BasePart)
 
 			-- Guard clauses to make sure the player is alive, valid, and their data exists.
-			local player: Player? = game:GetService("Players"):GetPlayerFromCharacter(hit.Parent)
+			local player: Player? = players:GetPlayerFromCharacter(hit.Parent)
 			if not playerUtilities.IsPlayerAlive(player) then return end
 			if not userDataManager.GetData(player) then return end
 

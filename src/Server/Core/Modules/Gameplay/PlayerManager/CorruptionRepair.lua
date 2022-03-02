@@ -5,6 +5,7 @@
 
 local coreModule = require(script:FindFirstAncestor("Core"))
 local userDataManager = require(coreModule.GetObject("Modules.Gameplay.PlayerManager.UserDataManager"))
+local badgeService = require(coreModule.Shared.GetObject("Libraries.Services.BadgeService"))
 
 local CorruptionRepairManager = {}
 
@@ -16,6 +17,16 @@ function CorruptionRepairManager.Initialize(player: Player)
 
     userData.UserInformation.CompletedBonusStages = CorruptionRepairManager._RepairCompletedBonusStages(userData.UserInformation.CompletedBonusStages)
     userData.UserInformation.CompletedStages = CorruptionRepairManager._RepairCompletedStages(userData.UserInformation.CompletedStages)
+
+	CorruptionRepairManager._AttemptAwardNJZCompletionistBadge(player, userData.UserInformation.CurrentCheckpoint)
+end
+
+-- There was a bug where the ★ No Jumping Zone Completionist badge was not being awarded.
+function CorruptionRepairManager._AttemptAwardNJZCompletionistBadge(player: Player, currentCheckpoint: number)
+
+	if currentCheckpoint == 101 then
+		badgeService.AwardBadge(player, 2125036729)
+	end
 end
 
 -- There was a bug where duplicates of bonus stages were being inserted into here.
