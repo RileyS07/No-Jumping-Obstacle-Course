@@ -14,6 +14,7 @@ return {
 
 	-- Settings that determine how the game appears/acts for their client
 	Settings = {
+		SkipPopupEnabled = true,
 		MusicVolumeModifier = 1,
 		SoundEffectsVolumeModifier = 1,
 		RenderCharactersPhaseIndex = 0,

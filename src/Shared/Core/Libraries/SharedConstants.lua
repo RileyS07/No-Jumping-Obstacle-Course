@@ -15,6 +15,10 @@ return {
         TRIAL_COMPLETION_MESSAGE_FORMAT = "%s has just finished %s!",
     },
 
+    GENERAL = {
+        RESPAWN_COUNT_NEEDED_TO_SHOW_POPUP = 5, -- The amount of failed attempts on a stage needed in order to show the skip stage gui.
+    },
+
     MECHANICS = {
         ANY_PLATFORM_DEFAULT_DURATION = 1,          -- The default amount of time a platform will take to finish its effect.
         ANY_POWERUP_DEFAULT_DURATION = 30,          -- The default amount of time a powerup will be applied for.

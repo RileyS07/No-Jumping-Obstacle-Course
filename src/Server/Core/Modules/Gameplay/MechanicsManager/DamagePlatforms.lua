@@ -3,6 +3,7 @@ local players: Players = game:GetService("Players")
 
 local coreModule = require(script:FindFirstAncestor("Core"))
 local teleportationManager = require(coreModule.GetObject("Modules.Gameplay.MechanicsManager.TeleportationManager"))
+local respawnPlatformManager = require(coreModule.GetObject("Modules.Gameplay.MechanicsManager.TeleportationManager.RespawnPlatforms"))
 local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
 local spatialQueryUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.SpatialQueryUtilities"))
 local sharedConstants = require(coreModule.Shared.GetObject("Libraries.SharedConstants"))
@@ -102,6 +103,7 @@ function ThisMechanicManager._ApplyPoisonEffect(player: Player, thisPlatform: In
         if humanoid.Health - damageAmount > 0 then
             humanoid:TakeDamage(damageAmount)
         else
+            respawnPlatformManager.RegisterRespawnOf(player)
             teleportationManager.TeleportPlayer(player)
             break
         end
@@ -142,6 +144,7 @@ function ThisMechanicManager._ApplyInstantDamageEffect(player: Player, thisPlatf
         if humanoid.Health - damageAmount > 0 then
             humanoid:TakeDamage(damageAmount)
         else
+            respawnPlatformManager.RegisterRespawnOf(player)
             teleportationManager.TeleportPlayer(player)
             break
         end
