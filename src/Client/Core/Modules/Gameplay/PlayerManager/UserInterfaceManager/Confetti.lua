@@ -7,27 +7,26 @@ local ThisInterfaceManager = {}
 
 -- Initialize
 function ThisInterfaceManager.Initialize()
-    task.delay(20, ThisInterfaceManager.CreateConfettiDisplay, 1)
+    task.delay(20, ThisInterfaceManager.CreateConfettiDisplay, 3)
 end
 
 -- Does a confetti display on the screen.
-function ThisInterfaceManager.CreateConfettiDisplay(maxCycleCount: number, maxParticleCount: number?)
+function ThisInterfaceManager.CreateConfettiDisplay(maxCycleCount: number?)
 
-    local newConfettiInstance = confettiClass.new()
+    local newConfettiInstance: {} = confettiClass.new()
     userInterfaceManager.GetInterface(script.Name).Enabled = true
 
     -- We need to add all of the particles first.
     newConfettiInstance:AddParticles(
         userInterfaceManager.GetInterface(script.Name),
-        maxParticleCount or sharedConstants.INTERFACE.CONFETTI_DEFAULT_PARTICLE_AMOUNT,
-        maxCycleCount
+        sharedConstants.INTERFACE.CONFETTI_DEFAULT_PARTICLE_AMOUNT,
+        {MaxCycleCount = maxCycleCount or sharedConstants.INTERFACE.CONFETTI_DEFAULT_MAX_CYCLE_COUNT}
     )
 
     newConfettiInstance:Enable()
 
     -- Let's wait till it finishes.
     newConfettiInstance.Finished.Event:Wait()
-    print("What2")
     newConfettiInstance:Destroy()
 end
 

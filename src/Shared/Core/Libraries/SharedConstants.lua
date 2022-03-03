@@ -21,6 +21,7 @@ return {
 
     INTERFACE = {
         CONFETTI_DEFAULT_PARTICLE_AMOUNT = 50,  -- The default amount of confetti particle amount.
+        CONFETTI_DEFAULT_MAX_CYCLE_COUNT = 1,   -- The default amount of confetti cycles that will play.
     },
 
     MECHANICS = {
