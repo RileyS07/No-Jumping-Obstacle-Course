@@ -50,23 +50,15 @@ end
 function ThisEventManager.ValidateEventData(player: Player)
 
 	local userData: {} = userDataManager.GetData(player)
+	local eventInformation: {} = userData.UserEventInformation.Trophy_Event or {}
+	userData.UserEventInformation.Trophy_Event = eventInformation
 
-	-- Something went wrong if this is not there.
-	if not userData.UserEventInformation.Trophy_Event then
-		userData.UserEventInformation.Trophy_Event = {
-			Name = "Yellow Trophies",
-			Description = "Collect 10 trophies scattered around the map!",
-			Completed = false,
-			Progress = 0,
-
-			-- Event Specific
-			TrophiesCollected = {}
-		}
-	else
-		userData.UserEventInformation.Trophy_Event.Name = "Yellow Trophies"
-	end
-
-	local eventInformation: {} = userData.UserEventInformation.Trophy_Event
+	-- Making sure the data is up to date.
+	eventInformation.Name = "Trophy Scavenger Hunt"
+	eventInformation.Description = "Collect " .. tostring(#collectableTrophies) .. " scattered around the map!"
+	eventInformation.IsProgressBound = true
+	eventInformation.Completed = not not eventInformation.Completed
+	eventInformation.TrophiesCollected = eventInformation.TrophiesCollected or {}
 
 	-- Checking to see if the trophies saved in data are still valid.
 	for index = #eventInformation.TrophiesCollected, 1, -1 do
@@ -79,6 +71,7 @@ function ThisEventManager.ValidateEventData(player: Player)
 
 	-- Updating their progress.
 	eventInformation.Progress = #eventInformation.TrophiesCollected / #collectableTrophies
+	eventInformation.ProgressText = tostring(#eventInformation.TrophiesCollected) .. " out of " .. tostring(#collectableTrophies)
 
 	-- Did they just complete it?
 	if #eventInformation.TrophiesCollected == #collectableTrophies and not eventInformation.Completed then

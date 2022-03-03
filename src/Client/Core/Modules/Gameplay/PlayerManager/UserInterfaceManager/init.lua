@@ -17,6 +17,8 @@ function userInterfaceManager.Initialize()
 	coreModule.LoadModule("/TopbarManager")
 	coreModule.LoadModule("/DoorInterface")
 	coreModule.LoadModule("/EffectTimers")
+	coreModule.LoadModule("/Events")
+	coreModule.LoadModule("/Confetti")
 
 	-- Escape to exit.
 	game:GetService("GuiService").MenuOpened:Connect(function()

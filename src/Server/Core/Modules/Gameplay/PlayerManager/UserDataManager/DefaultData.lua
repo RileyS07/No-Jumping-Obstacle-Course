@@ -27,8 +27,10 @@ return {
 		{
 			Completed = true/false,
 			Progress = 0-1,
+			IsProgressBound = true,
 			Name = "Event Name",
-			Description = "Description..."
+			Description = "Description...",
+			ProgressText = "x out of y",
 		}
 		]]
 	}
