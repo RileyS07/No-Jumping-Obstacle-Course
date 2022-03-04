@@ -3,8 +3,8 @@ local currentCamera: Camera = workspace.CurrentCamera
 
 local Particle = {}
 Particle.__index = Particle
-Particle.DEFAULT_EMITTER_POSITION = UDim2.fromScale(0.5, -0.1)
-Particle.DEFAULT_EMITTER_POWER_RANGE = {X = NumberRange.new(-50, 50), Y = NumberRange.new(-20, -10)}
+Particle.DEFAULT_EMITTER_POSITION = UDim2.fromScale(0.5, 0)
+Particle.DEFAULT_EMITTER_POWER_RANGE = {X = NumberRange.new(-50, 50), Y = NumberRange.new(-20, -5)}
 Particle.DEFAULT_MAX_CYCLE_COUNT = 1
 Particle.DEFAULT_MAXIMUM_SIZE = 30
 Particle.GRAVITY_HORIZONTAL_DAMPENING = 1.09
@@ -39,13 +39,14 @@ function Particle.new(parent: Instance)
     )
 
     -- These values will change when updated.
-    newInstance.ParticlePosition = Vector2.new()
+    newInstance.ParticlePosition = Vector2.new(0, 0)
     newInstance.CurrentEmitterPower = newInstance.EmitterPower
     newInstance.Color = newInstance:GetRandomColor()
     newInstance.IsEnabled = false
     newInstance.IsOutOfBounds = false
     newInstance.CycleCount = 0
     newInstance.HorizontalGrowDirection = -1
+    newInstance.Cycled = Instance.new("BindableEvent")
 
     -- Creating the interface.
     newInstance._Interface = Particle._CreateParticleInterface(newInstance.Color, parent)
@@ -71,12 +72,13 @@ end
 
 -- Returns whether or not the particle is done cycling.
 function Particle:IsFinished() : boolean
-    return self.CycleCount == self.Options.MaxCycleCount
+    return self.CycleCount >= self.Options.MaxCycleCount
 end
 
 -- Updates this particles emitter position.
 function Particle:SetEmitterPosition(emitterPosition: UDim2?)
     if not emitterPosition then return end
+
     self.EmitterPosition = emitterPosition
 end
 
@@ -106,6 +108,7 @@ function Particle:Update(gravity: Vector2)
     if self.IsEnabled and self.IsOutOfBounds then
         self.ParticlePosition = Vector2.new()
         self.CycleCount += 1
+        self.Cycled:Fire()
         self.CurrentEmitterPower = self.EmitterPower + Vector2.new(
             randomNumberGenerator:NextNumber(-5, 5),
             randomNumberGenerator:NextNumber(-5, 5)

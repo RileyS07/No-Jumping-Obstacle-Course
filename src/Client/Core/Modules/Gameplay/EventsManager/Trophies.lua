@@ -1,6 +1,7 @@
 local tweenService: TweenService = game:GetService("TweenService")
 
 local coreModule = require(script:FindFirstAncestor("Core"))
+local eventsInterfaceManager = require(coreModule.GetObject("Modules.Gameplay.PlayerManager.UserInterfaceManager.Events"))
 local soundEffectsManager = require(coreModule.GetObject("Modules.Gameplay.PlayerManager.SoundEffects"))
 local instanceUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.InstanceUtilities"))
 local sharedConstants = require(coreModule.Shared.GetObject("Libraries.SharedConstants"))
@@ -33,6 +34,7 @@ function ThisEventVisualsManager.Initialize()
 	-- A player just collected a trophy, so we need to hide it and update the interface.
 	coreModule.Shared.GetObject("//Remotes.Gameplay.Events.TrophyCollected").OnClientEvent:Connect(function(trophy: BasePart)
 		soundEffectsManager.PlaySoundEffect("TrophyCollected", {Parent = trophy})
+		eventsInterfaceManager.UpdateContent()
 		ThisEventVisualsManager.HideTrophyObject(trophy)
 	end)
 end

@@ -10,7 +10,7 @@ Confetti.DEFAULT_GRAVITY = Vector2.new(0, 1)
 Confetti.__index = Confetti
 
 -- Creates a new Confetti instance.
-function Confetti.new()
+function Confetti.new(onCycleCallback: () -> ())
 
 	-- Creating the new instance.
 	local newInstance: {} = setmetatable({}, Confetti)
@@ -20,12 +20,24 @@ function Confetti.new()
 	newInstance.IsEnabled = false
 	newInstance.Finished = Instance.new("BindableEvent")
 	newInstance._Particles = {}
-	newInstance._RenderStepped = nil
+	newInstance._RenderSteppedConnection = nil
+	newInstance._CycledConnection = nil
 
 	-- Starting the update loop.
 	newInstance._RenderStepped = runService.RenderStepped:Connect(function()
 		for _, particle: particleClass.Particle in next, newInstance._Particles do
 			particle:Update(newInstance.Gravity)
+
+			-- You should be able to know when the confetti is cycled.
+			if not newInstance._CycledConnection then
+
+				newInstance._CycledConnection = particle.Cycled.Event:Connect(function()
+
+					if onCycleCallback then
+						onCycleCallback(particle:IsFinished())
+					end
+				end)
+			end
 
 			-- Should we destroy this?
 			if particle:IsFinished() then
@@ -103,12 +115,16 @@ function Confetti:Destroy()
 	self._RenderStepped:Disconnect()
 	self.Finished:Destroy()
 
+	-- Can we destroy this too?
+	if self._CycledConnection then
+		self._CycledConnection:Disconnect()
+	end
+
 	-- Destroy the _Particles.
 	for _, particle: particleClass.Particle in next, self._Particles do
 		particle:Destroy()
 	end
 
-	self._Particles = nil
 	setmetatable(self, nil)
 end
 
