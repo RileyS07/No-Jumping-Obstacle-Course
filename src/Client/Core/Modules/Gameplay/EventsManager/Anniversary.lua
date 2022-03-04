@@ -25,7 +25,7 @@ function ThisEventVisualsManager.Initialize()
 			ThisEventVisualsManager.SetupVisualEffects(eventObject)
 
 			-- Do we need to hide this?
-			if table.find(userData.UserEventInformation[script.Name].TrophiesCollected, eventObject.Name) then
+			if table.find(userData.UserEventInformation[script.Name].SlicesCollected, eventObject.Name) then
 				task.spawn(ThisEventVisualsManager.HideEventObject, eventObject)
 			end
 		end

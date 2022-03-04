@@ -57,8 +57,8 @@ function ThisEventManager.ValidateEventData(player: Player)
 
 		-- Creating the default information.
 		local eventInformation: {} = eventManager.CreateEventInformation(
-			"Trophy Scavenger Hunt",
-			"Collect " .. tostring(#collectableInstances) .. " trophied scattered around the map!",
+			"Red Trophy Scavenger Hunt",
+			"Collect " .. tostring(#collectableInstances) .. " trophies scattered around the map!",
 			true
 		)
 
@@ -90,7 +90,7 @@ function ThisEventManager.ValidateEventData(player: Player)
 		eventInformation.Completed = true
 
 		-- We do this in here so that we can back track.
-		badgeService.AwardBadge(player, 2124575093)
+		badgeService.AwardBadge(player, 2124575094)
 		playSoundEffectRemote:FireClient(player, "Clapping")
 		makeSystemMessageRemote:FireClient(player, player.Name .. " has finished the " .. eventInformation.Name .. "!")
 	end

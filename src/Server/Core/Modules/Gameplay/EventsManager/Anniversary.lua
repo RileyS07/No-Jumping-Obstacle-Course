@@ -37,9 +37,9 @@ function ThisEventManager.Initialize()
 			ThisEventManager.ValidateEventData(player)
 
 			-- Data evaluation + updating if possible.
-			if not table.find(userEventInformation[script.Name].TrophiesCollected, trophy.Name) then
+			if not table.find(userEventInformation[script.Name].SlicesCollected, trophy.Name) then
 
-				table.insert(userEventInformation[script.Name].TrophiesCollected, trophy.Name)
+				table.insert(userEventInformation[script.Name].SlicesCollected, trophy.Name)
 				eventItemCollectedRemote:FireClient(player, trophy)
 				ThisEventManager.ValidateEventData(player)
 			end
@@ -57,15 +57,15 @@ function ThisEventManager.ValidateEventData(player: Player)
 
 		-- Creating the default information.
 		local eventInformation: {} = eventManager.CreateEventInformation(
-			"Trophy Scavenger Hunt",
-			"Collect " .. tostring(#collectableInstances) .. " trophied scattered around the map!",
-			true
+			"Cake Scavenger Hunt",
+			"Collect " .. tostring(#collectableInstances) .. " slices of cake scattered around the map!",
+			false
 		)
 
 		-- Creating custom information.
 		-- Besides ProgressText, it is not custom.
-		eventInformation.TrophiesCollected = {}
-		eventInformation.ProgressText = tostring(#eventInformation.TrophiesCollected) .. " out of " .. tostring(#collectableInstances)
+		eventInformation.SlicesCollected = {}
+		eventInformation.ProgressText = tostring(#eventInformation.SlicesCollected) .. " out of " .. tostring(#collectableInstances)
 
 		userData.UserEventInformation[script.Name] = eventInformation
 	end
@@ -73,24 +73,24 @@ function ThisEventManager.ValidateEventData(player: Player)
 	local eventInformation: {} = userData.UserEventInformation[script.Name]
 
 	-- Checking to see if the trophies saved in data are still valid.
-	for index = #eventInformation.TrophiesCollected, 1, -1 do
+	for index = #eventInformation.SlicesCollected, 1, -1 do
 
 		-- If they aren't then we remove them.
-		if not thisEventStorage:FindFirstChild(eventInformation.TrophiesCollected[index]) then
-			table.remove(eventInformation.TrophiesCollected, index)
+		if not thisEventStorage:FindFirstChild(eventInformation.SlicesCollected[index]) then
+			table.remove(eventInformation.SlicesCollected, index)
 		end
 	end
 
 	-- Updating their progress.
-	eventInformation.Progress = #eventInformation.TrophiesCollected / #collectableInstances
-	eventInformation.ProgressText = tostring(#eventInformation.TrophiesCollected) .. " out of " .. tostring(#collectableInstances)
+	eventInformation.Progress = #eventInformation.SlicesCollected / #collectableInstances
+	eventInformation.ProgressText = tostring(#eventInformation.SlicesCollected) .. " out of " .. tostring(#collectableInstances)
 
 	-- Did they just complete it?
-	if #eventInformation.TrophiesCollected == #collectableInstances and not eventInformation.Completed then
+	if #eventInformation.SlicesCollected == #collectableInstances and not eventInformation.Completed then
 		eventInformation.Completed = true
 
 		-- We do this in here so that we can back track.
-		badgeService.AwardBadge(player, 2124575093)
+		badgeService.AwardBadge(player, 2124575094)
 		playSoundEffectRemote:FireClient(player, "Clapping")
 		makeSystemMessageRemote:FireClient(player, player.Name .. " has finished the " .. eventInformation.Name .. "!")
 	end

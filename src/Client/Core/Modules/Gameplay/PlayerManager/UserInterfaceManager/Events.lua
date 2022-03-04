@@ -28,7 +28,7 @@ function ThisInterfaceManager.UpdateContent()
             local thisEventInformation: {} = userData.UserEventInformation[eventVisual.Name]
             local eventVisualContent: GuiObject = eventVisual:WaitForChild("Content")
             local shouldEventVisualBeVisible: boolean = ThisInterfaceManager._ShouldEventVisualBeVisible(thisEventInformation)
-
+            print(eventVisual.Name, shouldEventVisualBeVisible)
             -- Should it be visible? We need to check if they just completed it.
             if not shouldEventVisualBeVisible and eventVisual.Visible then
                 task.spawn(confettiInterfaceManager.CreateConfettiDisplay)
@@ -71,8 +71,8 @@ end
 
 -- Returns the layout order value given the event information.
 function ThisInterfaceManager._CalculateLayoutOrder(thisEventInformation: {}) : number
-    return thisEventInformation.Progress + numberUtilities.Sum(
-        string.byte(thisEventInformation.Name, 1, string.len(thisEventInformation.Name))
+    return -(thisEventInformation.Progress * 1000) - numberUtilities.Sum(
+        string.byte(thisEventInformation.Name, 1, 3)
     )
 end
 

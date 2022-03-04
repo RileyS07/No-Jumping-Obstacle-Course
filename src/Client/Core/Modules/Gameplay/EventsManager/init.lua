@@ -1,14 +1,12 @@
--- Variables
-local eventsManager = {}
 local coreModule = require(script:FindFirstAncestor("Core"))
 
+local EventsManager = {}
+
 -- Initialize
-function eventsManager.Initialize()
+function EventsManager.Initialize()
 	workspace.Map.Gameplay:WaitForChild("EventStorage")
-	
-	-- Loading modules
-	coreModule.LoadModule("/Trophies")
+
+	coreModule.LoadModule("/")
 end
 
---
-return eventsManager
+return EventsManager
