@@ -25,7 +25,7 @@ function specificClientAnimation.Play(platformObject, beatMapIndex, numberOfBlin
             -- The blinking animation plays only for baseparts about to switch; This one plays for all of them that are valid.
             if basePart:IsA("BasePart") and tonumber(basePart.Parent.Name) then
                 clientAnimationsLibrary.PlayAnimation("GeneralAppearanceChanged", platformObject, 2)
-                soundEffectsManager.PlaySoundEffect("Beep", {Parent = basePart})
+                soundEffectsManager.PlaySoundEffect("Beep", basePart)
             end
         end
 

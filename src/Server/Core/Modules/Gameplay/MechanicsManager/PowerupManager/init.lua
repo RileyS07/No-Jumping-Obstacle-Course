@@ -7,7 +7,7 @@ local spatialQueryUtilities = require(coreModule.Shared.GetObject("Libraries.Uti
 local sharedConstants = require(coreModule.Shared.GetObject("Libraries.SharedConstants"))
 local signal = require(coreModule.Shared.GetObject("Libraries.Signal"))
 
-local playSoundEffectRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.PlaySoundEffect")
+local playSoundEffectRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.PlaySoundEffect")
 local timerInformationUpdatedRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.TimerInformationUpdated")
 
 local PowerupManager = {}

@@ -13,7 +13,7 @@ function specificClientAnimation.Play(platformObject, simulationLength)
 
     -- Downwards.
     platformObject.PrimaryPart.Color = script:GetAttribute("ActiveStateColor") or Color3.fromRGB(255, 0, 0)
-    soundEffectsManager.PlaySoundEffect("ButtonActivated", {Parent = platformObject.PrimaryPart})
+    soundEffectsManager.PlaySoundEffect("ButtonActivated", platformObject.PrimaryPart)
     game:GetService("TweenService"):Create(
         platformObject.PrimaryPart, 
         buttonMovementTweenInfo, 

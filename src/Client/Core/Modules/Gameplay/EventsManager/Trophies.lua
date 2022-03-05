@@ -35,7 +35,7 @@ function ThisEventVisualsManager.Initialize()
 	coreModule.Shared.GetObject("//Remotes.Gameplay.Events.EventItemCollected").OnClientEvent:Connect(function(eventObject: BasePart)
 		if not eventObject:IsDescendantOf(thisEventStorage) then return end
 
-		soundEffectsManager.PlaySoundEffect("EventItemCollected", {Parent = eventObject})
+		soundEffectsManager.PlaySoundEffect("EventItemCollected", eventObject)
 		eventsInterfaceManager.UpdateContent()
 		ThisEventVisualsManager.HideEventObject(eventObject)
 	end)

@@ -12,16 +12,20 @@ return {
         BONUS_STAGE_TELEPORTER_CONSENT_FORMAT = "Are you sure you want to teleport to <font color=\"#5352ed\"><b>%s</b></font> bonus level?",
         EXPERIENCE_COMPLETION_MESSAGE_FORMAT = "%s has just beat No Jumping Zone!",
         LOCATION_TELEPORTER_CONSENT_FORMAT = "Are you sure you want to teleport to <font color=\"#5352ed\"><b>%s</b></font>?",
+        SYSTEM_MESSAGE_FORMAT = "[System]: %s",
         TRIAL_COMPLETION_MESSAGE_FORMAT = "%s has just finished %s!",
     },
 
     GENERAL = {
+        DEFAULT_FIELD_OF_VIEW =  70,            -- The default field of view applied to the camera.
         RESPAWN_COUNT_NEEDED_TO_SHOW_POPUP = 5, -- The amount of failed attempts on a stage needed in order to show the skip stage gui.
     },
 
     INTERFACE = {
         CONFETTI_DEFAULT_PARTICLE_AMOUNT = 50,  -- The default amount of confetti particle amount.
         CONFETTI_DEFAULT_MAX_CYCLE_COUNT = 5,   -- The default amount of confetti cycles that will play.
+        SYSTEM_MESSAGE_DEFAULT_COLOR = Color3.fromRGB(228, 74, 70), -- The default color that a system message will be.
+        FORCED_SHIFTLOCK_CONTROLLER_KEYCODE = Enum.KeyCode.ButtonR2   -- The default keycode that controllers will use to update shiftlock.
     },
 
     MECHANICS = {

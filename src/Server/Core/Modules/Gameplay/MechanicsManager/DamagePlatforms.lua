@@ -10,7 +10,7 @@ local sharedConstants = require(coreModule.Shared.GetObject("Libraries.SharedCon
 
 local poisonParticleEmitter: ParticleEmitter = coreModule.Shared.GetObject("//Assets.Objects.ParticleEmitters.Poison")
 local poisonGlowParticleEmitter: ParticleEmitter = coreModule.Shared.GetObject("//Assets.Objects.ParticleEmitters.PoisonGlow")
-local playSoundEffectRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.PlaySoundEffect")
+local playSoundEffectRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.PlaySoundEffect")
 
 local ThisMechanicManager = {}
 ThisMechanicManager.ActivePlatforms = {}

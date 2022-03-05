@@ -1,30 +1,40 @@
--- Variables
-local playerManager = {}
 local coreModule = require(script:FindFirstAncestor("Core"))
-local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
+local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
+local sharedConstants = require(coreModule.Shared.GetObject("Libraries.SharedConstants"))
+
+local makeSystemMessageRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.MakeSystemMessage")
+
+local PlayerManager = {}
 
 -- Initialize
-function playerManager.Initialize()
+function PlayerManager.Initialize()
+
+	-- We load this first for the loading screen.
 	coreModule.LoadModule("/UserInterfaceManager")
-	coreModule.LoadModule("/GameplayLighting")
+
+	-- Loading all other modules.
 	coreModule.LoadModule("/GameplayMusic")
-	coreModule.LoadModule("/ForceShiftLock")
+	coreModule.LoadModule("/GameplayLighting")
+	coreModule.LoadModule("/ForcedShiftLock")
 	coreModule.LoadModule("/SoundEffects")
 	coreModule.LoadModule("/AmbientEffects")
 	coreModule.LoadModule("/ManualRespawn")
-	--coreModule.LoadModule("/CutsceneManager")
+	coreModule.LoadModule("/CutsceneManager")
 
-	-- Miscellaneous setup.
-	coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.MakeSystemMessage").OnClientEvent:Connect(function(messageText, messageColor)
-		if typeof(messageText) ~= "string" then return end
-
-		-- [Server]: Hello!
-		clientEssentialsLibrary.SetCore(
-			"ChatMakeSystemMessage",
-			{Text = "[System]: "..messageText, Color = messageColor or Color3.fromRGB(228, 74, 70)}
-		)
-	end)
+	-- The server wants to send a message out, this event is called for all players.
+	makeSystemMessageRemote.OnClientEvent:Connect(PlayerManager.MakeSystemMessage)
 end
 
---
-return playerManager
+-- Creates a system message for this user.
+function PlayerManager.MakeSystemMessage(messageText: string, messageColor: Color3?)
+
+	playerUtilities.SetCore(
+		"ChatMakeSystemMessage",
+		{
+			Text = string.format(sharedConstants.FORMATS.SYSTEM_MESSAGE_FORMAT, messageText),
+			Color = messageColor or sharedConstants.INTERFACE.SYSTEM_MESSAGE_DEFAULT_COLOR
+		}
+	)
+end
+
+return PlayerManager

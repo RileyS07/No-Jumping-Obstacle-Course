@@ -12,7 +12,9 @@ function CoreModule.Initialize()
         CoreModule.LoadModule("Modules.Gameplay.PlayerManager.UserInterfaceManager.VersionUpdates")
         return
     else
-        CoreModule.LoadModule("Modules.Gameplay/")
+        CoreModule.LoadModule("Modules.Gameplay.PlayerManager")
+		CoreModule.LoadModule("Modules.Gameplay.MechanicsManager")
+		CoreModule.LoadModule("Modules.Gameplay.EventsManager")
     end
 
     print("[Core]: Done loading " .. script.Parent.Name .. "!")

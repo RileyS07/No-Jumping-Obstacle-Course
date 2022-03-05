@@ -50,7 +50,7 @@ function gameplayMechanicManager.SimulatePlatform(platformObject)
     gameplayMechanicManager.UpdatePlatformBeingSimulated(platformObject, true)
 
     clientAnimationsLibrary.PlayAnimation("SwitchTransformation", platformObject)
-    soundEffectsManager.PlaySoundEffect("SwitchClicked", {Parent = platformObject})
+    soundEffectsManager.PlaySoundEffect("SwitchClicked", platformObject)
     task.wait(platformObject:GetAttribute("Duration") or script:GetAttribute("DefaultDuration") or 10)
     clientAnimationsLibrary.PlayAnimation("SwitchTransformation", platformObject)
 

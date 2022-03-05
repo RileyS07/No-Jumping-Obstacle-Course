@@ -1,61 +1,46 @@
--- Variables
-local soundEffectsManager = {}
-soundEffectsManager.SoundGroup = nil
-soundEffectsManager.SoundEffectsFolder = nil
-soundEffectsManager.CachedSoundObjects = {}
-soundEffectsManager.VolumeModifier = 1
+local debris: Debris = game:GetService("Debris")
+local players: Players = game:GetService("Players")
+local soundService: SoundService = game:GetService("SoundService")
 
 local coreModule = require(script:FindFirstAncestor("Core"))
-local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
+
+local soundEffectsDirectory: Instance = coreModule.Shared.GetObject("//Assets.Sounds.SoundEffects")
+local soundEffectsSoundGroup: SoundGroup = soundService:WaitForChild("SoundEffects")
+local playSoundEffectRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.PlaySoundEffect")
+
+local SoundEffectsManager = {}
 
 -- Initialize
-function soundEffectsManager.Initialize()
-	soundEffectsManager.SoundEffectsFolder = coreModule.Shared.GetObject("//Assets.Sounds.SoundEffects")
-	soundEffectsManager.SoundGroup = Instance.new("SoundGroup")
-	soundEffectsManager.SoundGroup.Name = "SoundEffectsSoundGroup"
-	soundEffectsManager.SoundGroup.Parent = clientEssentialsLibrary.GetPlayer()
+function SoundEffectsManager.Initialize()
 
-	-- Server influenced sound effect.
-	coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.PlaySoundEffect").OnClientEvent:Connect(function(soundEffectName, functionParameters)
-		soundEffectsManager.PlaySoundEffect(soundEffectName, functionParameters)
-	end)
+	-- The server saying we should play a sound effect.
+	playSoundEffectRemote.OnClientEvent:Connect(SoundEffectsManager.PlaySoundEffect)
 end
 
+-- Creates and plays a sound effect.
+function SoundEffectsManager.PlaySoundEffect(soundEffectName: string, optionalParent: BasePart?)
 
--- Methods
-function soundEffectsManager.PlaySoundEffect(soundEffectName, functionParameters)
-	functionParameters = setmetatable(functionParameters or {}, {__index = {
-		AllowOverlapping = true,
-		Parent = soundEffectsManager.SoundGroup,
-	}})
-
-	-- Guard clause to make sure it even exists.
-	if not soundEffectsManager.SoundEffectsFolder then return end
-	if not soundEffectName or not soundEffectsManager.SoundEffectsFolder:FindFirstChild(soundEffectName) then return end
+	-- Does this sound effect even exist?
+	if not soundEffectsDirectory:FindFirstChild(soundEffectName) then
+		return
+	end
 
 	-- Creating the sound object
-	local soundObject = soundEffectsManager.SoundEffectsFolder[soundEffectName]:Clone()
-	soundObject.Name = soundEffectName
-	soundObject.SoundGroup = soundEffectsManager.SoundGroup
-	soundObject.Volume *= soundEffectsManager.VolumeModifier
-	soundObject.Parent = functionParameters.Parent
-	soundObject:Play()
-	game:GetService("Debris"):AddItem(soundObject, soundObject.TimeLength)
+	local newSoundEffect: Sound = soundEffectsDirectory[soundEffectName]:Clone()
+	newSoundEffect.SoundGroup = soundEffectsSoundGroup
+	newSoundEffect.Parent = optionalParent or players.LocalPlayer
+	newSoundEffect:Play()
+
+	-- Getting rid of it.
+	debris:AddItem(
+		newSoundEffect,
+		newSoundEffect.TimeLength
+	)
 end
 
--- Settings compatibility
-function soundEffectsManager.UpdateSetting(newValue)
-	soundEffectsManager.VolumeModifier = newValue
-	
-	if soundEffectsManager.SoundGroup then
-		for _, soundEffect in next, soundEffectsManager.SoundGroup:GetChildren() do
-			if soundEffect:IsA("Sound") then
-				soundEffect.Volume = (soundEffectsManager.CachedSoundObjects[soundEffect.Name] and soundEffectsManager.CachedSoundObjects[soundEffect.Name].Volume or 1)*newValue
-			end
-		end
-	end
+-- Updates to comply with the new setting value.
+function SoundEffectsManager.UpdateSetting(newValue: number)
+	soundEffectsSoundGroup.Volume = newValue
 end
 
-
---
-return soundEffectsManager
+return SoundEffectsManager

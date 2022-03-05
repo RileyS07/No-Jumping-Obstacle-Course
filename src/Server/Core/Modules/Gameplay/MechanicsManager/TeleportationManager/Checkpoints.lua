@@ -11,7 +11,7 @@ local sharedConstants = require(coreModule.Shared.GetObject("Libraries.SharedCon
 local signal = require(coreModule.Shared.GetObject("Libraries.Signal"))
 
 local checkpointInformationUpdatedRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.CheckpointInformationUpdated")
-local playSoundEffectRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.PlaySoundEffect")
+local playSoundEffectRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.PlaySoundEffect")
 local makeSystemMessageRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.MakeSystemMessage")
 local teleportToStageRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.TeleportToStage")
 local doConfettiDisplayRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.DoConfettiDisplay")

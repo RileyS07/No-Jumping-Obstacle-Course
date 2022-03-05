@@ -57,7 +57,9 @@ function tutorialManager.PlayTutorial()
 	
 	-- Finished + Clean up
 	cutsceneManager.StartDialogTextAnimation("Go give it a try yourself now!"):Wait()
-	repeat game:GetService("RunService").RenderStepped:Wait() until not buttonMechanicManager.IsPlatformBeingSimulated(buttonObject)
+	repeat
+		task.wait()
+	until not buttonMechanicManager.IsPlatformBeingSimulated(buttonObject)
 	currentCamera.CameraType = Enum.CameraType.Track
 end
 

@@ -4,7 +4,7 @@ local coreModule = require(script:FindFirstAncestor("Core"))
 local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
 local sharedConstants = require(coreModule.Shared.GetObject("Libraries.SharedConstants"))
 
-local playSoundEffectRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.PlaySoundEffect")
+local playSoundEffectRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.PlaySoundEffect")
 
 local ThisMechanicManager = {}
 ThisMechanicManager.ActivePlatforms = {}
@@ -45,7 +45,7 @@ function ThisMechanicManager.StartMechanic(player: Player, thisPlatform: Instanc
 
     -- We can apply it!
     ThisMechanicManager.SetMechanicEffectActiveFor(player, thisPlatform, true)
-    playSoundEffectRemote:FireClient(player, "Healing", {Parent = thisPlatform.PrimaryPart})
+    playSoundEffectRemote:FireClient(player, "Healing", thisPlatform.PrimaryPart)
 
     local humanoid: Humanoid = player.Character.Humanoid
     local thisDuration: number = thisPlatform:GetAttribute("Duration") or sharedConstants.MECHANICS.ANY_PLATFORM_DEFAULT_DURATION

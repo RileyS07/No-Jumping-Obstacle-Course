@@ -3,7 +3,7 @@ local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities
 local spatialQueryUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.SpatialQueryUtilities"))
 local sharedConstants = require(coreModule.Shared.GetObject("Libraries.SharedConstants"))
 
-local playSoundEffectRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.PlaySoundEffect")
+local playSoundEffectRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.PlaySoundEffect")
 
 local ThisMechanicManager = {}
 ThisMechanicManager.ActivePlatforms = {}
@@ -55,7 +55,7 @@ function ThisMechanicManager.StartMechanic(player: Player, thisPlatform: Instanc
 
     -- We can apply it!
     ThisMechanicManager.SetMechanicEffectActiveFor(player, thisPlatform, true)
-    playSoundEffectRemote:FireClient(player, "JumpPowerup", {Parent = thisPlatform})
+    playSoundEffectRemote:FireClient(player, "JumpPowerup", thisPlatform)
 
     -- Make them jump once then revert.
     local humanoid: Humanoid = player.Character.Humanoid

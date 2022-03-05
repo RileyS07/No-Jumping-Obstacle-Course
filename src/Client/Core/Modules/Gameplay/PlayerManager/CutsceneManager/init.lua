@@ -1,4 +1,4 @@
--- Variables
+--[[-- Variables
 local cutsceneManager = {}
 cutsceneManager.Interface = {}
 cutsceneManager.IsPlayingBeingShownDialogValue = false
@@ -12,7 +12,7 @@ local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities
 
 -- Initialize
 function cutsceneManager.Initialize()
-	cutsceneManager.Interface.Container = userInterfaceManager.GetInterface("DialogInterface"):WaitForChild("Container")
+	--[[cutsceneManager.Interface.Container = userInterfaceManager.GetInterface("DialogInterface"):WaitForChild("Container")
 	cutsceneManager.Interface.Content = cutsceneManager.Interface.Container:WaitForChild("Content")
 	cutsceneManager.Interface.TextContent = cutsceneManager.Interface.Content:WaitForChild("TextContent")
 	cutsceneManager.Interface.TextContent.MaxVisibleGraphemes = 0
@@ -125,4 +125,6 @@ end
 
 
 --
-return cutsceneManager
+return cutsceneManager]]
+
+return {}

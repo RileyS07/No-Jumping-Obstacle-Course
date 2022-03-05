@@ -10,7 +10,7 @@ local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities
 local thisEventStorage: Instance? = workspace.Map.Gameplay.EventStorage:FindFirstChild(script.Name)
 local collectableInstances: {Instance} = instanceUtilities.GetChildrenWhichAre(thisEventStorage, "BasePart")
 local eventItemCollectedRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Events.EventItemCollected")
-local playSoundEffectRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.PlaySoundEffect")
+local playSoundEffectRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.PlaySoundEffect")
 local makeSystemMessageRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.MakeSystemMessage")
 
 local ThisEventManager = {}

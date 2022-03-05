@@ -12,7 +12,7 @@ function specificClientAnimation.Play(basePart, smokeParticleEmittance)
 	smokeParticleEmitter:Emit(smokeParticleEmittance or script:GetAttribute("DefaultSmokeEmittance") or 5)
 	game:GetService("Debris"):AddItem(smokeParticleEmitter, smokeParticleEmitter.Lifetime.Max)
 
-	soundEffectsManager.PlaySoundEffect("Poof", {Parent = basePart})
+	soundEffectsManager.PlaySoundEffect("Poof", basePart)
 end
 
 

@@ -49,7 +49,7 @@ function gameplayMechanicManager.SimulatePlatform(platformContainer, platformObj
     for _, nestedPlatformObject in next, platformContainer:GetDescendants() do
         if nestedPlatformObject:IsA("BasePart") and nestedPlatformObject.CanCollide ~= (nestedPlatformObject.Name == platformObject.Name) then
             clientAnimationsLibrary.PlayAnimation("SwitchTransformation", nestedPlatformObject)
-            soundEffectsManager.PlaySoundEffect("SwitchClicked", {Parent = nestedPlatformObject})
+            soundEffectsManager.PlaySoundEffect("SwitchClicked", nestedPlatformObject)
         end
     end
 
