@@ -11,7 +11,7 @@ local thisEventStorage: Instance? = workspace.Map.Gameplay.EventStorage:FindFirs
 local collectableInstances: {Instance} = instanceUtilities.GetChildrenWhichAre(thisEventStorage, "BasePart")
 local eventItemCollectedRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Events.EventItemCollected")
 local playSoundEffectRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.PlaySoundEffect")
-local makeSystemMessageRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.MakeSystemMessage")
+local makeSystemMessageRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.MakeSystemMessage")
 
 local ThisEventManager = {}
 

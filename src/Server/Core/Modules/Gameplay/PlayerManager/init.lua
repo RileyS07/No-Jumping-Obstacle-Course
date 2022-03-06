@@ -13,6 +13,7 @@ local PlayerManager = {}
 function PlayerManager.Initialize()
 	coreModule.LoadModule("/UserDataManager")
 	coreModule.LoadModule("/SettingsUpdater")
+	coreModule.LoadModule("/ChatMinigames")
 
 	-- This is for PlayerAdded and PlayerRemoving neatness.
 	PlayerManager.SetupJoiningConnections()

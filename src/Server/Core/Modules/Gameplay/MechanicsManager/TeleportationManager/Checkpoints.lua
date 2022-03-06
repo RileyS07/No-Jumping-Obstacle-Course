@@ -12,7 +12,7 @@ local signal = require(coreModule.Shared.GetObject("Libraries.Signal"))
 
 local userInformationUpdatedRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.UserInformationUpdated")
 local playSoundEffectRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.PlaySoundEffect")
-local makeSystemMessageRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.MakeSystemMessage")
+local makeSystemMessageRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.MakeSystemMessage")
 local teleportToStageRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.TeleportToStage")
 local doConfettiDisplayRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.DoConfettiDisplay")
 local thisPlatformContainer: Instance? = workspace.Map.Gameplay.LevelStorage:FindFirstChild("Checkpoints")

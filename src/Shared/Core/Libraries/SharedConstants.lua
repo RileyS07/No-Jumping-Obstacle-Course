@@ -17,6 +17,7 @@ return {
     },
 
     GENERAL = {
+        CHAT_MINIGAME_DELAY = 10,               -- The amount of time between chat minigames.
         DEFAULT_FIELD_OF_VIEW =  70,            -- The default field of view applied to the camera.
         DELAY_BETWEEN_PLAYER_RESETS = 2,        -- The amount of time between needed before a player can reset again.
         RESPAWN_COUNT_NEEDED_TO_SHOW_POPUP = 5, -- The amount of failed attempts on a stage needed in order to show the skip stage gui.
@@ -25,7 +26,7 @@ return {
     INTERFACE = {
         CONFETTI_DEFAULT_PARTICLE_AMOUNT = 50,  -- The default amount of confetti particle amount.
         CONFETTI_DEFAULT_MAX_CYCLE_COUNT = 5,   -- The default amount of confetti cycles that will play.
-        SYSTEM_MESSAGE_DEFAULT_COLOR = Color3.fromRGB(228, 74, 70), -- The default color that a system message will be.
+        SYSTEM_MESSAGE_DEFAULT_COLOR = Color3.fromHex("#09979f"), -- The default color that a system message will be.
         FORCED_SHIFTLOCK_CONTROLLER_KEYCODE = Enum.KeyCode.ButtonR2   -- The default keycode that controllers will use to update shiftlock.
     },
 
