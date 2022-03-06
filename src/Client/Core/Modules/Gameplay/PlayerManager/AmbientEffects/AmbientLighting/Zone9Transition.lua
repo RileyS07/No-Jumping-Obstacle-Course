@@ -4,7 +4,7 @@ specificAmbientLighting.UserData = nil
 specificAmbientLighting.EffectPlaying = false
 
 local coreModule = require(script:FindFirstAncestor("Core"))
-local gameplayLightingManager = require(coreModule.GetObject("Modules.Gameplay.PlayerManager.GameplayLighting"))
+local gameplayLightingManager = require(coreModule.GetObject("Modules.Gameplay.PlayerManager.StageLighting"))
 local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
 local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
 
@@ -12,10 +12,10 @@ local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities
 function specificAmbientLighting.Initialize()
     local startingPoint = workspace:WaitForChild("Map"):WaitForChild("Misc"):WaitForChild("Ambient"):WaitForChild("SaturationBlock")
     local endingPoint = workspace:WaitForChild("Map"):WaitForChild("Gameplay"):WaitForChild("LevelStorage"):WaitForChild("Checkpoints"):WaitForChild("81")
-    specificAmbientLighting.UserData = coreModule.Shared.GetObject("//Remotes.Data.GetUserData"):InvokeServer()
+    specificAmbientLighting.UserData = coreModule.Shared.GetObject("//Remotes.GetUserData"):InvokeServer()
 
     -- Stage updated.
-    coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.CheckpointInformationUpdated").OnClientEvent:Connect(function(userData)
+    coreModule.Shared.GetObject("//Remotes.UserInformationUpdated").OnClientEvent:Connect(function(userData)
         specificAmbientLighting.UserData = userData
     end)
 

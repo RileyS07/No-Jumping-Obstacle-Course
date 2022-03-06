@@ -9,7 +9,7 @@ local cutsceneManager = require(coreModule.GetObject("/Parent"))
 function mechanicTutorialsManager.Initialize()
 
 	-- The server wants a cutscene the begin
-	coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.CheckpointInformationUpdated").OnClientEvent:Connect(function(userData)
+	coreModule.Shared.GetObject("//Remotes.UserInformationUpdated").OnClientEvent:Connect(function(userData)
 
 		-- Looking for the correct module if it exists and if it's in a format we can work with; If it is we play it.
 		for _, tutorialModule in next, script:GetChildren() do

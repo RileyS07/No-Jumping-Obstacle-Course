@@ -7,7 +7,7 @@ local userDataManager = require(coreModule.GetObject("Modules.Gameplay.PlayerMan
 local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
 local sharedConstants = require(coreModule.Shared.GetObject("Libraries.SharedConstants"))
 
-local checkpointInformationUpdatedRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.CheckpointInformationUpdated")
+local userInformationUpdatedRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.UserInformationUpdated")
 local teleporterInterface: GuiObject? = coreModule.Shared.GetObject("//Assets.Interfaces.TeleporterInterface")
 local bonusStageStorage: Instance? = workspace.Map.Gameplay.LevelStorage:FindFirstChild("BonusStages")
 
@@ -100,7 +100,7 @@ function ThisTeleporterManager._AttemptTeleportationToBonusStage(player: Player,
 
 		-- Now that we updated the data we can actually teleport them.
 		teleportationManager.TeleportPlayer(player)
-		checkpointInformationUpdatedRemote:FireClient(player, userData)
+		userInformationUpdatedRemote:FireClient(player, userData)
 	end
 end
 

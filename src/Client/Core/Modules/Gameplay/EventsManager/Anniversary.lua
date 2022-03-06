@@ -18,7 +18,7 @@ function ThisEventVisualsManager.Initialize()
 	-- We want to update all of the trophies in the game to match their data.
 	task.defer(function()
 
-		local userData: {} = coreModule.Shared.GetObject("//Remotes.Data.GetUserData"):InvokeServer()
+		local userData: {} = coreModule.Shared.GetObject("//Remotes.GetUserData"):InvokeServer()
 
 		-- We want all trophies to spin.
 		for _, eventObject: BasePart in next, collectableInstances do

@@ -10,7 +10,7 @@ local zoneNames = require(coreModule.Shared.GetObject("Libraries.ZoneNames"))
 local sharedConstants = require(coreModule.Shared.GetObject("Libraries.SharedConstants"))
 local signal = require(coreModule.Shared.GetObject("Libraries.Signal"))
 
-local checkpointInformationUpdatedRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.CheckpointInformationUpdated")
+local userInformationUpdatedRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.UserInformationUpdated")
 local playSoundEffectRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.PlaySoundEffect")
 local makeSystemMessageRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.MakeSystemMessage")
 local teleportToStageRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.TeleportToStage")
@@ -116,7 +116,7 @@ function CheckpointsManager.UpdateCurrentCheckpoint(player: Player, checkpointNu
 		end
 
 		-- Informing the client we have updated their data.
-		checkpointInformationUpdatedRemote:FireClient(player, userData)
+		userInformationUpdatedRemote:FireClient(player, userData)
 	end
 
 	-- Backwards compatability for CompletedStages.
@@ -146,7 +146,7 @@ function CheckpointsManager.UpdateFarthestCheckpoint(player: Player, checkpointN
 	-- Update their data to match their new farthest checkpoint.
 	local userData: {} = userDataManager.GetData(player)
 	userData.UserInformation.FarthestCheckpoint = checkpointNumber
-	checkpointInformationUpdatedRemote:FireClient(player, userData)
+	userInformationUpdatedRemote:FireClient(player, userData)
 
 	-- Did they just finish the game???
 	if checkpointNumber == 101 then

@@ -28,7 +28,7 @@ function specificInterfaceManager.Initialize()
     -- We have to add this because some people have bad computers.
     delay(10, function()
         if userInterfaceManager.GetPriorityInterface() ~= specificInterfaceManager.Interface.ScreenGui then return end
-        coreModule.Shared.GetObject("//Remotes.Data.GetUserData"):InvokeServer()
+        coreModule.Shared.GetObject("//Remotes.GetUserData"):InvokeServer()
 
         -- They still gotta press skip.
         specificInterfaceManager.Interface.Skip.Visible = true
@@ -46,7 +46,7 @@ function specificInterfaceManager.Initialize()
     -- Let's load everything then go from there.
     coroutine.wrap(function()
         clientAnimationsLibrary.PlayAnimation("LoadingScreenLoadAssets", specificInterfaceManager.Interface.Information:WaitForChild("Description"))
-        coreModule.Shared.GetObject("//Remotes.Data.GetUserData"):InvokeServer()
+        coreModule.Shared.GetObject("//Remotes.GetUserData"):InvokeServer()
         
         task.wait(5)
 

@@ -4,7 +4,7 @@ local coreModule = require(script:FindFirstAncestor("Core"))
 
 -- Initialize
 function ambientSoundsManager.Initialize()
-    coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.CheckpointInformationUpdated").OnClientEvent:Connect(function(userData)
+    coreModule.Shared.GetObject("//Remotes.UserInformationUpdated").OnClientEvent:Connect(function(userData)
         for _, specificAmbientSoundManager in next, script:GetChildren() do
             if specificAmbientSoundManager:IsA("ModuleScript") then
                 specificAmbientSoundManager = require(specificAmbientSoundManager)

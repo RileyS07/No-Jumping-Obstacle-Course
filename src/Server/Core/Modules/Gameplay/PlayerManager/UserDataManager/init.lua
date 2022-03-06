@@ -16,7 +16,7 @@ function UserDataManager.Initialize()
 	)
 
 	-- The client wants to view their data or someone elses.
-	coreModule.Shared.GetObject("//Remotes.Data.GetUserData").OnServerInvoke = function(player: Player, optionalOtherPlayer: Player?)
+	coreModule.Shared.GetObject("//Remotes.GetUserData").OnServerInvoke = function(player: Player, optionalOtherPlayer: Player?)
 		return UserDataManager.GetData(optionalOtherPlayer or player)
 	end
 end

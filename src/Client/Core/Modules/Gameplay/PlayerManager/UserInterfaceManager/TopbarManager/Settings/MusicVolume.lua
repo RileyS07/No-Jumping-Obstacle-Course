@@ -6,7 +6,7 @@ specificSettingManager.CurrentSettingValue = nil
 local coreModule = require(script:FindFirstAncestor("Core"))
 local settingsManager = require(coreModule.GetObject("Modules.Gameplay.PlayerManager.UserInterfaceManager.TopbarManager.Settings"))
 local gameplayMusicManager = require(coreModule.GetObject("Modules.Gameplay.PlayerManager.GameplayMusic"))
-local userInterfaceManager = require(coreModule.GetObject("Modules.Gameplay.PlayerManager.UserInterfaceManager"))
+--local userInterfaceManager = require(coreModule.GetObject("Modules.Gameplay.PlayerManager.UserInterfaceManager"))
 local clientAnimationsLibrary = require(coreModule.GetObject("Libraries.ClientAnimations"))
 
 -- Initialize
@@ -17,10 +17,12 @@ function specificSettingManager.Initialize()
         clientAnimationsLibrary.PlayAnimation(
             "Slider",
             specificSettingManager.Interface.Slider,
-            coreModule.Shared.GetObject("//Remotes.Data.GetUserData"):InvokeServer().Settings.MusicVolumeModifier,
+            coreModule.Shared.GetObject("//Remotes.GetUserData"):InvokeServer().Settings.MusicVolumeModifier,
             function(newValue)
                 if gameplayMusicManager.MusicState ~= gameplayMusicManager.Enums.MusicState.Playing then
-                    repeat task.wait() until gameplayMusicManager.MusicState == gameplayMusicManager.Enums.MusicState.Playing
+                    repeat
+                        task.wait()
+                    until gameplayMusicManager.MusicState == gameplayMusicManager.Enums.MusicState.Playing
                 end
 
                 gameplayMusicManager.UpdateSetting(newValue)

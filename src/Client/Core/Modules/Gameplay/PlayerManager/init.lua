@@ -14,11 +14,11 @@ function PlayerManager.Initialize()
 
 	-- Loading all other modules.
 	coreModule.LoadModule("/GameplayMusic")
-	coreModule.LoadModule("/GameplayLighting")
+	coreModule.LoadModule("/StageLighting")
 	coreModule.LoadModule("/ForcedShiftLock")
 	coreModule.LoadModule("/SoundEffects")
 	coreModule.LoadModule("/AmbientEffects")
-	coreModule.LoadModule("/ManualRespawn")
+	coreModule.LoadModule("/RespawnOverride")
 	coreModule.LoadModule("/CutsceneManager")
 
 	-- The server wants to send a message out, this event is called for all players.

@@ -8,7 +8,7 @@ local badgeService = require(coreModule.Shared.GetObject("Libraries.Services.Bad
 local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
 local badgeList = require(coreModule.Shared.GetObject("Libraries.BadgeList"))
 
-local checkpointInformationUpdatedRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.CheckpointInformationUpdated")
+local userInformationUpdatedRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.UserInformationUpdated")
 local playSoundEffectRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.PlaySoundEffect")
 local makeSystemMessageRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.MakeSystemMessage")
 local bonusStageStorage: Instance? = workspace.Map.Gameplay.LevelStorage:FindFirstChild("BonusStages")
@@ -67,14 +67,14 @@ function BonusStagesManager.Initialize()
 
 							-- Send them back.
 							playSoundEffectRemote:FireClient(player, "Clapping")
-							checkpointInformationUpdatedRemote:FireClient(player, userData)
+							userInformationUpdatedRemote:FireClient(player, userData)
 							teleportationManager.TeleportPlayer(player)
 						else
 
                             -- This is not the final checkpoint.
 							userData.UserInformation.CurrentBonusStageCheckpoint = tonumber(checkpoint.Name)
 							playSoundEffectRemote:FireClient(player, "CheckpointTouched")
-                            checkpointInformationUpdatedRemote:FireClient(player, userData)
+                            userInformationUpdatedRemote:FireClient(player, userData)
 						end
 					end)
                 end

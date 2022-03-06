@@ -16,7 +16,7 @@ function specificSettingManager.Initialize()
         clientAnimationsLibrary.PlayAnimation(
             "Slider",
             specificSettingManager.Interface.Slider,
-            coreModule.Shared.GetObject("//Remotes.Data.GetUserData"):InvokeServer().Settings.SoundEffectsVolumeModifier,
+            coreModule.Shared.GetObject("//Remotes.GetUserData"):InvokeServer().Settings.SoundEffectsVolumeModifier,
             function(newValue)
                 soundEffectsManager.UpdateSetting(newValue)
                 specificSettingManager.Interface.Slider:WaitForChild("Percentage").Text = tostring(math.floor(100*newValue)).."%"

@@ -3,7 +3,7 @@ local userInterfaceManager = require(coreModule.GetObject("Modules.Gameplay.Play
 local confettiInterfaceManager = require(coreModule.GetObject("Modules.Gameplay.PlayerManager.UserInterfaceManager.Confetti"))
 local numberUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.NumberUtilities"))
 
-local getUserDataRemote: RemoteFunction = coreModule.Shared.GetObject("//Remotes.Data.GetUserData")
+local getUserDataRemote: RemoteFunction = coreModule.Shared.GetObject("//Remotes.GetUserData")
 local eventsInterface: GuiObject = userInterfaceManager.GetInterface("Events")
 local eventsInterfaceContainer: GuiObject = eventsInterface:WaitForChild("Container")
 

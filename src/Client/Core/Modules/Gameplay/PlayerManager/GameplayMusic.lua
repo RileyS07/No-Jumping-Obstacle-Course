@@ -26,8 +26,8 @@ function gameplayMusicManager.Initialize()
 	gameplayMusicManager.PrimarySoundObject.Parent, gameplayMusicManager.SecondarySoundObject.Parent = script, script
 
 	-- UpdateMusic bindings.
-	gameplayMusicManager.UpdateMusic(coreModule.Shared.GetObject("//Remotes.Data.GetUserData"):InvokeServer())
-	coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.CheckpointInformationUpdated").OnClientEvent:Connect(function(userData)
+	gameplayMusicManager.UpdateMusic(coreModule.Shared.GetObject("//Remotes.GetUserData"):InvokeServer())
+	coreModule.Shared.GetObject("//Remotes.UserInformationUpdated").OnClientEvent:Connect(function(userData)
 		gameplayMusicManager.UpdateMusic(userData)
 	end)
 end

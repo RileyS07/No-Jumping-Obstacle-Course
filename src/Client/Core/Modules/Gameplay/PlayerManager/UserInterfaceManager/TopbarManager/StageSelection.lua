@@ -17,7 +17,7 @@ function specificInterfaceManager.Initialize()
     specificInterfaceManager.Interface.Container = userInterfaceManager.GetInterface("MainInterface"):WaitForChild("Containers"):WaitForChild("StageSelection")
     specificInterfaceManager.Interface.Header = specificInterfaceManager.Interface.Container:WaitForChild("Header")
     specificInterfaceManager.Interface.Content = specificInterfaceManager.Interface.Container:WaitForChild("Content")
-    specificInterfaceManager.UserData = coreModule.Shared.GetObject("//Remotes.Data.GetUserData"):InvokeServer()
+    specificInterfaceManager.UserData = coreModule.Shared.GetObject("//Remotes.GetUserData"):InvokeServer()
     specificInterfaceManager.CurrentZone = math.ceil(specificInterfaceManager.UserData.UserInformation.CurrentCheckpoint/10)
 
     -- Open the container.
@@ -28,7 +28,7 @@ function specificInterfaceManager.Initialize()
     end)
 
     -- Stage updated.
-    coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.CheckpointInformationUpdated").OnClientEvent:Connect(function(userData)
+    coreModule.Shared.GetObject("//Remotes.UserInformationUpdated").OnClientEvent:Connect(function(userData)
         specificInterfaceManager.UserData = userData
         specificInterfaceManager.UpdateContent()
     end)
