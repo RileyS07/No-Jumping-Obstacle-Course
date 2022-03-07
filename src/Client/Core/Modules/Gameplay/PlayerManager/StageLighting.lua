@@ -95,7 +95,9 @@ function StageLightingManager._DetermineLightingInformation(userData: {}) : Inst
 
     -- Now we want to check if there is special lighting for this trial stage if it is one.
     if currentCheckpoint > 0 and currentCheckpoint % 10 == 0 then
-        return lightingDirectory:FindFirstChild("Zone " .. tostring(currentCheckpoint / 10) .. " Trial") or lightingDirectory.Default
+        if lightingDirectory:FindFirstChild("Zone " .. tostring(currentCheckpoint / 10) .. " Trial") then
+            return lightingDirectory:FindFirstChild("Zone " .. tostring(currentCheckpoint / 10) .. " Trial")
+        end
     end
 
 	-- We want to check if there is any for this special stage before moving on.

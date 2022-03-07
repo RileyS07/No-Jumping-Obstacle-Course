@@ -28,7 +28,7 @@ function ThisInterfaceManager.UpdateContent()
             local thisEventInformation: {} = userData.UserEventInformation[eventVisual.Name]
             local eventVisualContent: GuiObject = eventVisual:WaitForChild("Content")
             local shouldEventVisualBeVisible: boolean = ThisInterfaceManager._ShouldEventVisualBeVisible(thisEventInformation)
-            print(eventVisual.Name, shouldEventVisualBeVisible)
+
             -- Should it be visible? We need to check if they just completed it.
             if not shouldEventVisualBeVisible and eventVisual.Visible then
                 task.spawn(confettiInterfaceManager.CreateConfettiDisplay)

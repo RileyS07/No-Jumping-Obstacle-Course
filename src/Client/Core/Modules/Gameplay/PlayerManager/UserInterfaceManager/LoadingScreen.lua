@@ -26,7 +26,7 @@ function specificInterfaceManager.Initialize()
     clientAnimationsLibrary.PlayAnimation("LoadingText...", specificInterfaceManager.Interface.Information:WaitForChild("Title"))
 
     -- We have to add this because some people have bad computers.
-    delay(10, function()
+    task.delay(10, function()
         if userInterfaceManager.GetPriorityInterface() ~= specificInterfaceManager.Interface.ScreenGui then return end
         coreModule.Shared.GetObject("//Remotes.GetUserData"):InvokeServer()
 
@@ -37,9 +37,11 @@ function specificInterfaceManager.Initialize()
             specificInterfaceManager.Interface.Skip.Visible = false
 
             clientAnimationsLibrary.PlayAnimation(
-                "LoadingScreenFinish", 
+                "LoadingScreenFinish",
                 specificInterfaceManager.Interface.Information, specificInterfaceManager.Interface.BackgroundImages, specificInterfaceManager.Interface.Content
             )
+
+            specificInterfaceManager.Interface = nil
         end)
     end)
 
@@ -47,14 +49,18 @@ function specificInterfaceManager.Initialize()
     coroutine.wrap(function()
         clientAnimationsLibrary.PlayAnimation("LoadingScreenLoadAssets", specificInterfaceManager.Interface.Information:WaitForChild("Description"))
         coreModule.Shared.GetObject("//Remotes.GetUserData"):InvokeServer()
-        
+
         task.wait(5)
 
-        if userInterfaceManager.GetPriorityInterface() == specificInterfaceManager.Interface.ScreenGui then 
+        if not specificInterfaceManager.Interface or not specificInterfaceManager.Interface.Skip.Visible then return end
+
+        if userInterfaceManager.GetPriorityInterface() == specificInterfaceManager.Interface.ScreenGui then
             clientAnimationsLibrary.PlayAnimation(
-                "LoadingScreenFinish", 
+                "LoadingScreenFinish",
                 specificInterfaceManager.Interface.Information, specificInterfaceManager.Interface.BackgroundImages, specificInterfaceManager.Interface.Content
             )
+
+            specificInterfaceManager.Interface = nil
         end
     end)()
 end

@@ -10,7 +10,7 @@ local clientAnimationsLibrary = require(coreModule.GetObject("Libraries.ClientAn
 function specificClientAnimation.Play(textLabel)
     if typeof(textLabel) ~= "Instance" or not textLabel:IsA("TextLabel") then return end
 
-    local assetsArray = coreModule.Shared.GetObject("//Assets"):GetDescendants()
+    local assetsArray = {}--coreModule.Shared.GetObject("//Assets"):GetDescendants()
 
     -- Loads in all of the assets and plays a little text animation for it.
     specificClientAnimation.IsPlaying = true
@@ -20,6 +20,10 @@ function specificClientAnimation.Play(textLabel)
     task.wait(3)
     clientAnimationsLibrary.PlayAnimation("TweenMaxVisibleGraphemes", textLabel, 0):Wait()
     task.wait(1)
+
+    -- TEMPORARY.
+    textLabel.Text = "Loading data"
+    clientAnimationsLibrary.PlayAnimation("TweenMaxVisibleGraphemes", textLabel, #textLabel.Text):Wait()
 
     if #assetsArray > 0 and specificClientAnimation.IsPlaying then
         textLabel.Text = "Loading asset 1/"..#assetsArray

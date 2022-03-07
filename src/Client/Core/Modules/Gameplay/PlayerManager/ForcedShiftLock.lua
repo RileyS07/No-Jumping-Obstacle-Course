@@ -9,7 +9,7 @@ local cameraUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities
 local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
 local sharedConstants = require(coreModule.Shared.GetObject("Libraries.SharedConstants"))
 
-local mainInterface: GuiBase2d = userInterfaceManager.GetInterface("MainInterface")
+local mainInterface: GuiBase2d = players.LocalPlayer:WaitForChild("PlayerGui"):WaitForChild("MainInterface")--userInterfaceManager.GetInterface("MainInterface")
 local shiftlockButton: GuiButton = mainInterface:WaitForChild("ShiftlockButton")
 local shiftlockCenterIcon: GuiObject = mainInterface:WaitForChild("ShiftlockCenterIcon")
 local controllerSupportContainer: GuiObject = shiftlockButton:WaitForChild("ControllerSupportContainer")
@@ -18,6 +18,7 @@ local thisPlayer: Player = players.LocalPlayer
 
 local ForcedShiftlockManager = {}
 ForcedShiftlockManager.IsShiftlockActive = true
+ForcedShiftlockManager._IsThereAnActiveInterface = false
 
 -- Initialize
 function ForcedShiftlockManager.Initialize()
@@ -37,6 +38,11 @@ function ForcedShiftlockManager.Initialize()
     ForcedShiftlockManager._UpdateInterface()
 
     userInputService.LastInputTypeChanged:Connect(ForcedShiftlockManager._UpdateInterface)
+
+    -- Listens for if there is an active interface.
+    userInterfaceManager.ActiveContainerUpdated.Event:Connect(function(_, isActive: boolean)
+        ForcedShiftlockManager._IsThereAnActiveInterface = isActive
+    end)
 end
 
 -- Returns whether or not the shiftlock is currently active.
@@ -91,7 +97,7 @@ function ForcedShiftlockManager._Update()
     if not playerUtilities.IsPlayerValid(thisPlayer) then return end
 
     -- We have to replicate normal camera-player movement if this is the case.
-    if not ForcedShiftlockManager.IsShiftlockActive or userInterfaceManager.GetPriorityInterface() or next(userInterfaceManager.ActiveContainers) then
+    if not ForcedShiftlockManager.IsShiftlockActive or userInterfaceManager.PriorityInterface ~= nil or ForcedShiftlockManager._IsThereAnActiveInterface then
 
         userInputService.MouseIconEnabled = true
 

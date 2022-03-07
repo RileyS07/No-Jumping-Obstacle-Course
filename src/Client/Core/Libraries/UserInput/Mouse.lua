@@ -2,8 +2,6 @@
 local playerMouseLibrary = {}
 playerMouseLibrary.InputListeners = {}
 
-local coreModule = require(script:FindFirstAncestor("Core"))
-
 -- Initialize
 function playerMouseLibrary.Initialize()
 	local function processInput(inputObject, gameProcessedEvent)

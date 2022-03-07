@@ -17,9 +17,9 @@ function PlayerManager.Initialize()
 	coreModule.LoadModule("/StageLighting")
 	coreModule.LoadModule("/ForcedShiftLock")
 	coreModule.LoadModule("/SoundEffects")
-	coreModule.LoadModule("/AmbientEffects")
+	--coreModule.LoadModule("/AmbientEffects")
 	coreModule.LoadModule("/RespawnOverride")
-	coreModule.LoadModule("/CutsceneManager")
+	--coreModule.LoadModule("/CutsceneManager")
 
 	-- The server wants to send a message out, this event is called for all players.
 	makeSystemMessageRemote.OnClientEvent:Connect(PlayerManager.MakeSystemMessage)

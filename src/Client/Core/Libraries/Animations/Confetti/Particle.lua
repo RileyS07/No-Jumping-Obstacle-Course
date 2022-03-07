@@ -67,6 +67,7 @@ end
 -- Destroys the Particle instance.
 function Particle:Destroy()
 	self._Interface:Destroy()
+    self.Cycled:Destroy()
     self:Disable()
 end
 

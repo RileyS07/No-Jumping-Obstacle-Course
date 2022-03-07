@@ -4,6 +4,7 @@
 local coreModule = require(script:FindFirstAncestor("Core"))
 local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
 local sharedConstants = require(coreModule.Shared.GetObject("Libraries.SharedConstants"))
+local wordBank = require(script.WordBank)
 
 local chatMakeSystemMessageRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.MakeSystemMessage")
 local randomNumberGenerator: Random = Random.new()
@@ -20,7 +21,7 @@ function ChatMinigamesManager.Initialize()
     -- Setting up the loop to create and handle the minigames.
     task.spawn(function()
         while true do
-            task.wait(sharedConstants.GENERAL.CHAT_MINIGAME_DELAY)
+            task.wait(120)--sharedConstants.GENERAL.CHAT_MINIGAME_DELAY)
 
             -- We create it and make players able to answer.
             ChatMinigamesManager._CreateMinigame()
@@ -69,14 +70,30 @@ function ChatMinigamesManager._CreateMinigame()
 
         messageToSendToClient = "For a free skip, by the first to solve " .. tostring(numberA) .. " + " .. tostring(numberB)
         answerMessage = tostring(numberA + numberB)
+
+    -- For scramble we want to select a random word and scramble it.
     elseif selectedMinigame == "Scramble" then
 
-        messageToSendToClient = "For a free skip, by the first to unscramble this word: eRiely_"
-        answerMessage = "Rile_ey"
+        local selectedWord: string = wordBank[randomNumberGenerator:NextInteger(1, #wordBank)]
+        local copyOfSelectedWord: string = selectedWord
+        local scrambledWord: string = ""
+
+        -- We select a random letter from the string and add it to the new one.
+        for _ = 1, string.len(copyOfSelectedWord) do
+            local thisIndex: number = randomNumberGenerator:NextInteger(1, string.len(copyOfSelectedWord))
+
+            scrambledWord = scrambledWord .. string.sub(copyOfSelectedWord, thisIndex, thisIndex)
+            copyOfSelectedWord = string.sub(copyOfSelectedWord, 1, thisIndex - 1) .. string.sub(copyOfSelectedWord, thisIndex + 1)
+        end
+
+        messageToSendToClient = "For a free skip, by the first to unscramble this word: " .. scrambledWord
+        answerMessage = selectedWord
     elseif selectedMinigame == "Reaction" then
 
-        messageToSendToClient = "For a free skip, by the first to type: Tommy"
-        answerMessage = "Tommy"
+        local selectedWord: string = wordBank[randomNumberGenerator:NextInteger(1, #wordBank)]
+
+        messageToSendToClient = "For a free skip, by the first to type: " .. selectedWord
+        answerMessage = selectedWord
     end
 
     -- Let's tell the client about this.
