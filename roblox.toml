@@ -3600,7 +3600,8 @@ type = "number"
 [[Color3.new.args]]
 required = false
 type = "number"
-
+[[Color3.fromHex.args]]
+type = "string"
 [[Color3.new.args]]
 required = false
 type = "number"
