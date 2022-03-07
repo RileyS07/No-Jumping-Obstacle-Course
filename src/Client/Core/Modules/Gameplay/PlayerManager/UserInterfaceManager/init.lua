@@ -66,6 +66,7 @@ function userInterfaceManager.DisableInterface(interfaceName, exceptionBoolean)
 		if userInterfaceManager.ActiveContainers[userInterfaceManager.GetInterface(interfaceName)] then
 			clientAnimationsLibrary.PlayAnimation("CloseContainer", userInterfaceManager.ActiveContainers[userInterfaceManager.GetInterface(interfaceName)])
 			userInterfaceManager.ActiveContainers[userInterfaceManager.GetInterface(interfaceName)] = nil
+			userInterfaceManager.ActiveContainerUpdated:Fire(userInterfaceManager.GetInterface(interfaceName), false)
 		end
 
 		if userInterfaceManager.GetPriorityInterface() and interfaceName == userInterfaceManager.GetPriorityInterface().Name then
@@ -85,6 +86,7 @@ function userInterfaceManager.DisableInterface(interfaceName, exceptionBoolean)
 					if not interfaceObject.Enabled and userInterfaceManager.ActiveContainers[interfaceObject] then
 						clientAnimationsLibrary.PlayAnimation("CloseContainer", userInterfaceManager.ActiveContainers[interfaceObject])
 						userInterfaceManager.ActiveContainers[interfaceObject] = nil
+						userInterfaceManager.ActiveContainerUpdated:Fire(interfaceObject, false)
 					end
 				end
 			end
@@ -120,24 +122,24 @@ function userInterfaceManager.UpdateActiveContainer(container, functionParameter
 			if not functionParameters.CloseIfAlreadyActive then return end
 
 			clientAnimationsLibrary.PlayAnimation("CloseContainer", userInterfaceManager.ActiveContainers[screenGui])
-			userInterfaceManager.ActiveContainerUpdated:Fire(screenGui, userInterfaceManager.ActiveContainers[screenGui], false)
+			userInterfaceManager.ActiveContainerUpdated:Fire(screenGui, false)
 			userInterfaceManager.ActiveContainers[screenGui] = nil
 
 		-- It's not the active container but there is one so we need to close that one and open this one.
 		elseif not functionParameters.OnlyOpenWhenNoActiveContainer then
 			clientAnimationsLibrary.PlayAnimation("CloseContainer", userInterfaceManager.ActiveContainers[screenGui])
-			userInterfaceManager.ActiveContainerUpdated:Fire(screenGui, userInterfaceManager.ActiveContainers[screenGui], false)
+			userInterfaceManager.ActiveContainerUpdated:Fire(screenGui, false)
 
 			userInterfaceManager.ActiveContainers[screenGui] = container
 			clientAnimationsLibrary.PlayAnimation("OpenContainer", userInterfaceManager.ActiveContainers[screenGui])
-			userInterfaceManager.ActiveContainerUpdated:Fire(screenGui, userInterfaceManager.ActiveContainers[screenGui], true)
+			userInterfaceManager.ActiveContainerUpdated:Fire(screenGui, true)
 		end
 
 	-- There is no active container.
 	else
 		userInterfaceManager.ActiveContainers[screenGui] = container
 		clientAnimationsLibrary.PlayAnimation("OpenContainer", userInterfaceManager.ActiveContainers[screenGui])
-		userInterfaceManager.ActiveContainerUpdated:Fire(screenGui, userInterfaceManager.ActiveContainers[screenGui], true)
+		userInterfaceManager.ActiveContainerUpdated:Fire(screenGui, true)
 	end
 
 	-- Do we apply a blur?

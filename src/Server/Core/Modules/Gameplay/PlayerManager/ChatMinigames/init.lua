@@ -3,7 +3,7 @@
 ]]
 local coreModule = require(script:FindFirstAncestor("Core"))
 local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
-local sharedConstants = require(coreModule.Shared.GetObject("Libraries.SharedConstants"))
+local config = require(coreModule.Shared.GetObject("Libraries.Config")).GetConfig(script.Name)
 local wordBank = require(script.WordBank)
 
 local chatMakeSystemMessageRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.MakeSystemMessage")
@@ -21,7 +21,7 @@ function ChatMinigamesManager.Initialize()
     -- Setting up the loop to create and handle the minigames.
     task.spawn(function()
         while true do
-            task.wait(120)--sharedConstants.GENERAL.CHAT_MINIGAME_DELAY)
+            task.wait(config.CHAT_MINIGAME_DELAY)
 
             -- We create it and make players able to answer.
             ChatMinigamesManager._CreateMinigame()
@@ -39,7 +39,10 @@ function ChatMinigamesManager.Initialize()
 
             -- They can answer it!
             ChatMinigamesManager.SetIsMinigameActive(false)
-            chatMakeSystemMessageRemote:FireAllClients(player.DisplayName .. " has got the answer of " .. message .. " correct!")
+            chatMakeSystemMessageRemote:FireAllClients(string.format(
+                config.CHAT_MINIGAME_CORRECT_ANSWER_FORMAT,
+                player.DisplayName
+            ))
         end)
     end)
 end
@@ -68,8 +71,11 @@ function ChatMinigamesManager._CreateMinigame()
         local numberA: number = randomNumberGenerator:NextInteger(1, 1000)
         local numberB: number = randomNumberGenerator:NextInteger(1, 1000)
 
-        messageToSendToClient = "For a free skip, by the first to solve " .. tostring(numberA) .. " + " .. tostring(numberB)
         answerMessage = tostring(numberA + numberB)
+        messageToSendToClient = string.format(
+            config.CHAT_MINIGAME_QUESTION_TYPE_MATH_FORMAT,
+            tostring(numberA) .. " + " .. tostring(numberB)
+        )
 
     -- For scramble we want to select a random word and scramble it.
     elseif selectedMinigame == "Scramble" then
@@ -86,14 +92,22 @@ function ChatMinigamesManager._CreateMinigame()
             copyOfSelectedWord = string.sub(copyOfSelectedWord, 1, thisIndex - 1) .. string.sub(copyOfSelectedWord, thisIndex + 1)
         end
 
-        messageToSendToClient = "For a free skip, by the first to unscramble this word: " .. scrambledWord
         answerMessage = selectedWord
+        messageToSendToClient = string.format(
+            config.CHAT_MINIGAME_QUESTION_TYPE_SCRAMBLE_FORMAT,
+            scrambledWord
+        )
+
     elseif selectedMinigame == "Reaction" then
 
         local selectedWord: string = wordBank[randomNumberGenerator:NextInteger(1, #wordBank)]
 
-        messageToSendToClient = "For a free skip, by the first to type: " .. selectedWord
         answerMessage = selectedWord
+        messageToSendToClient = string.format(
+            config.CHAT_MINIGAME_QUESTION_TYPE_REACTION_FORMAT,
+            selectedWord
+        )
+
     end
 
     -- Let's tell the client about this.

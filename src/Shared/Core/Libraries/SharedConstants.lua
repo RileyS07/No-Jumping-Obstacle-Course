@@ -17,7 +17,6 @@ return {
     },
 
     GENERAL = {
-        CHAT_MINIGAME_DELAY = 10,               -- The amount of time between chat minigames.
         DEFAULT_FIELD_OF_VIEW =  70,            -- The default field of view applied to the camera.
         DELAY_BETWEEN_PLAYER_RESETS = 2,        -- The amount of time between needed before a player can reset again.
         RESPAWN_COUNT_NEEDED_TO_SHOW_POPUP = 5, -- The amount of failed attempts on a stage needed in order to show the skip stage gui.
