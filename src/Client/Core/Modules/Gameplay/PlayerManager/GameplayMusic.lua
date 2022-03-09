@@ -30,6 +30,10 @@ function gameplayMusicManager.Initialize()
 	coreModule.Shared.GetObject("//Remotes.UserInformationUpdated").OnClientEvent:Connect(function(userData)
 		gameplayMusicManager.UpdateMusic(userData)
 	end)
+
+	userInterfaceManager.ActiveInterfaceUpdated:Connect(function()
+        gameplayMusicManager.UpdateMusic(coreModule.Shared.GetObject("//Remotes.GetUserData"):InvokeServer())
+    end)
 end
 
 

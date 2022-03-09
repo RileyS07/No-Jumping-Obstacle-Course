@@ -5,11 +5,11 @@ local userDataManager = require(coreModule.GetObject("Modules.Gameplay.PlayerMan
 local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
 local instanceUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.InstanceUtilities"))
 local physicsService = require(coreModule.Shared.GetObject("Libraries.Services.PhysicsService"))
-local sharedConstants = require(coreModule.Shared.GetObject("Libraries.SharedConstants"))
+local teleportationOverlayConfig = require(coreModule.Shared.GetObject("Libraries.Config")).GetConfig("TeleportationOverlay")
 local signal = require(coreModule.Shared.GetObject("Libraries.Signal"))
 local powerupsManager	-- This is required in Initialize to avoid cyclic behavior.
 
-local teleportationStateUpdatedRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.TeleportationStateUpdated")
+local teleportationStateUpdatedRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.TeleportationStateUpdated")
 local restoreDefaultPlayerConditionsRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.RestoreDefaultPlayerConditions")
 local levelStorage: Instance = workspace.Map.Gameplay.LevelStorage
 local bonusStageStorage: Instance? = workspace.Map.Gameplay.LevelStorage:FindFirstChild("BonusStages")
@@ -127,31 +127,34 @@ function TeleportationManager._StartTeleportingPlayer(player: Player, cframe: CF
 	TeleportationManager.SetIsPlayerBeingTeleported(player, true)
 
 	-- We need to figure out these before we can move forward with the animation.
-	local teleportationAnimationLength: number = sharedConstants.MECHANICS.TELEPORTATION_OVERLAY_ANIMATION_LENGTH / 2
-	local finalOverlayColor: Color3 = overlayColor or sharedConstants.MECHANICS.TELEPORTATION_DEFAULT_OVERLAY_COLOR
+	local teleportationAnimationLength: number = teleportationOverlayConfig.OVERLAY_TRANSITION_TIME
+	local finalOverlayColor: Color3 = overlayColor or teleportationOverlayConfig.DEFAULT_OVERLAY_COLOR
 
-	-- We want to first start the overlay animation.
-	teleportationStateUpdatedRemote:InvokeClient(player, true, teleportationAnimationLength, finalOverlayColor)
-	task.wait(teleportationAnimationLength)
+	pcall(function()
 
-	-- We need to double check if they're still alive after yielding though.
-	if not playerUtilities.IsPlayerAlive(player) then
+		-- We want to first start the overlay animation.
+		teleportationStateUpdatedRemote:InvokeClient(player, true, finalOverlayColor)
+		task.wait(teleportationAnimationLength)
+
+		-- We need to double check if they're still alive after yielding though.
+		if not playerUtilities.IsPlayerAlive(player) then
+			TeleportationManager.SetIsPlayerBeingTeleported(player, false)
+			teleportationStateUpdatedRemote:InvokeClient(player, false, finalOverlayColor)
+			return false
+		end
+
+		-- We need to restore their conditions and then move them.
+		TeleportationManager.RestorePlayerConditions(player)
+		player.Character:SetPrimaryPartCFrame(cframe)
+
+		-- Now we want to finish the overlay animation.
+		teleportationStateUpdatedRemote:InvokeClient(player, false, finalOverlayColor)
+		task.wait(teleportationAnimationLength)
+
+		-- Now the player can teleport again!
 		TeleportationManager.SetIsPlayerBeingTeleported(player, false)
-		teleportationStateUpdatedRemote:InvokeClient(player, false, teleportationAnimationLength, finalOverlayColor)
-		return false
-	end
-
-	-- We need to restore their conditions and then move them.
-	TeleportationManager.RestorePlayerConditions(player)
-	player.Character:SetPrimaryPartCFrame(cframe)
-
-	-- Now we want to finish the overlay animation.
-	teleportationStateUpdatedRemote:InvokeClient(player, false, teleportationAnimationLength, finalOverlayColor)
-	task.wait(teleportationAnimationLength)
-
-	-- Now the player can teleport again!
-	TeleportationManager.SetIsPlayerBeingTeleported(player, false)
-	TeleportationManager.PlayerTeleported:Fire(player)
+		TeleportationManager.PlayerTeleported:Fire(player)
+	end)
 
 	return true
 end

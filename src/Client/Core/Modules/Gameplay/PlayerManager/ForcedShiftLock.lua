@@ -39,6 +39,8 @@ function ForcedShiftlockManager.Initialize()
     userInputService.LastInputTypeChanged:Connect(ForcedShiftlockManager._UpdateInterface)
 
     -- Listens for if there is an active interface.
+    ForcedShiftlockManager._IsThereAnActiveInterface = userInterfaceManager.ActiveInterface ~= nil
+
     userInterfaceManager.ActiveInterfaceUpdated:Connect(function(interface: GuiBase2d)
         ForcedShiftlockManager._IsThereAnActiveInterface = interface ~= nil
     end)

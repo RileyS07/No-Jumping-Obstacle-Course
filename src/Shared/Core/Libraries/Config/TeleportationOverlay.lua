@@ -1,0 +1,4 @@
+return {
+    DEFAULT_OVERLAY_COLOR = Color3.new(),
+    OVERLAY_TRANSITION_TIME = 0.25
+}

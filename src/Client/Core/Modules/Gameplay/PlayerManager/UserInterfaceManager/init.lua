@@ -10,10 +10,14 @@ UserInterfaceManager.ActiveInterfaceUpdated = signal.new()
 
 -- Initialize
 function UserInterfaceManager.Initialize()
+
+	-- Loading modules.
+	--coreModule.LoadModule("/LoadingScreen")
+	
 	--coreModule.LoadModule("/LoadingScreen")
 	--coreModule.LoadModule("/VersionUpdates")
 	--coreModule.LoadModule("/TeleportationConsent")
-	--coreModule.LoadModule("/TeleportationOverlay")
+	coreModule.LoadModule("/TeleportationOverlay")
 	--coreModule.LoadModule("/TopbarManager")
 	--coreModule.LoadModule("/DoorInterface")
 	--coreModule.LoadModule("/EffectTimers")
@@ -41,17 +45,19 @@ end
 
 -- This updates the current interface that is shown.
 -- It will hide it if it's already visible and show it if it is not.
-function UserInterfaceManager.UpdateInterfaceShown(interfaceName: string)
-
-	local thisInterface: GuiBase2d = UserInterfaceManager.GetInterface(interfaceName)
+function UserInterfaceManager.UpdateInterfaceShown(thisInterface: GuiBase2d)
 
 	-- Case #1: Another interface is active that is not this one.
 	-- Response: We close it and open this one, do not change effects.
 	if UserInterfaceManager.ActiveInterface and UserInterfaceManager.ActiveInterface ~= thisInterface then
-		UserInterfaceManager._CloseInterface(UserInterfaceManager.ActiveInterface)
-		UserInterfaceManager._OpenInterface(thisInterface)
-		UserInterfaceManager.ActiveInterface = thisInterface
-		UserInterfaceManager.ActiveInterfaceUpdated:Fire(UserInterfaceManager.ActiveInterface)
+
+		-- We need to make sure the DisplayOrder is less or the same.
+		if UserInterfaceManager.ActiveInterface.DisplayOrder <= thisInterface.DisplayOrder then
+			UserInterfaceManager._CloseInterface(UserInterfaceManager.ActiveInterface)
+			UserInterfaceManager._OpenInterface(thisInterface)
+			UserInterfaceManager.ActiveInterface = thisInterface
+			UserInterfaceManager.ActiveInterfaceUpdated:Fire(UserInterfaceManager.ActiveInterface)
+		end
 
 	-- Case #2: Another interface is active and this one is it.
 	-- Response: We close it and remove effects.
