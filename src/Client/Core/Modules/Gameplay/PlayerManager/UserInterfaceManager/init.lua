@@ -13,11 +13,11 @@ function UserInterfaceManager.Initialize()
 
 	-- Loading modules.
 	--coreModule.LoadModule("/LoadingScreen")
-	
+
 	--coreModule.LoadModule("/LoadingScreen")
-	--coreModule.LoadModule("/VersionUpdates")
-	--coreModule.LoadModule("/TeleportationConsent")
+	coreModule.LoadModule("/VersionUpdates")
 	coreModule.LoadModule("/TeleportationOverlay")
+	coreModule.LoadModule("/TeleportationConsent")
 	--coreModule.LoadModule("/TopbarManager")
 	--coreModule.LoadModule("/DoorInterface")
 	--coreModule.LoadModule("/EffectTimers")
@@ -45,7 +45,7 @@ end
 
 -- This updates the current interface that is shown.
 -- It will hide it if it's already visible and show it if it is not.
-function UserInterfaceManager.UpdateInterfaceShown(thisInterface: GuiBase2d)
+function UserInterfaceManager.UpdateInterfaceShown(thisInterface: GuiBase2d) : boolean
 
 	-- Case #1: Another interface is active that is not this one.
 	-- Response: We close it and open this one, do not change effects.
@@ -57,6 +57,8 @@ function UserInterfaceManager.UpdateInterfaceShown(thisInterface: GuiBase2d)
 			UserInterfaceManager._OpenInterface(thisInterface)
 			UserInterfaceManager.ActiveInterface = thisInterface
 			UserInterfaceManager.ActiveInterfaceUpdated:Fire(UserInterfaceManager.ActiveInterface)
+		else
+			return false
 		end
 
 	-- Case #2: Another interface is active and this one is it.
@@ -73,6 +75,8 @@ function UserInterfaceManager.UpdateInterfaceShown(thisInterface: GuiBase2d)
 		UserInterfaceManager.ActiveInterface = thisInterface
 		UserInterfaceManager.ActiveInterfaceUpdated:Fire(UserInterfaceManager.ActiveInterface)
 	end
+
+	return true
 end
 --[[
 -- Methods

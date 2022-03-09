@@ -16,7 +16,7 @@ VersionUpdatesManager.ReservedServerCode = ""
 
 -- Initialize
 function VersionUpdatesManager.Initialize()
-    coreModule.Shared.GetObject("//Remotes.Server.IsReservedServer").OnServerInvoke = VersionUpdatesManager.IsReservedServer
+    coreModule.Shared.GetObject("//Remotes.IsReservedServer").OnServerInvoke = VersionUpdatesManager.IsReservedServer
 
     -- This server is a reserved server, so that means it's one that we created.
     -- So we send them back to the original game.
@@ -55,7 +55,7 @@ function VersionUpdatesManager.ShutdownServer()
         if not playerUtilities.IsPlayerValid(player) then return end
 
         -- There are players we need to teleport
-        coreModule.Shared.GetObject("//Remotes.Server.VersionUpdated"):FireClient(player)
+        coreModule.Shared.GetObject("//Remotes.VersionUpdated"):FireClient(player)
 
         teleportService.TeleportAsync(
             game.PlaceId,

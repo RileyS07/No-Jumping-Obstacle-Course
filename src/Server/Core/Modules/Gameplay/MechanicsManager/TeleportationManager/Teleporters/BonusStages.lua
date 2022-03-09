@@ -87,7 +87,6 @@ function ThisTeleporterManager._AttemptTeleportationToBonusStage(player: Player,
 	local userData: {} = userDataManager.GetData(player)
 	local doesPlayerConsent: boolean = teleportersManager.GetTeleportationConsent(
 		player,
-		teleporterObject.Name,
 		string.format(sharedConstants.FORMATS.BONUS_STAGE_TELEPORTER_CONSENT_FORMAT, teleporterObject.Name)
 	)
 

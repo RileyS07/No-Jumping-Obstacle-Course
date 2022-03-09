@@ -8,7 +8,7 @@ function CoreModule.Initialize()
     -- Loading Shared and modules.
     CoreModule.Shared.Initialize()
 
-    if CoreModule.Shared.GetObject("//Remotes.Server.IsReservedServer"):InvokeServer() then
+    if CoreModule.Shared.GetObject("//Remotes.IsReservedServer"):InvokeServer() then
         CoreModule.LoadModule("Modules.Gameplay.PlayerManager.UserInterfaceManager.VersionUpdates")
         return
     else

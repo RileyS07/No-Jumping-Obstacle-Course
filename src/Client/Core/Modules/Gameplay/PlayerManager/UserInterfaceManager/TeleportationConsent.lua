@@ -1,63 +1,68 @@
--- Variables
-local specificInterfaceManager = {}
-specificInterfaceManager.Interface = {}
-specificInterfaceManager.ConsentUpdated = Instance.new("BindableEvent")
-
 local coreModule = require(script:FindFirstAncestor("Core"))
 local userInterfaceManager = require(coreModule.GetObject("Modules.Gameplay.PlayerManager.UserInterfaceManager"))
 
+local thisInterface: ScreenGui = userInterfaceManager.GetInterface(script.Name)
+local contentFrame: Frame = thisInterface:WaitForChild("Container"):WaitForChild("Content")
+local buttonsContainer: Frame = contentFrame:WaitForChild("Buttons")
+local descriptionText: TextLabel = contentFrame:WaitForChild("Description")
+
+local getTeleportationConsentRemote: RemoteFunction = coreModule.Shared.GetObject("//Remotes.GetTeleportationConsent")
+
+local ThisInterfaceManager = {}
+
 -- Initialize
-function specificInterfaceManager.Initialize()
-    specificInterfaceManager.Interface.Container = userInterfaceManager.GetInterface("MainInterface"):WaitForChild("Containers"):WaitForChild("TeleportationConsent")
-    specificInterfaceManager.Interface.Content = specificInterfaceManager.Interface.Container:WaitForChild("Content")
-	specificInterfaceManager.Interface.Buttons = specificInterfaceManager.Interface.Content:WaitForChild("Buttons")
+function ThisInterfaceManager.Initialize()
 
-    -- GetTeleportationConsent shows a gui on their screen and waits for a yes/no.
-    coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.GetTeleportationConsent").OnClientInvoke = function(title, description)
+	-- This bindable is used to communicate for their decision.
+	local consentUpdatedBindable: BindableEvent = Instance.new("BindableEvent")
+	ThisInterfaceManager._SetupConsentUpdateMethods(consentUpdatedBindable)
 
-		-- Update the visuals on the ui.
-		--specificInterfaceManager.Interface.Container:WaitForChild("BackgroundImage"):WaitForChild("ImageLabel").Image = imageContent or "rbxassetid://5632265938"
-		specificInterfaceManager.Interface.Container:WaitForChild("BackgroundImage"):WaitForChild("Title").Text = title or "???"
-		specificInterfaceManager.Interface.Content:WaitForChild("Description").Text = description or "???"
+	-- GetTeleportationConsent shows a gui on their screen and waits for a yes/no.
+	getTeleportationConsentRemote.OnClientInvoke = function(destinationDescription: string)
+		if userInterfaceManager.ActiveInterface == thisInterface then return end
 
-		-- We don't want overlapping.
-		if userInterfaceManager.IsActiveContainer(specificInterfaceManager.Interface.Container) then return end
-        userInterfaceManager.UpdateActiveContainer(specificInterfaceManager.Interface.Container)
+		-- We need to update the visuals before showing the interface.
+		descriptionText.Text = destinationDescription
+		userInterfaceManager.UpdateInterfaceShown(thisInterface)
 
-		-- Setup the timeout.
-		delay(script:GetAttribute("TimeoutThreshold") or 15, function()
-			if not userInterfaceManager.IsActiveContainer(specificInterfaceManager.Interface.Container) then return end
-			specificInterfaceManager.ConsentUpdated:Fire(false)
+		-- This is in case players take too long, we don't want the server waiting forever.
+		task.delay(15, function()
+			if userInterfaceManager.ActiveInterface == thisInterface then
+				consentUpdatedBindable:Fire(false)
+			end
 		end)
 
-		-- Get the consent status then update the container.
-		local wasConsentGranted = specificInterfaceManager.ConsentUpdated.Event:Wait()
-		if userInterfaceManager.IsActiveContainer(specificInterfaceManager.Interface.Container) then
-			userInterfaceManager.UpdateActiveContainer(specificInterfaceManager.Interface.Container)
+		-- We need to wait for their decision.
+		local wasConsentGranted: boolean = consentUpdatedBindable.Event:Wait()
+
+		-- Regardless of their decision this is when we disable the interface.
+		if userInterfaceManager.ActiveInterface == thisInterface then
+			userInterfaceManager.UpdateInterfaceShown(thisInterface)
 		end
 
-        return wasConsentGranted
-    end
+		return wasConsentGranted
+	end
+end
 
-	-- Below will be various different conditions that influence consent.
+-- Sets up the methods of consent updates: yes, no, interface updated.
+function ThisInterfaceManager._SetupConsentUpdateMethods(consentUpdatedBindable: BindableEvent)
 
-	-- Yes/No activated.
-	specificInterfaceManager.Interface.Buttons:WaitForChild("Yes").Activated:Connect(function()
-		specificInterfaceManager.ConsentUpdated:Fire(true)
+	-- When the user hits yes they consent to being teleported.
+	buttonsContainer:WaitForChild("Yes").Activated:Connect(function()
+		consentUpdatedBindable:Fire(true)
 	end)
 
-	specificInterfaceManager.Interface.Buttons:WaitForChild("No").Activated:Connect(function()
-		specificInterfaceManager.ConsentUpdated:Fire(false)
+	-- When the user hits no they do not consent to being teleported.
+	buttonsContainer:WaitForChild("No").Activated:Connect(function()
+		consentUpdatedBindable:Fire(false)
 	end)
 
 	-- If the interface was closed for whatever reason we also cancel it.
 	userInterfaceManager.ActiveInterfaceUpdated:Connect(function(interface: GuiBase2d?)
-		if interface ~= specificInterfaceManager.Interface then return end
+		if interface ~= thisInterface then return end
 
-		specificInterfaceManager.ConsentUpdated:Fire(false)
+		consentUpdatedBindable:Fire(false)
 	end)
 end
 
-
---
-return specificInterfaceManager
+return ThisInterfaceManager

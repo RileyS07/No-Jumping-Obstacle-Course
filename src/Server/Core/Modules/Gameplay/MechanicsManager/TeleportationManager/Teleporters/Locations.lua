@@ -46,7 +46,6 @@ function ThisTeleporterManager.Initialize()
 				-- Here is where we ask if they want to teleport.
 				local doesPlayerConsent: boolean = teleportersManager.GetTeleportationConsent(
 					player,
-					teleporterObject.Name,
 					string.format(sharedConstants.FORMATS.LOCATION_TELEPORTER_CONSENT_FORMAT, teleporterObject.Name)
 				)
 

@@ -1,28 +1,28 @@
--- Variables
-local specificInterfaceManager = {}
-specificInterfaceManager.Interface = {}
-
 local coreModule = require(script:FindFirstAncestor("Core"))
 local userInterfaceManager = require(coreModule.GetObject("Modules.Gameplay.PlayerManager.UserInterfaceManager"))
-local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
+local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
+
+local thisInterface: GuiBase2d = userInterfaceManager.GetInterface(script.Name)
+local versionUpdatedRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.VersionUpdated")
+local isReservedServerRemote: RemoteFunction = coreModule.Shared.GetObject("//Remotes.IsReservedServer")
+
+local ThisInterfaceManager = {}
 
 -- Initialize
-function specificInterfaceManager.Initialize()
-    specificInterfaceManager.Interface.ScreenGui = userInterfaceManager.GetInterface("VersionUpdateInterface")
+function ThisInterfaceManager.Initialize()
 
-    -- The game's version was updated; Someone hit shutdown lol.
-    coreModule.Shared.GetObject("//Remotes.Server.VersionUpdated").OnClientEvent:Connect(function()
-        userInterfaceManager.EnableInterface(specificInterfaceManager.Interface.ScreenGui.Name, {DisableOtherInterfaces = true, IsPriority = true})
-        clientEssentialsLibrary.SetCoreGuiEnabled(Enum.CoreGuiType.All, false)
+    -- This is called when the server is shutdown.
+    -- This is what signals an incoming update.
+    versionUpdatedRemote.OnClientEvent:Connect(function()
+        userInterfaceManager.UpdateInterfaceShown(thisInterface)
+        playerUtilities.SetCoreGuiEnabled(Enum.CoreGuiType.All, false)
     end)
 
-    -- Is it a reserved server?
-    if coreModule.Shared.GetObject("//Remotes.Server.IsReservedServer"):InvokeServer() then
-        userInterfaceManager.EnableInterface(specificInterfaceManager.Interface.ScreenGui.Name, {DisableOtherInterfaces = true, IsPriority = true})
-        clientEssentialsLibrary.SetCoreGuiEnabled(Enum.CoreGuiType.All, false)
+    -- If it's a reserved server then we know this is phase 1 of the 2 phase update procedure.
+    if isReservedServerRemote:InvokeServer() then
+        userInterfaceManager.UpdateInterfaceShown(thisInterface)
+        playerUtilities.SetCoreGuiEnabled(Enum.CoreGuiType.All, false)
     end
 end
 
-
---
-return specificInterfaceManager
+return ThisInterfaceManager

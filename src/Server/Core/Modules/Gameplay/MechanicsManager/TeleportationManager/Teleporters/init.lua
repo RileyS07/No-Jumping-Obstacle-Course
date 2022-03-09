@@ -1,7 +1,7 @@
 local coreModule = require(script:FindFirstAncestor("Core"))
 local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
 
-local getTeleportationConsentRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.GetTeleportationConsent")
+local getTeleportationConsentRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.GetTeleportationConsent")
 
 local TeleportersManager = {}
 TeleportersManager.WaitingForPlayerConsent = {}
@@ -14,7 +14,7 @@ function TeleportersManager.Initialize()
 end
 
 -- This method will communicate with the client and see if they agree to being teleported.
-function TeleportersManager.GetTeleportationConsent(player: Player, title: string, description: string) : boolean
+function TeleportersManager.GetTeleportationConsent(player: Player, description: string) : boolean
 
     -- We can't teleport them if they're already teleporting.
     if not playerUtilities.IsPlayerAlive(player) then return end
@@ -24,7 +24,7 @@ function TeleportersManager.GetTeleportationConsent(player: Player, title: strin
     TeleportersManager.SetIsWaitingOnPlayerConsent(player, true)
 
     -- GetTeleportationConsent pops up a gui on the clients screen waiting for them to click yes/no.
-    local teleportationConsentStatus = getTeleportationConsentRemote:InvokeClient(player, title, description)
+    local teleportationConsentStatus = getTeleportationConsentRemote:InvokeClient(player, description)
 
     TeleportersManager.SetIsWaitingOnPlayerConsent(player, false)
     return teleportationConsentStatus
