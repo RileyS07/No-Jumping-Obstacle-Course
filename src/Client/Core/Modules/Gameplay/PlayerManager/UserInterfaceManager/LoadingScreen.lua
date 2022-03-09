@@ -27,7 +27,7 @@ function specificInterfaceManager.Initialize()
 
     -- We have to add this because some people have bad computers.
     task.delay(10, function()
-        if userInterfaceManager.GetPriorityInterface() ~= specificInterfaceManager.Interface.ScreenGui then return end
+        if userInterfaceManager.ActiveInterface ~= specificInterfaceManager.Interface.ScreenGui then return end
         coreModule.Shared.GetObject("//Remotes.GetUserData"):InvokeServer()
 
         -- They still gotta press skip.
@@ -54,7 +54,7 @@ function specificInterfaceManager.Initialize()
 
         if not specificInterfaceManager.Interface or not specificInterfaceManager.Interface.Skip.Visible then return end
 
-        if userInterfaceManager.GetPriorityInterface() == specificInterfaceManager.Interface.ScreenGui then
+        if userInterfaceManager.ActiveInterface == specificInterfaceManager.Interface.ScreenGui then
             clientAnimationsLibrary.PlayAnimation(
                 "LoadingScreenFinish",
                 specificInterfaceManager.Interface.Information, specificInterfaceManager.Interface.BackgroundImages, specificInterfaceManager.Interface.Content

@@ -40,8 +40,8 @@ function gameplayMusicManager.UpdateMusic(userData)
 	if #gameplayMusicManager.Assets.MusicContainer:GetChildren() == 0 then return end
 
 	-- FIRST we check if there is a priority interface and also if there's music for it.
-	if userInterfaceManager.GetPriorityInterface() then
-		local soundContainer = gameplayMusicManager.Assets.MusicContainer:FindFirstChild(userInterfaceManager.GetPriorityInterface().Name)
+	if userInterfaceManager.ActiveInterface then
+		local soundContainer = gameplayMusicManager.Assets.MusicContainer:FindFirstChild(userInterfaceManager.ActiveInterface.Name)
 		if soundContainer and (soundContainer:IsA("Sound") or soundContainer:IsA("SoundGroup")) then
 			return gameplayMusicManager.UpdateMusicPostTranslation(soundContainer)
 		end

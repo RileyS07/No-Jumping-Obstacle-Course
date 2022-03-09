@@ -91,7 +91,7 @@ function gameplayMechanicManager.SetupKeybindFunctionality()
         while true do
             if not playerUtilities.IsPlayerValid(game:GetService("Players").LocalPlayer) then return end
 
-            if playerUtilities.IsPlayerAlive(clientEssentialsLibrary.GetPlayer()) and not userInterfaceManager.GetPriorityInterface() then
+            if playerUtilities.IsPlayerAlive(clientEssentialsLibrary.GetPlayer()) and not userInterfaceManager.ActiveInterface then
                 local isPlayerNearAnySwitchPlatforms = false
 
                 for _, platformObject in next, gameplayMechanicManager.MechanicContainer:GetDescendants() do

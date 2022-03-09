@@ -31,17 +31,16 @@ function ForcedShiftlockManager.Initialize()
     )
 
     -- This is how they activate it. Turning it on and off.
-    ForcedShiftlockManager._SetupActivationMethods()
-
     -- We want to update it at the start as well as whenever the input is changed.
     -- We do this so if they have a controller active we can show the controller hint.
+    ForcedShiftlockManager._SetupActivationMethods()
     ForcedShiftlockManager._UpdateInterface()
 
     userInputService.LastInputTypeChanged:Connect(ForcedShiftlockManager._UpdateInterface)
 
     -- Listens for if there is an active interface.
-    userInterfaceManager.ActiveContainerUpdated.Event:Connect(function(_, isActive: boolean)
-        ForcedShiftlockManager._IsThereAnActiveInterface = isActive
+    userInterfaceManager.ActiveInterfaceUpdated:Connect(function(interface: GuiBase2d)
+        ForcedShiftlockManager._IsThereAnActiveInterface = interface ~= nil
     end)
 end
 
@@ -97,7 +96,7 @@ function ForcedShiftlockManager._Update()
     if not playerUtilities.IsPlayerValid(thisPlayer) then return end
 
     -- We have to replicate normal camera-player movement if this is the case.
-    if not ForcedShiftlockManager.IsShiftlockActive or userInterfaceManager.PriorityInterface ~= nil or ForcedShiftlockManager._IsThereAnActiveInterface then
+    if not ForcedShiftlockManager.IsShiftlockActive or ForcedShiftlockManager._IsThereAnActiveInterface then
 
         userInputService.MouseIconEnabled = true
 

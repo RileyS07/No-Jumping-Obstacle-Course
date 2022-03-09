@@ -51,9 +51,9 @@ function specificInterfaceManager.Initialize()
 	end)
 
 	-- If the interface was closed for whatever reason we also cancel it.
-	userInterfaceManager.ActiveContainerUpdated.Event:Connect(function(container, isActive)
-		if container ~= specificInterfaceManager.Interface.Container then return end
-		if isActive then return end
+	userInterfaceManager.ActiveInterfaceUpdated:Connect(function(interface: GuiBase2d?)
+		if interface ~= specificInterfaceManager.Interface then return end
+
 		specificInterfaceManager.ConsentUpdated:Fire(false)
 	end)
 end
