@@ -14,14 +14,13 @@ function UserInterfaceManager.Initialize()
 	-- Loading modules.
 	--coreModule.LoadModule("/LoadingScreen")
 
-	--coreModule.LoadModule("/LoadingScreen")
 	coreModule.LoadModule("/VersionUpdates")
 	coreModule.LoadModule("/TeleportationOverlay")
 	coreModule.LoadModule("/TeleportationConsent")
-	--coreModule.LoadModule("/TopbarManager")
 	coreModule.LoadModule("/DoorInterface")
 	coreModule.LoadModule("/EffectTimers")
 	coreModule.LoadModule("/Events")
+	coreModule.LoadModule("/DataStoreCriticalState")
 
 	-- All experiences should have this feature.
 	-- When you hit escape it should close out of all non-essential guis.

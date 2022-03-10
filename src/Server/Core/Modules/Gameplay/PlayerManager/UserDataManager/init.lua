@@ -3,11 +3,16 @@ local profileService = require(coreModule.GetObject("Libraries.ProfileService"))
 local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
 local signal = require(coreModule.Shared.GetObject("Libraries.Signal"))
 
+local dataStoreCriticalStateRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.DataStoreCriticalState")
+local getUserDataRemote: RemoteFunction = coreModule.Shared.GetObject("//Remotes.GetUserData")
+local getIsDataStoreInCriticalState: RemoteFunction = coreModule.Shared.GetObject("//Remotes.GetIsDataStoreInCriticalState")
+
 local UserDataManager = {}
 UserDataManager.StoredProfiles = {}
 UserDataManager.ProfilesBeingLoaded = {}
 UserDataManager.ProfileServiceDataStore = nil
 UserDataManager.UserDataLoaded = signal.new()
+UserDataManager.IsDataStoreInCriticalState = false
 
 -- Initialize
 function UserDataManager.Initialize()
@@ -16,8 +21,18 @@ function UserDataManager.Initialize()
 	)
 
 	-- The client wants to view their data or someone elses.
-	coreModule.Shared.GetObject("//Remotes.GetUserData").OnServerInvoke = function(player: Player, optionalOtherPlayer: Player?)
+	getUserDataRemote.OnServerInvoke = function(player: Player, optionalOtherPlayer: Player?)
 		return UserDataManager.GetData(optionalOtherPlayer or player)
+	end
+
+	-- Informing the client that there are critical datastore issues.
+	profileService.CriticalStateSignal:Connect(function(isCritical: boolean)
+		UserDataManager.IsDataStoreInCriticalState = isCritical
+		dataStoreCriticalStateRemote:FireAllClients(isCritical)
+	end)
+
+	getIsDataStoreInCriticalState.OnServerInvoke = function()
+		return UserDataManager.IsDataStoreInCriticalState
 	end
 end
 
