@@ -14,7 +14,6 @@ local userInformationUpdatedRemote: RemoteEvent = coreModule.Shared.GetObject("/
 local playSoundEffectRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.PlaySoundEffect")
 local makeSystemMessageRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.MakeSystemMessage")
 local teleportToStageRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.Gameplay.Stages.TeleportToStage")
-local doConfettiDisplayRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.DoConfettiDisplay")
 local thisPlatformContainer: Instance? = workspace.Map.Gameplay.LevelStorage:FindFirstChild("Checkpoints")
 
 local CheckpointsManager = {}
@@ -105,7 +104,6 @@ function CheckpointsManager.UpdateCurrentCheckpoint(player: Player, checkpointNu
 				table.insert(userData.UserInformation.CompletedStages, checkpointNumber)
 
 				-- We want the clapping to play for just them and then the message for everyone.
-				doConfettiDisplayRemote:FireClient(player)
 				playSoundEffectRemote:FireClient(player, "Clapping")
 				makeSystemMessageRemote:FireAllClients(string.format(
 					sharedConstants.FORMATS.TRIAL_COMPLETION_MESSAGE_FORMAT,

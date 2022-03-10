@@ -1,6 +1,5 @@
 local coreModule = require(script:FindFirstAncestor("Core"))
 local userInterfaceManager = require(coreModule.GetObject("Modules.Gameplay.PlayerManager.UserInterfaceManager"))
-local confettiInterfaceManager = require(coreModule.GetObject("Modules.Gameplay.PlayerManager.UserInterfaceManager.Confetti"))
 local numberUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.NumberUtilities"))
 
 local getUserDataRemote: RemoteFunction = coreModule.Shared.GetObject("//Remotes.GetUserData")
@@ -31,7 +30,7 @@ function ThisInterfaceManager.UpdateContent()
 
             -- Should it be visible? We need to check if they just completed it.
             if not shouldEventVisualBeVisible and eventVisual.Visible then
-                task.spawn(confettiInterfaceManager.CreateConfettiDisplay)
+                print("This user completed this event.")
             end
 
             -- Updating the interface.
