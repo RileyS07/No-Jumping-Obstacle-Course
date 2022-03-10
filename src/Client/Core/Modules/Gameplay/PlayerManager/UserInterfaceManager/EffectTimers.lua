@@ -1,161 +1,124 @@
--- Variables
-local specificInterfaceManager = {}
-specificInterfaceManager.Interface = {}
-specificInterfaceManager.TimerInformation = {}
-specificInterfaceManager.LastServerInformation = {}
-
 local coreModule = require(script:FindFirstAncestor("Core"))
 local userInterfaceManager = require(coreModule.GetObject("Modules.Gameplay.PlayerManager.UserInterfaceManager"))
-local clientAnimationsLibrary = require(coreModule.GetObject("Libraries.ClientAnimations"))
-local numberUtilitiesLibrary = require(coreModule.Shared.GetObject("Libraries.NumberUtilities"))
+
+local contentFrame: Frame = userInterfaceManager.GetInterface(script.Name):WaitForChild("Content")
+local effectInformationUpdatedRemote: RemoteEvent = coreModule.Shared.GetObject("//Remotes.EffectInformationUpdated")
+local effectInformationDisplayTemplate: GuiObject = coreModule.Shared.GetObject("//Assets.Interfaces.EffectInformationDisplay")
+local effectIconsDirectory: Instance = coreModule.Shared.GetObject("//Assets.Interfaces.EffectIcons")
+
+local ThisInterfaceManager = {}
+ThisInterfaceManager.TimerInformation = {}
+ThisInterfaceManager.LastServerInformation = {}
 
 -- Initialize
-function specificInterfaceManager.Initialize()
-    specificInterfaceManager.Interface.Container = userInterfaceManager.GetInterface("MainInterface"):WaitForChild("Timers")
+function ThisInterfaceManager.Initialize()
 
-    -- The timer information was updated.
-    coreModule.Shared.GetObject("//Remotes.Gameplay.Miscellaneous.TimerInformationUpdated").OnClientEvent:Connect(function(effectInformationArray)
+    -- When the effect information is updated we want to sync the timer information.
+    effectInformationUpdatedRemote.OnClientEvent:Connect(ThisInterfaceManager._SyncTimerInformation)
 
-        -- Attempt to merge/update/delete the effect information.
-        if typeof(effectInformationArray) == "table" and next(effectInformationArray) ~= nil then
-            for effectName, effectInformation in next, effectInformationArray do
-                if typeof(effectName) == "string" and typeof(effectInformation) == "table" then
-
-                    -- Trying to see if we should update the start time.
-                    local shouldWeUpdateStartTime: boolean = true
-
-                    if specificInterfaceManager.LastServerInformation[effectName] and effectInformationArray[effectName] then
-                        if specificInterfaceManager.LastServerInformation[effectName].Start == effectInformationArray[effectName].Start then
-                            shouldWeUpdateStartTime = false
-                        end
-                    end
-
-                    specificInterfaceManager.TimerInformation[effectName] = {
-                        Start = shouldWeUpdateStartTime and os.clock() or specificInterfaceManager.TimerInformation[effectName].Start,
-                        Duration = effectInformation.Duration or math.huge,
-                        IsFresh = not not effectInformation.IsFresh,
-                        Color = effectInformation.Color
-                    }
-                end
-            end
-        else
-            specificInterfaceManager.TimerInformation = {}
-        end
-
-        specificInterfaceManager.LastServerInformation = effectInformationArray
-    end)
-
-    -- Update loop.
-    coroutine.wrap(function()
+    -- Every frame we try to update the content so we get precise times.
+    task.defer(function()
         while true do
-            game:GetService("RunService").RenderStepped:Wait()
+            task.wait()
+            ThisInterfaceManager.UpdateContent()
+        end
+    end)
+end
 
-            -- Remove old effects.
-            for _, effectInformationDisplay in next, specificInterfaceManager.Interface.Container:GetChildren() do
-                if effectInformationDisplay:IsA("GuiObject") and not specificInterfaceManager.TimerInformation[effectInformationDisplay.Name] then
-                    clientAnimationsLibrary.PlayAnimation("HideEffectInformationDisplay", effectInformationDisplay)
-                end
-            end
+-- Updates the content, reading from ThisInterfaceManager.TimerInformation.
+function ThisInterfaceManager.UpdateContent()
 
-            -- if next(array) == nil then the array is without a doubt empty.
-            if next(specificInterfaceManager.TimerInformation) == nil then
-                clientAnimationsLibrary.PlayAnimation("HideEffectInformation")
-            else
-                clientAnimationsLibrary.PlayAnimation("ShowEffectInformation")
-            end
+    -- When a timer is finsihed it will b e removed from TimerInformation.
+    for _, effectInformationDisplay: Instance in next, contentFrame:GetChildren() do
+        if effectInformationDisplay:IsA("GuiObject") and not ThisInterfaceManager.TimerInformation[effectInformationDisplay.Name] then
+            effectInformationDisplay:Destroy()
+        end
+    end
 
-            -- Now we can finally update them.
-            for effectName, effectInformation in next, specificInterfaceManager.TimerInformation do
-                local effectInformationDisplay = specificInterfaceManager.Interface.Container:FindFirstChild(effectName) or coreModule.Shared.GetObject("//Assets.Interfaces.EffectInformationDisplay"):Clone()
-                effectInformationDisplay.Name = effectName
-                effectInformationDisplay.Content.EffectName.Text = effectName
+    -- Now we can update the ones that are still in effect.
+    for effectName: string, effectInformation: {[string]: {}} in next, ThisInterfaceManager.TimerInformation do
 
-                -- Update the timer.
-                if effectInformation.Duration - (os.clock() - effectInformation.Start) < 1e10 then
-                    effectInformationDisplay.Content.Timer.Text = numberUtilitiesLibrary.GetEnforcedPrecisionString(
-                        math.max(0, math.floor((effectInformation.Duration - (os.clock() - effectInformation.Start))*10)/10), 1
-                    )
-                else
-                    effectInformationDisplay.Content.Timer.Text = "Infinity"
-                end
+        -- Finding or creating the effect information display.
+        local effectInformationDisplay: GuiObject = contentFrame:FindFirstChild(effectName) or effectInformationDisplayTemplate:Clone()
+        effectInformationDisplay.Name = effectName
+        effectInformationDisplay.Content.EffectName.Text = effectName
 
-                -- Update the icon.
-                if coreModule.Shared.GetObject("//Assets.Interfaces.EffectIcons"):FindFirstChild(effectName) then
-                    effectInformationDisplay.Icon.Image = coreModule.Shared.GetObject("//Assets.Interfaces.EffectIcons."..effectName).Image
-                end
+        -- Update the timer.
+        if effectInformation.Duration - (os.clock() - effectInformation.Start) < 1e10 then
+            effectInformationDisplay.Content.Timer.Text = ThisInterfaceManager._GetPaddedString(
+                math.max(
+                    0,
+                    math.floor(
+                        (effectInformation.Duration - (os.clock() - effectInformation.Start)) * 10
+                    ) / 10
+                ), 1
+            )
+        else
+            effectInformationDisplay.Content.Timer.Text = "Infinity"
+        end
 
-                effectInformationDisplay.Parent = specificInterfaceManager.Interface.Container
+        -- Update the icon.
+        if effectIconsDirectory:FindFirstChild(effectName) and (effectIconsDirectory:FindFirstChild(effectName) :: Instance):IsA("ImageLabel") then
+            effectInformationDisplay.Icon.Image = (effectIconsDirectory:FindFirstChild(effectName) :: ImageLabel).Image
+        end
 
-                -- Remove old effects part 2?
-                if os.clock() - effectInformation.Start >= effectInformation.Duration then
-                    clientAnimationsLibrary.PlayAnimation("HideEffectInformationDisplay", effectInformationDisplay)
-                    specificInterfaceManager.TimerInformation[effectName] = nil
-                end
+        -- Since we also clone it there is a chance we need to parent it.
+        effectInformationDisplay.Parent = contentFrame
+
+        -- Remove old effects part 2?
+        if os.clock() - effectInformation.Start >= effectInformation.Duration then
+            effectInformationDisplay:Destroy()
+            ThisInterfaceManager.TimerInformation[effectName] = nil
+        end
+    end
+end
+
+-- Syncs the clients information up with the servers information.
+function ThisInterfaceManager._SyncTimerInformation(serverInformation: {[string]: {}}?)
+
+    -- If they have no effects it will be nil.
+    if not serverInformation or next(serverInformation) == nil then
+        ThisInterfaceManager.TimerInformation = {}
+        return
+    end
+
+    -- They have some effects!
+    for effectName: string, effectInformation: {[string]: {}} in next, serverInformation do
+
+        -- Trying to see if we should update the start time.
+        -- If we don't confirm this it will reset the timers for every effect when updating any effect.
+        local shouldWeUpdateStartTime: boolean = true
+
+        -- We also need to keep track of the last information sent by the server,
+        -- Since os.clock is used for keeping track of time and the times will not sync between machines.
+        if ThisInterfaceManager.LastServerInformation[effectName] and serverInformation[effectName] then
+            if ThisInterfaceManager.LastServerInformation[effectName].Start == serverInformation[effectName].Start then
+                shouldWeUpdateStartTime = false
             end
         end
-    end)()
+
+        -- These are the only values the client needs to worry about.
+        ThisInterfaceManager.TimerInformation[effectName] = {
+            Start = shouldWeUpdateStartTime and os.clock() or ThisInterfaceManager.TimerInformation[effectName].Start,
+            Duration = effectInformation.Duration or math.huge,
+            IsFresh = not not effectInformation.IsFresh,
+            Color = effectInformation.Color
+        }
+
+        ThisInterfaceManager.LastServerInformation = serverInformation
+    end
 end
 
+-- Makes sure that there is a number and a decimal for this number.
+-- We want 10.0 not 10 so it's consistent with 10.1.
+function ThisInterfaceManager._GetPaddedString(number: number, precision: number) : string
 
---
-return specificInterfaceManager
-
---[[
-
--- Variables
-local powerupsInterface = {}
-powerupsInterface.Interface = {}
-powerupsInterface.PowerupInformation = {}
-
-local coreModule = require(script:FindFirstAncestor("Core"))
-local specificInterfaceManager = require(coreModule.GetObject("/Parent"))
-
--- Initialize
-function powerupsInterface.Initialize()
-	powerupsInterface.Interface.Container = specificInterfaceManager.GetInterface():WaitForChild("Powerups")
-	
-	--
-	coreModule.Shared.GetObject("//Remotes.PowerupInformationUpdated").OnClientEvent:Connect(function(powerupInformationDictionary, powerupName)
-		if powerupName and powerupInformationDictionary[powerupName] then 
-			powerupInformationDictionary[powerupName].StartTime = os.clock() 
-		end
-		
-		for nestedPowerupName, powerupInformation in next, powerupInformationDictionary do
-			if nestedPowerupName ~= powerupName and powerupsInterface.PowerupInformation[nestedPowerupName] then
-				powerupInformation.StartTime = powerupsInterface.PowerupInformation[nestedPowerupName].StartTime
-			end
-		end
-		
-		powerupsInterface.PowerupInformation = powerupInformationDictionary
-	end)
-	
-	-- Updates the times and visibility
-	coroutine.wrap(function()
-		while true do
-			for _, powerupDisplayContainer in next, powerupsInterface.Interface.Container:GetChildren() do
-				if powerupDisplayContainer:IsA("GuiObject") then
-					powerupDisplayContainer.Visible = powerupsInterface.PowerupInformation[powerupDisplayContainer.Name] ~= nil
-					
-					-- Update the text
-					if powerupsInterface.PowerupInformation[powerupDisplayContainer.Name] then
-						powerupDisplayContainer.Container.Description.Text = ("%g"):format(math.max(0, math.floor((powerupsInterface.PowerupInformation[powerupDisplayContainer.Name].Duration - (os.clock() - powerupsInterface.PowerupInformation[powerupDisplayContainer.Name].StartTime))*10)/10))
-						if tonumber(powerupDisplayContainer.Container.Description.Text)%1 == 0 then powerupDisplayContainer.Container.Description.Text = powerupDisplayContainer.Container.Description.Text..".0" end
-						if powerupsInterface.PowerupInformation[powerupDisplayContainer.Name].Config and powerupsInterface.PowerupInformation[powerupDisplayContainer.Name].Config.Color then powerupDisplayContainer.Container.Description.TextColor3 = powerupsInterface.PowerupInformation[powerupDisplayContainer.Name].Config.Color end
-						
-						--
-						if os.clock() - powerupsInterface.PowerupInformation[powerupDisplayContainer.Name].StartTime >= powerupsInterface.PowerupInformation[powerupDisplayContainer.Name].Duration then
-							powerupsInterface.PowerupInformation[powerupDisplayContainer.Name] = nil
-						end
-					end
-				end
-			end
-			
-			--
-			game:GetService("RunService").RenderStepped:Wait()
-		end
-	end)()
+    -- If it's not an integer then we can treat it normally.
+    if number % 1 > 0 then
+        return tostring(math.floor(number * (10 ^ precision)) / (10 ^ precision))
+    else
+        return tostring(number) .. "." .. string.rep("0", precision)
+    end
 end
 
---
-return powerupsInterface
-]]
+return ThisInterfaceManager

@@ -20,8 +20,8 @@ function UserInterfaceManager.Initialize()
 	coreModule.LoadModule("/TeleportationConsent")
 	--coreModule.LoadModule("/TopbarManager")
 	coreModule.LoadModule("/DoorInterface")
-	--coreModule.LoadModule("/EffectTimers")
-	--coreModule.LoadModule("/Events")
+	coreModule.LoadModule("/EffectTimers")
+	coreModule.LoadModule("/Events")
 
 	-- All experiences should have this feature.
 	-- When you hit escape it should close out of all non-essential guis.
