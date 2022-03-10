@@ -1,5 +1,6 @@
 local coreModule = require(script:FindFirstAncestor("Core"))
 local userInterfaceManager = require(coreModule.GetObject("Modules.Gameplay.PlayerManager.UserInterfaceManager"))
+local soundEffectsManager = require(coreModule.GetObject("Modules.Gameplay.PlayerManager.SoundEffects"))
 
 local thisInterface: ScreenGui = userInterfaceManager.GetInterface(script.Name)
 local contentFrame: Frame = thisInterface:WaitForChild("Container"):WaitForChild("Content")
@@ -50,11 +51,13 @@ function ThisInterfaceManager._SetupConsentUpdateMethods(consentUpdatedBindable:
 	-- When the user hits yes they consent to being teleported.
 	buttonsContainer:WaitForChild("Yes").Activated:Connect(function()
 		consentUpdatedBindable:Fire(true)
+		soundEffectsManager.PlaySoundEffect("Click")
 	end)
 
 	-- When the user hits no they do not consent to being teleported.
 	buttonsContainer:WaitForChild("No").Activated:Connect(function()
 		consentUpdatedBindable:Fire(false)
+		soundEffectsManager.PlaySoundEffect("Click")
 	end)
 
 	-- If the interface was closed for whatever reason we also cancel it.

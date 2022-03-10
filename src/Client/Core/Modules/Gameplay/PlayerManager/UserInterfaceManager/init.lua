@@ -19,7 +19,7 @@ function UserInterfaceManager.Initialize()
 	coreModule.LoadModule("/TeleportationOverlay")
 	coreModule.LoadModule("/TeleportationConsent")
 	--coreModule.LoadModule("/TopbarManager")
-	--coreModule.LoadModule("/DoorInterface")
+	coreModule.LoadModule("/DoorInterface")
 	--coreModule.LoadModule("/EffectTimers")
 	--coreModule.LoadModule("/Events")
 
@@ -44,7 +44,12 @@ end
 
 -- This updates the current interface that is shown.
 -- It will hide it if it's already visible and show it if it is not.
-function UserInterfaceManager.UpdateInterfaceShown(thisInterface: GuiBase2d) : boolean
+function UserInterfaceManager.UpdateInterfaceShown(thisInterface: GuiBase2d, closeOnly: boolean?) : boolean
+
+	-- We need to make an exception for if closeOnly is true.
+	if closeOnly and UserInterfaceManager.ActiveInterface ~= thisInterface then
+		return false
+	end
 
 	-- Case #1: Another interface is active that is not this one.
 	-- Response: We close it and open this one, do not change effects.

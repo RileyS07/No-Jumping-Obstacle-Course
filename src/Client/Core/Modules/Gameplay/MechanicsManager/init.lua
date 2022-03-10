@@ -10,15 +10,7 @@ function mechanicsManager.Initialize()
 	playerMouseLibrary.Initialize()
 
 	-- Loading modules
-	coreModule.LoadModule("/Buttons")
-	coreModule.LoadModule("/Doors")
-	coreModule.LoadModule("/ForcedCameraView")
-	coreModule.LoadModule("/ManualSwitchPlatforms")
-	coreModule.LoadModule("/MovingPlatforms")
-	coreModule.LoadModule("/Radar")
-	coreModule.LoadModule("/RythmPlatforms")
-	coreModule.LoadModule("/SpinningPlatforms")
-	coreModule.LoadModule("/SwitchPlatforms")
+	coreModule.LoadModule("/")
 end
 
 

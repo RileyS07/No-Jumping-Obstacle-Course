@@ -1,55 +1,69 @@
--- Variables
-local specificInterfaceManager = {}
-specificInterfaceManager.Interface = {}
-specificInterfaceManager.CurrentPlatformObject = nil
+local players: Players = game:GetService("Players")
 
 local coreModule = require(script:FindFirstAncestor("Core"))
 local userInterfaceManager = require(coreModule.GetObject("Modules.Gameplay.PlayerManager.UserInterfaceManager"))
-local clientEssentialsLibrary = require(coreModule.GetObject("Libraries.ClientEssentials"))
 local soundEffectsManager = require(coreModule.GetObject("Modules.Gameplay.PlayerManager.SoundEffects"))
 local playerUtilities = require(coreModule.Shared.GetObject("Libraries.Utilities.PlayerUtilities"))
+local doorMechanicManager
+
+local thisInterface: ScreenGui = userInterfaceManager.GetInterface("CodeEntry")
+local contentFrame: Frame = thisInterface:WaitForChild("Container"):WaitForChild("Content")
+local buttonsContainer: Frame = contentFrame:WaitForChild("Buttons")
+local keypadContainer: Frame = contentFrame:WaitForChild("Keypad")
+local codeOutputText: TextLabel = contentFrame:WaitForChild("CodeOutput"):WaitForChild("OutputText")
+local hintText: TextLabel = contentFrame:WaitForChild("Hint")
+
+local ThisInterfaceManager = {}
+ThisInterfaceManager.CurrentPlatform = nil
 
 -- Initialize
-function specificInterfaceManager.Initialize()
-	specificInterfaceManager.Interface.Container = userInterfaceManager.GetInterface("MainInterface"):WaitForChild("Containers"):WaitForChild("CodeInterface")
-	specificInterfaceManager.Interface.Content = specificInterfaceManager.Interface.Container:WaitForChild("Content")
-	specificInterfaceManager.Interface.Buttons = specificInterfaceManager.Interface.Content:WaitForChild("Buttons")
-	specificInterfaceManager.Interface.CodeOutputText = specificInterfaceManager.Interface.Content:WaitForChild("CodeOutput"):WaitForChild("OutputText")
-	specificInterfaceManager.Interface.HintText = specificInterfaceManager.Interface.Content:WaitForChild("Hint")
-	specificInterfaceManager.Interface.KeypadContainer = specificInterfaceManager.Interface.Content:WaitForChild("Keypad")
-	local doorMechanicManager = require(coreModule.GetObject("Modules.Gameplay.MechanicsManager.Doors"))
+function ThisInterfaceManager.Initialize()
 
-	-- Attempting to open the door.
-	specificInterfaceManager.Interface.Buttons:WaitForChild("Yes").Activated:Connect(function()
-		if not specificInterfaceManager.CurrentPlatformObject then return end
+	-- Cyclic dependencies.
+	doorMechanicManager = require(coreModule.GetObject("Modules.Gameplay.MechanicsManager.Doors"))
 
-		-- The code was valid?
-		if specificInterfaceManager.Interface.CodeOutputText.Text == (specificInterfaceManager.CurrentPlatformObject:GetAttribute("Code") or "1234") then
-			soundEffectsManager.PlaySoundEffect("Success")
-			userInterfaceManager.UpdateActiveContainer(specificInterfaceManager.Interface.Container)
-			doorMechanicManager.SimulatePlatform(specificInterfaceManager.CurrentPlatformObject)
+	-- We need to setup the interface so it's ready for when the mechanic opens it.
+	ThisInterfaceManager._SetupInterfaceComponents()
 
-		-- Invalid
-		else
-			soundEffectsManager.PlaySoundEffect("Error")
-			specificInterfaceManager.Interface.CodeOutputText.Text = ""
+	-- We need to remove CurrentPlatform if they've closed the interface through another means.
+	userInterfaceManager.ActiveInterfaceUpdated:Connect(function(interface: GuiBase2d)
+		if interface ~= thisInterface then
+			ThisInterfaceManager.CurrentPlatform = nil
 		end
 	end)
+end
 
-	-- Clearing the code.
-	specificInterfaceManager.Interface.Buttons:WaitForChild("Clear").Activated:Connect(function()
-		specificInterfaceManager.Interface.CodeOutputText.Text = ""
-	end)
+-- Opens this interface, this should only be called by the mechanic portion of this.
+function ThisInterfaceManager.OpenInterface(thisPlatform: Instance)
 
-	-- Inputting numbers.
-	for _, keyButton in next, specificInterfaceManager.Interface.KeypadContainer:GetChildren() do
-		if keyButton:IsA("GuiButton") then
-			keyButton.Activated:Connect(function()
-				if specificInterfaceManager.Interface.CodeOutputText.Text:len() >= (script:GetAttribute("MaxCharacters") or 9) then
-					soundEffectsManager.PlaySoundEffect("Error")
-				else
-					soundEffectsManager.PlaySoundEffect("KeypadPress")
-					specificInterfaceManager.Interface.CodeOutputText.Text = specificInterfaceManager.Interface.CodeOutputText.Text..keyButton.Name
+	-- We need to clear the text and apply the hint.
+	codeOutputText.Text = ""
+	hintText.Text = thisPlatform:GetAttribute("Hint") or "No hint..."
+	ThisInterfaceManager.CurrentPlatform = thisPlatform
+
+	-- We don't want to accidentally close this interface.
+	if userInterfaceManager.ActiveInterface ~= thisInterface then
+		userInterfaceManager.UpdateInterfaceShown(thisInterface)
+	end
+
+	-- When the player walks too far away from the platform we want to close this interface.
+	if userInterfaceManager.ActiveInterface == thisInterface then
+		if thisPlatform:IsA("Model") and thisPlatform.PrimaryPart then
+
+			task.spawn(function()
+				while true do
+
+					-- These need to be true before we can do any distance checking.
+					if userInterfaceManager.ActiveInterface ~= thisInterface then break end
+					if ThisInterfaceManager.CurrentPlatform ~= thisPlatform then break end
+					if not playerUtilities.IsPlayerAlive() then break end
+
+					-- Are they too far from the platform?
+					if players.LocalPlayer:DistanceFromCharacter(thisPlatform:GetPrimaryPartCFrame().Position) > 25 then
+						userInterfaceManager.UpdateInterfaceShown(thisInterface, true)
+					end
+
+					task.wait()
 				end
 			end)
 		end
@@ -57,37 +71,56 @@ function specificInterfaceManager.Initialize()
 end
 
 
--- Methods
-function specificInterfaceManager.OpenInterface(platformObject)
-	if typeof(platformObject) ~= "Instance" then return end
+-- Initializes the interface components.
+function ThisInterfaceManager._SetupInterfaceComponents()
 
-	-- Setup.
-	specificInterfaceManager.CurrentPlatformObject = platformObject
-	specificInterfaceManager.Interface.CodeOutputText.Text = ""
-	specificInterfaceManager.Interface.HintText.Text = platformObject:GetAttribute("Hint") or "No hint..."
-	userInterfaceManager.UpdateActiveContainer(specificInterfaceManager.Interface.Container)
+	-- When they press yes we want to check if the code is correct or not.
+	-- If it is correct then we turn on the platform.
+	-- If not then we make an error sound.
+	buttonsContainer:WaitForChild("Yes").Activated:Connect(function()
 
-	-- Go away.
-	if userInterfaceManager.IsActiveContainer(specificInterfaceManager.Interface.Container) then
-		if not platformObject:IsA("Model") or not platformObject.PrimaryPart then return end
+		soundEffectsManager.PlaySoundEffect("Click")
 
-		coroutine.wrap(function()
-			while true do
-				if not userInterfaceManager.IsActiveContainer(specificInterfaceManager.Interface.Container) then return end
-				if specificInterfaceManager.CurrentPlatformObject ~= platformObject then return end
-				if not playerUtilities.IsPlayerAlive(clientEssentialsLibrary.GetPlayer()) then return end
+		-- We only want to perform this logic if there is a platform currently.
+		if ThisInterfaceManager.CurrentPlatform then
 
-				-- Close it.
-				if clientEssentialsLibrary.GetPlayer():DistanceFromCharacter(platformObject:GetPrimaryPartCFrame().Position) > 25 then
-					userInterfaceManager.UpdateActiveContainer(specificInterfaceManager.Interface.Container)
-				end
+			-- The code was valid?
+			if codeOutputText.Text == (ThisInterfaceManager.CurrentPlatform:GetAttribute("Code") or "1234") then
+				soundEffectsManager.PlaySoundEffect("Success")
+				task.defer(doorMechanicManager.SimulatePlatform, ThisInterfaceManager.CurrentPlatform)
+				task.defer(userInterfaceManager.UpdateInterfaceShown, thisInterface, true)
 
-				game:GetService("RunService").Stepped:Wait()
+			-- Invalid
+			else
+				soundEffectsManager.PlaySoundEffect("Error")
+				codeOutputText.Text = ""
 			end
-		end)()
+		end
+	end)
+
+	-- When they press clear we want to clear the text.
+	buttonsContainer:WaitForChild("Clear").Activated:Connect(function()
+		codeOutputText.Text = ""
+		soundEffectsManager.PlaySoundEffect("Click")
+	end)
+
+	-- This is the method of inputting numbers.
+	-- When they press a key it adds its corresponding value to the string.
+	for _, keyButton: GuiObject in next, keypadContainer:GetChildren() do
+		if keyButton:IsA("GuiButton") then
+
+			keyButton.Activated:Connect(function()
+
+				-- We want to make sure the code length isn't longer than it can be.
+				if string.len(codeOutputText.Text) >= codeOutputText.MaxVisibleGraphemes then
+					soundEffectsManager.PlaySoundEffect("Error")
+				else
+					soundEffectsManager.PlaySoundEffect("KeypadPress")
+					codeOutputText.Text = codeOutputText.Text .. keyButton.Name
+				end
+			end)
+		end
 	end
 end
 
-
---
-return specificInterfaceManager
+return ThisInterfaceManager
