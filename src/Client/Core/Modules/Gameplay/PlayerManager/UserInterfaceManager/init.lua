@@ -22,14 +22,13 @@ function UserInterfaceManager.Initialize()
 	--coreModule.LoadModule("/DoorInterface")
 	--coreModule.LoadModule("/EffectTimers")
 	--coreModule.LoadModule("/Events")
-	--coreModule.LoadModule("/Confetti")
 
 	-- All experiences should have this feature.
 	-- When you hit escape it should close out of all non-essential guis.
 	guiService.MenuOpened:Connect(function()
 
 		-- Is there an interface on the screen right now?
-		if UserInterfaceManager.ActiveInterface then
+		if UserInterfaceManager.ActiveInterface and UserInterfaceManager.ActiveInterface.DisplayOrder <= 0 then
 			UserInterfaceManager._CloseInterface(UserInterfaceManager.ActiveInterface)
 			UserInterfaceManager.ActiveInterface = nil
 			UserInterfaceManager.ActiveInterfaceUpdated:Fire(nil)
