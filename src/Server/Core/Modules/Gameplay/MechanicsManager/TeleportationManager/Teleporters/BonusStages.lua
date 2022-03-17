@@ -24,7 +24,7 @@ function ThisTeleporterManager.Initialize()
 
 			-- We need to keep track of what bonus stage this corresponds to.
 			local correspondingBonusStage: Instance = bonusStageStorage:FindFirstChild(teleporterObject.Name) :: Instance
-			local bonusStageDifficultyRating: number = correspondingBonusStage:GetAttribute("Difficulty") or sharedConstants.TELEPORTERS.ANY_TELEPORTER_DEFAULT_DIFFICULTY
+			local bonusStageDifficultyRating: number = tonumber(correspondingBonusStage:GetAttribute("Difficulty")) or sharedConstants.TELEPORTERS.ANY_TELEPORTER_DEFAULT_DIFFICULTY
 
 			-- Setting up the teleporter with the BonusStageTeleporterInterface; I do this procedurally so that it's easy for us to make changes to it.
 			local teleporterInterfaceClone: GuiObject = teleporterInterface:Clone()
