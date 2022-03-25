@@ -17,7 +17,7 @@ ChatMinigamesManager.MinigameAnswer = ""
 
 -- Initialize
 function ChatMinigamesManager.Initialize()
-
+--[[
     -- Setting up the loop to create and handle the minigames.
     task.spawn(function()
         while true do
@@ -44,7 +44,7 @@ function ChatMinigamesManager.Initialize()
                 player.DisplayName
             ))
         end)
-    end)
+    end)]]
 end
 
 -- Returns whether or not a minigame is currently active.

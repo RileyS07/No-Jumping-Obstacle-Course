@@ -65,6 +65,11 @@ function BonusStagesManager.Initialize()
 								makeSystemMessageRemote:FireAllClients(player.Name .. " has completed " .. bonusStage.Name .. "!")
 							end
 
+							-- Do we need to add skips.
+							if bonusStage:GetAttribute("SkipsAwarded") and tonumber(bonusStage:GetAttribute("SkipsAwarded")) then
+								userData.UserInformation.SavedSkips += math.abs(tonumber(bonusStage:GetAttribute("SkipsAwarded")))
+							end
+
 							-- Send them back.
 							playSoundEffectRemote:FireClient(player, "Clapping")
 							userInformationUpdatedRemote:FireClient(player, userData)

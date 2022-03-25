@@ -1,21 +1,23 @@
--- Variables
-local topbarManager = {}
-local coreModule = require(script:FindFirstAncestor("Core"))
-local userInterfaceManager = require(coreModule.GetObject("Modules.Gameplay.PlayerManager.UserInterfaceManager"))
+local CoreModule = require(script:FindFirstAncestor("Core"))
+local UserInterfaceManager = require(CoreModule.GetObject("Modules.Gameplay.PlayerManager.UserInterfaceManager"))
 
--- Initialize
-function topbarManager.Initialize()
-    coreModule.LoadModule("/Settings")
-    coreModule.LoadModule("/StageSelection")
-    coreModule.LoadModule("/Skipping")
+local TopbarContainer: Instance = UserInterfaceManager.GetInterface("MainInterface"):WaitForChild("Containers"):WaitForChild("TopbarContainer")
+local MainMenuInterface: ScreenGui = UserInterfaceManager.GetInterface("MainMenu")
+
+local TopbarManager = {}
+
+-- Initialization.
+function TopbarManager.Initialize()
+    CoreModule.LoadModule("/")
+
+    TopbarContainer:WaitForChild("MainMenu").Activated:Connect(function()
+        UserInterfaceManager.UpdateInterfaceShown(MainMenuInterface)
+    end)
 end
 
-
--- Methods
-function topbarManager.GetTopbarContainer()
-    return userInterfaceManager.GetInterface("MainInterface"):WaitForChild("Containers"):WaitForChild("TopbarContainer")
+-- Gets the topbar container.
+function TopbarManager.GetTopbarContainer() : Instance
+    return TopbarContainer
 end
 
-
---
-return topbarManager
+return TopbarManager

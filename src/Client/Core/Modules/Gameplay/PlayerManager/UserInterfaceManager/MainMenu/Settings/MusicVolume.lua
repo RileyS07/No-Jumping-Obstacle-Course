@@ -4,21 +4,28 @@ specificSettingManager.Interface = {}
 specificSettingManager.CurrentSettingValue = nil
 
 local coreModule = require(script:FindFirstAncestor("Core"))
-local settingsManager = require(coreModule.GetObject("Modules.Gameplay.PlayerManager.UserInterfaceManager.TopbarManager.Settings"))
-local soundEffectsManager = require(coreModule.GetObject("Modules.Gameplay.PlayerManager.SoundEffects"))
+local settingsManager = require(coreModule.GetObject("Modules.Gameplay.PlayerManager.UserInterfaceManager.MainMenu.Settings"))
+local gameplayMusicManager = require(coreModule.GetObject("Modules.Gameplay.PlayerManager.GameplayMusic"))
+--local userInterfaceManager = require(coreModule.GetObject("Modules.Gameplay.PlayerManager.UserInterfaceManager"))
 local clientAnimationsLibrary = require(coreModule.GetObject("Libraries.ClientAnimations"))
 
 -- Initialize
 function specificSettingManager.Initialize()
-    specificSettingManager.Interface.Slider = settingsManager.GetSettingsContainer():WaitForChild("Audio"):WaitForChild("SoundEffects"):WaitForChild("Setting"):WaitForChild("Slider")
+    specificSettingManager.Interface.Slider = settingsManager.GetSettingsContainer():WaitForChild("Music"):WaitForChild("Content"):WaitForChild("Slider")
 
     coroutine.wrap(function()
         clientAnimationsLibrary.PlayAnimation(
             "Slider",
             specificSettingManager.Interface.Slider,
-            coreModule.Shared.GetObject("//Remotes.GetUserData"):InvokeServer().Settings.SoundEffectsVolumeModifier,
+            coreModule.Shared.GetObject("//Remotes.GetUserData"):InvokeServer().Settings.MusicVolumeModifier,
             function(newValue)
-                soundEffectsManager.UpdateSetting(newValue)
+                if gameplayMusicManager.MusicState ~= gameplayMusicManager.Enums.MusicState.Playing then
+                    repeat
+                        task.wait()
+                    until gameplayMusicManager.MusicState == gameplayMusicManager.Enums.MusicState.Playing
+                end
+
+                gameplayMusicManager.UpdateSetting(newValue)
                 specificSettingManager.Interface.Slider:WaitForChild("Percentage").Text = tostring(math.floor(100*newValue)).."%"
                 specificSettingManager.CurrentSettingValue = newValue
             end
@@ -29,7 +36,7 @@ function specificSettingManager.Initialize()
         local updateSettingValue = coreModule.Shared.GetObject("//Remotes.Data.UpdateSettingValue")
         while true do
             if lastSettingValue ~= specificSettingManager.CurrentSettingValue then
-                updateSettingValue:FireServer("SoundEffectsVolumeModifier", specificSettingManager.CurrentSettingValue)
+                updateSettingValue:FireServer("MusicVolumeModifier", specificSettingManager.CurrentSettingValue)
                 lastSettingValue = specificSettingManager.CurrentSettingValue
             end
 

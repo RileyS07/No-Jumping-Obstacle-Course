@@ -21,6 +21,8 @@ function UserInterfaceManager.Initialize()
 	coreModule.LoadModule("/EffectTimers")
 	coreModule.LoadModule("/Events")
 	coreModule.LoadModule("/DataStoreCriticalState")
+	coreModule.LoadModule("/TopbarManager")
+	coreModule.LoadModule("/MainMenu")
 
 	-- All experiences should have this feature.
 	-- When you hit escape it should close out of all non-essential guis.

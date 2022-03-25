@@ -21,17 +21,17 @@ function ThisInterfaceManager.Initialize()
 
     -- Showing this loading screen and removing the default one.
     -- We also want to load these assets into memory so it's clean.
-    contentProvider:PreloadAsync(thisInterface:GetDescendants())
-    userInterfaceManager.UpdateInterfaceShown(thisInterface)
-    replicatedFirst:RemoveDefaultLoadingScreen()
+    --contentProvider:PreloadAsync(thisInterface:GetDescendants())
+    --userInterfaceManager.UpdateInterfaceShown(thisInterface)
+    --replicatedFirst:RemoveDefaultLoadingScreen()
 
     -- Playing the animations.
     -- We don't really check for loading status till frame three.
-    task.spawn(function()
-        ThisInterfaceManager._FrameOneStart()
-        ThisInterfaceManager._FrameTwoStart()
-        ThisInterfaceManager._FrameThreeStart()
-    end)
+    --task.spawn(function()
+        --ThisInterfaceManager._FrameOneStart()
+        --ThisInterfaceManager._FrameTwoStart()
+        --ThisInterfaceManager._FrameThreeStart()
+    --end)
 end
 
 -- Starts the animations for the first frame of the loading screen.
@@ -153,7 +153,7 @@ function ThisInterfaceManager._FrameTwoStart()
     task.wait(0.25)
     loadingScreenFrameTwo.Visible = true
     loadingScreenFrameOne.Visible = false
-    task.wait(5)
+    task.wait(1)
 end
 
 function ThisInterfaceManager._FrameThreeStart()
@@ -197,7 +197,7 @@ function ThisInterfaceManager._FrameThreeStart()
 
     loadingScreenFrameTwo.Visible = false
 
-    task.wait(1)
+    task.wait(3)
 
     if userInterfaceManager.ActiveInterface == thisInterface then
         userInterfaceManager.UpdateInterfaceShown(thisInterface)

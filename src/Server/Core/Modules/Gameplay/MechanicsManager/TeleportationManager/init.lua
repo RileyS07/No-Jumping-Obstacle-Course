@@ -103,6 +103,8 @@ function TeleportationManager.RestorePlayerConditions(player: Player)
 	-- Therapy Zone is a special bonus level where they are allowed to jump.
 	if userData.UserInformation.CurrentBonusStage ~= "Therapy Zone" then
 		humanoid.JumpHeight = starterPlayer.CharacterJumpHeight
+	else
+		humanoid.JumpHeight = 5.9
 	end
 end
 

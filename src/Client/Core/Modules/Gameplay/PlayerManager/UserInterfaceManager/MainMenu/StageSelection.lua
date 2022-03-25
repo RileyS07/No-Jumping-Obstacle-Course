@@ -8,13 +8,11 @@ specificInterfaceManager.ZoneNames = {
 }
 
 local coreModule = require(script:FindFirstAncestor("Core"))
-local topbarManager = require(coreModule.GetObject("Modules.Gameplay.PlayerManager.UserInterfaceManager.TopbarManager"))
 local userInterfaceManager = require(coreModule.GetObject("Modules.Gameplay.PlayerManager.UserInterfaceManager"))
 
 -- Initialize
 function specificInterfaceManager.Initialize()
-    specificInterfaceManager.Interface.Button = topbarManager.GetTopbarContainer():WaitForChild("StageSelection")
-    specificInterfaceManager.Interface.Container = userInterfaceManager.GetInterface("MainInterface"):WaitForChild("Containers"):WaitForChild("StageSelection")
+    specificInterfaceManager.Interface.Container = userInterfaceManager.GetInterface("MainMenu"):WaitForChild("Container"):WaitForChild("Stages")
     specificInterfaceManager.Interface.Header = specificInterfaceManager.Interface.Container:WaitForChild("Header")
     specificInterfaceManager.Interface.Content = specificInterfaceManager.Interface.Container:WaitForChild("Content")
     specificInterfaceManager.UserData = coreModule.Shared.GetObject("//Remotes.GetUserData"):InvokeServer()
@@ -22,10 +20,6 @@ function specificInterfaceManager.Initialize()
 
     -- Open the container.
     specificInterfaceManager.UpdateContent()
-    specificInterfaceManager.Interface.Button.Activated:Connect(function()
-        userInterfaceManager.UpdateActiveContainer(specificInterfaceManager.Interface.Container)
-        specificInterfaceManager.UpdateContent()
-    end)
 
     -- Stage updated.
     coreModule.Shared.GetObject("//Remotes.UserInformationUpdated").OnClientEvent:Connect(function(userData)

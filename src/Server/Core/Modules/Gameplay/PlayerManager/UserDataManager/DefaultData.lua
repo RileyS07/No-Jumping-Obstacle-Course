@@ -10,6 +10,8 @@ return {
 		CurrentCheckpoint = 1,	-- This is where the player is currently and will respawn at
 		CurrentBonusStage = "",	-- The name of the bonus stage they're on currently; "" = none
 		CurrentBonusStageCheckpoint = 1,	-- Bonus stages can have checkpoints too!
+
+		SavedSkips = 3,	-- Amount of skips saved.
 	},
 
 	-- Settings that determine how the game appears/acts for their client
